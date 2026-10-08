@@ -9,6 +9,8 @@ AJ.casos = AJ.casos || [];
   const R = AJ.red;
   const C = AJ.campos;
   const cd = (c, f) => AJ.camposDe(c, f);
+  // A favor de quién se piden los alimentos (cuota alimentaria)
+  const benTexto = d => { const a = R.actor(d); const b = d.beneficiario || 'hijos'; return b === 'hijos' ? 'los menores relacionados' : b === 'otro' ? 'la persona beneficiaria relacionada' : (a.tercero ? a.nom : 'quien suscribe'); };
 
   AJ.casos.push(
   /* ---------------- INCIDENTE DE DESACATO ---------------- */
@@ -406,49 +408,105 @@ AJ.casos = AJ.casos || [];
 
   /* ---------------- FAMILIA: CUOTA ALIMENTARIA ---------------- */
   {
-    id: 'fam_alimentos', tipo: 'familia', categoria: 'municipio',
-    titulo: 'Solicitud de conciliación de cuota alimentaria (Comisaría o Defensoría de Familia)',
-    resumen: 'Para fijar, aumentar o exigir la cuota de alimentos de un hijo o hija. La conciliación es gratuita, no requiere abogado y es el paso previo a la demanda.',
-    palabras: ['alimentos', 'cuota alimentaria', 'hijo', 'hija', 'padre', 'madre', 'comisaría de familia', 'defensoría de familia', 'conciliación', 'manutención', 'ICBF', 'no paga', 'inasistencia alimentaria'],
+    id: 'fam_alimentos', tipo: 'familia', categoria: 'municipio', modulo: 'mujer', permiteRepresentante: true,
+    titulo: 'Solicitud de conciliación de cuota alimentaria (hijos, personas mayores, padre o madre, cónyuge)',
+    resumen: 'Para fijar, aumentar o exigir la cuota de alimentos de un hijo o hija, de un hijo mayor que estudia, de una persona mayor a la que sus hijos no ayudan, de tu esposo(a) o compañero(a), o de otro familiar que depende de ti. Gratuita, sin abogado y paso previo a la demanda.',
+    palabras: ['alimentos', 'cuota alimentaria', 'hijo', 'hija', 'padre', 'madre', 'comisaría de familia', 'defensoría de familia', 'conciliación', 'manutención', 'ICBF', 'no paga', 'inasistencia alimentaria', 'adulto mayor', 'persona mayor', 'abandono', 'esposo', 'esposa', 'compañero permanente', 'universidad', 'estudiante', 'hermano', 'discapacidad'],
     destinatario: { categoria: 'municipio', ejemploNombre: 'Ej.: Comisaría Segunda de Familia de Soacha / ICBF Centro Zonal Sur', cargo: 'Comisario(a) de Familia / Defensor(a) de Familia' },
     campos: [
-      { id: 'menores', tipo: 'textarea', etiqueta: 'Nombre, edad y documento de cada hijo o hija', requerido: true, filas: 2, ejemplo: 'Ej.:\nSara Valentina Gómez Ruiz, 8 años, TI 1.030.456.789\nJuan David Gómez Ruiz, 4 años, RC 123456' },
-      { id: 'obligado', tipo: 'texto', etiqueta: 'Nombre y documento del padre o madre que debe pagar', requerido: true, ancho: 'completa' },
+      { id: 'beneficiario', tipo: 'select', etiqueta: '¿Para quién pides los alimentos?', requerido: true, opciones: [
+        { v: 'hijos', t: 'Para mis hijos menores de edad', legal: 'sus hijos menores de edad' },
+        { v: 'hijo_mayor', t: 'Para mí: soy hijo(a) mayor de edad que estudia (hasta los 25 años) y mi padre o madre no aporta', legal: 'quien suscribe, hijo(a) mayor de edad que cursa estudios' },
+        { v: 'mayor', t: 'Para mí: soy una persona mayor (o enferma) y mis hijos deben ayudarme', legal: 'quien suscribe, persona mayor que no puede subsistir por sí misma' },
+        { v: 'conyuge', t: 'Para mí: mi esposo(a) o compañero(a) permanente debe darme alimentos', legal: 'quien suscribe, cónyuge o compañero(a) permanente' },
+        { v: 'otro', t: 'Para otro familiar que depende de mí (hermano, nieto, abuelo, persona con discapacidad)', legal: 'un familiar que depende de quien suscribe' }
+      ], ancho: 'completa' },
+      { id: 'infoMayor', tipo: 'info', mostrarSi: { campo: 'beneficiario', valor: 'mayor' }, texto: 'Si eres una persona mayor y alguien te ayuda a llenar esto, igual pon tus datos arriba, en "Quién presenta": tú firmas. Si tu salud no te permite hacer el trámite, quien te ayuda puede elegir "por otra persona" y presentarlo en tu nombre. Si además te abandonaron o te maltratan, marca abajo la petición de medida de protección.' },
+      { id: 'menores', tipo: 'textarea', etiqueta: 'Nombre, edad y documento de cada hijo o hija', requerido: true, filas: 2, mostrarSi: { campo: 'beneficiario', valor: 'hijos' }, ejemplo: 'Ej.:\nSara Valentina Gómez Ruiz, 8 años, TI 1.030.456.789\nJuan David Gómez Ruiz, 4 años, RC 123456' },
+      { id: 'beneficiarioDatos', tipo: 'textarea', etiqueta: 'Nombre, edad, documento y parentesco de la persona para quien pides los alimentos', requerido: true, filas: 2, mostrarSi: { campo: 'beneficiario', valor: 'otro' }, ejemplo: 'Ej.: Luis Ángel Pérez Mora, 34 años, CC 1.045.678.901, mi hermano, con discapacidad cognitiva' },
+      { id: 'edadBen', tipo: 'texto', etiqueta: 'Tu edad', requerido: true, ancho: 'media', mostrarSi: { campo: 'beneficiario', valores: ['hijo_mayor', 'mayor', 'conyuge'] } },
+      { id: 'estudios', tipo: 'texto', etiqueta: '¿Qué estudias, dónde y en qué semestre o grado vas?', requerido: true, ancho: 'media', mostrarSi: { campo: 'beneficiario', valor: 'hijo_mayor' }, ejemplo: 'Ej.: Técnico en enfermería en el SENA, tercer trimestre' },
+      { id: 'tipoUnion', tipo: 'radio', etiqueta: 'Tu relación con quien debe pagar', requerido: true, ancho: 'media', mostrarSi: { campo: 'beneficiario', valor: 'conyuge' }, opciones: [ { v: 'matrimonio', t: 'Estamos casados' }, { v: 'union', t: 'Somos compañeros permanentes (unión libre)' }, { v: 'separados', t: 'Nos separamos o divorciamos (sin culpa mía)' } ] },
+      { id: 'situacionBen', tipo: 'textarea', etiqueta: 'Tu situación (o la de la persona beneficiaria): salud, ingresos, con quién vive y por qué no puede sostenerse', requerido: true, filas: 3, mostrarSi: { campo: 'beneficiario', valores: ['hijo_mayor', 'mayor', 'conyuge', 'otro'] }, ejemplo: 'Ej.: Tengo 72 años, diabetes e hipertensión y no tengo pensión; vivo sola en una pieza arrendada y mis hijos trabajan pero no me dan nada.' },
+      { id: 'progenitorOb', tipo: 'radio', etiqueta: '¿Quién debe pagar?', requerido: true, ancho: 'media', mostrarSi: { campo: 'beneficiario', valores: ['hijos', 'hijo_mayor'] }, opciones: [ { v: 'padre', t: 'El padre' }, { v: 'madre', t: 'La madre' } ] },
+      { id: 'parentescoOb', tipo: 'texto', etiqueta: '¿Qué parentesco tiene quien debe pagar con esa persona?', requerido: true, ancho: 'media', mostrarSi: { campo: 'beneficiario', valor: 'otro' }, ejemplo: 'Ej.: su padre / su hijo / su hermano' },
+      { id: 'obligado', tipo: 'texto', etiqueta: 'Nombre y documento de quien debe pagar (si son varios hijos obligados, escríbelos todos)', requerido: true, ancho: 'completa' },
       { id: 'obligadoDireccion', tipo: 'texto', etiqueta: 'Dirección, teléfono o lugar de trabajo del obligado (para citarlo)', requerido: true, ancho: 'completa' },
       { id: 'obligadoIngresos', tipo: 'texto', etiqueta: 'Ingresos u ocupación del obligado (lo que sepas)', ejemplo: 'Ej.: Conductor de Uber, aproximadamente 2.500.000 al mes', ancho: 'completa' },
-      { id: 'gastos', tipo: 'textarea', etiqueta: 'Gastos mensuales de los niños (alimentación, colegio, salud, vestuario, transporte, recreación)', requerido: true, filas: 3 },
+      { id: 'gastos', tipo: 'textarea', etiqueta: 'Gastos mensuales (alimentación, vivienda, salud y medicinas, educación, vestuario, transporte)', requerido: true, filas: 3 },
       { id: 'cuotaPedida', tipo: 'texto', etiqueta: 'Cuota mensual que pides', requerido: true, ancho: 'media' },
       { id: 'cuotaActual', tipo: 'texto', etiqueta: '¿Cuánto aporta actualmente?', ejemplo: 'Ej.: nada / 200.000 de vez en cuando', ancho: 'media' },
       { id: 'tramite', tipo: 'select', etiqueta: '¿Qué buscas?', opciones: [ { v: 'fijar', t: 'Fijar la cuota por primera vez', legal: 'la fijación de la cuota alimentaria' }, { v: 'aumentar', t: 'Aumentar una cuota ya fijada', legal: 'el aumento de la cuota alimentaria' }, { v: 'exigir', t: 'Exigir el cumplimiento de una cuota ya acordada', legal: 'el cumplimiento de la cuota alimentaria ya fijada' } ], valorInicial: 'fijar', ancho: 'completa' },
       C.relato({ requerido: false, etiqueta: 'Contexto adicional (opcional)' })
     ],
-    asunto: d => `Solicitud de audiencia de conciliación – ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)}`,
+    asunto: d => `Solicitud de audiencia de conciliación – ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} – ${d.beneficiario === 'hijos' || !d.beneficiario ? 'alimentos de hijos menores' : d.beneficiario === 'hijo_mayor' ? 'alimentos de hijo mayor de edad estudiante' : d.beneficiario === 'mayor' ? 'alimentos a persona mayor' : d.beneficiario === 'conyuge' ? 'alimentos entre cónyuges o compañeros permanentes' : 'alimentos a familiar dependiente'}`,
     hechos: d => {
-      const g = d.genero || 'n';
-      const yo = R.terminacion(g, 'El suscrito', 'La suscrita');
-      const rol = R.terminacion(g, 'padre', 'madre');
+      const a = R.actor(d);
+      const ben = d.beneficiario || 'hijos';
+      const obl = d.obligado || '[NOMBRE DEL OBLIGADO]';
+      const varios = /\by\b|,/.test(obl); // varios obligados (por ejemplo, tres hijos)
+      const donde = `${varios ? 'pueden ser citados' : 'puede ser citado(a)'} en ${d.obligadoDireccion || '[dirección]'}${d.obligadoIngresos ? `; su ocupación e ingresos son: ${d.obligadoIngresos}` : ''}`;
+      const progenitor = d.progenitorOb === 'madre' ? 'la madre' : d.progenitorOb === 'padre' ? 'el padre' : 'el otro progenitor';
+      const relata = t => a.tercero && t ? `Según relata quien presenta este escrito: ${R.oracion(t)}` : R.oracion(t);
       const h = [];
-      h.push(`${yo}, en calidad de ${rol} y representante legal, tiene a su cargo el cuidado personal y la manutención de: ${R.relatoAHechos(d.menores).join(' ')}`);
-      h.push(`El otro progenitor de los menores es ${d.obligado}, quien puede ser citado en ${d.obligadoDireccion}${d.obligadoIngresos ? ` y cuya ocupación e ingresos son: ${d.obligadoIngresos}` : ''}.`);
-      h.push(`Los gastos mensuales de los menores son: ${R.oracion(d.gastos)}`);
-      h.push(`Actualmente el obligado aporta: ${d.cuotaActual || 'nada'}. Se solicita ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} en una suma mensual de ${R.moneda(d.cuotaPedida) || d.cuotaPedida}, más el cincuenta por ciento (50 %) de los gastos de salud, educación y vestuario no cubiertos, y la cuota adicional de diciembre.`);
+      if (ben === 'hijos') {
+        const rol = a.tercero ? 'responsable del cuidado' : `${R.terminacion(a.g, 'padre', 'madre')} y representante legal`;
+        h.push(`${a.Nom}, en calidad de ${rol}, tiene a su cargo el cuidado personal y la manutención de: ${R.relatoAHechos(d.menores).join(' ')}`);
+        h.push(`${R.capital(progenitor)} de los menores es ${obl}, quien ${donde}.`);
+      } else if (ben === 'hijo_mayor') {
+        h.push(`${a.Nom}, de ${d.edadBen || '[edad]'} años, es hij${a.o} de ${obl}, ${progenitor === 'el otro progenitor' ? 'su padre o madre' : progenitor === 'el padre' ? 'su padre' : 'su madre'}, quien ${donde}.`);
+        h.push(`${a.Nom} cursa actualmente ${d.estudios || '[estudios]'} y carece de ingresos propios para su sostenimiento y para continuar sus estudios: ${R.oracion(d.situacionBen)}`);
+      } else if (ben === 'mayor') {
+        h.push(`${a.Nom}, de ${d.edadBen || '[edad]'} años, es una persona mayor que no está en condiciones de proveer por sí misma a su subsistencia. ${relata(d.situacionBen)}`);
+        h.push(`${obl}, ${varios ? 'hijos' : 'hijo(a)'} de ${a.nom} y ${varios ? 'obligados' : 'obligado(a)'} por la ley a suministrarle alimentos, ${donde}.`);
+      } else if (ben === 'conyuge') {
+        const rel = d.tipoUnion === 'matrimonio' ? 'cónyuge' : d.tipoUnion === 'separados' ? 'cónyuge o compañero(a) permanente, de quien se encuentra separad' + a.o + ' sin culpa suya' : 'compañero(a) permanente';
+        h.push(`${a.Nom}, de ${d.edadBen || '[edad]'} años, es ${rel} de ${obl}, quien ${donde}.`);
+        h.push(`${a.Nom} carece de medios para su propia subsistencia: ${R.oracion(d.situacionBen)}`);
+      } else {
+        h.push(`${a.Nom} tiene a su cargo el cuidado y la manutención de ${R.relatoAHechos(d.beneficiarioDatos).join(' ')}`);
+        h.push(`${obl}, ${d.parentescoOb || 'familiar'} de la persona beneficiaria y obligad${'o(a)'} por la ley a suministrarle alimentos, ${donde}.`);
+        if (d.situacionBen) h.push(`Situación de la persona beneficiaria: ${R.oracion(d.situacionBen)}`);
+      }
+      h.push(`Los gastos mensuales ${ben === 'hijos' ? 'de los menores' : ben === 'otro' ? 'de la persona beneficiaria' : `de ${a.nom}`} son: ${R.oracion(d.gastos)}`);
+      h.push(`Actualmente ${varios ? 'los obligados aportan' : 'el obligado aporta'}: ${d.cuotaActual || 'nada'}. Se solicita ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} en una suma mensual de ${R.moneda(d.cuotaPedida) || d.cuotaPedida}${ben === 'hijos' ? ', más el cincuenta por ciento (50 %) de los gastos de salud, educación y vestuario no cubiertos, y la cuota adicional de diciembre' : ''}.`);
       return h;
     },
-    normas: ['cp44', 'cp42', 'l1098_24', 'l1098_111'],
-    fundamentos: d => ['Conforme al numeral 2 del artículo 111 de la Ley 1098 de 2006, si el obligado, debidamente citado, no comparece a la conciliación o no hay acuerdo, el Comisario o Defensor de Familia fijará provisionalmente la cuota; el juez de familia puede decretar embargos hasta del cincuenta por ciento (50 %) del salario y las demás medidas para garantizar el pago (artículo 129). La inasistencia alimentaria es además un delito (artículo 233 del Código Penal).'],
+    normas: d => {
+      const ben = d.beneficiario || 'hijos';
+      return ['cp42', ben === 'hijos' ? 'cp44' : null, ben === 'mayor' ? 'cp46' : null, ben === 'otro' ? 'cp47' : null, 'cc411', ben === 'hijos' ? 'l1098_24' : null, ben === 'mayor' ? 'l1850_alim' : null, 'l1098_111', 'cpen_233'].filter(Boolean);
+    },
+    fundamentos: d => {
+      const ben = d.beneficiario || 'hijos';
+      const comun = 'Conforme al numeral 2 del artículo 111 de la Ley 1098 de 2006 y a la Ley 2220 de 2022, si el obligado, debidamente citado, no comparece a la conciliación o no hay acuerdo, el Comisario o Defensor de Familia fija provisionalmente la cuota, y el juez de familia puede decretar el embargo hasta del cincuenta por ciento (50 %) del salario y las demás medidas necesarias para garantizar el pago.';
+      if (ben === 'hijos') return [comun];
+      if (ben === 'hijo_mayor') return ['Conforme al artículo 422 del Código Civil, los alimentos se deben mientras subsistan las circunstancias que los justificaron, y la educación hace parte de su contenido (artículo 413). La jurisprudencia de la Corte Suprema de Justicia y de la Corte Constitucional ha reconocido que la obligación alimentaria de los padres subsiste frente a los hijos mayores de edad que adelantan estudios y carecen de medios propios, en general hasta los veinticinco (25) años, y sin límite de edad cuando una discapacidad les impide subsistir por su trabajo.', comun];
+      if (ben === 'mayor') return ['El artículo 46 de la Constitución impone al Estado, a la sociedad y a la familia concurrir a la protección y asistencia de las personas de la tercera edad. Los hijos deben alimentos a sus padres (artículo 411, numeral 3, del Código Civil) y, cuando son varios, la obligación se distribuye entre ellos según sus facultades (artículo 416). La Ley 1850 de 2017 tipificó el abandono de la persona mayor como violencia intrafamiliar, y sustraerse a la obligación alimentaria frente a los ascendientes es delito (artículo 233 del Código Penal). Como persona mayor, la parte solicitante tiene derecho a atención prioritaria en este trámite (Ley 1251 de 2008).', comun];
+      if (ben === 'conyuge') return ['Entre cónyuges existe la obligación de socorrerse y ayudarse mutuamente en todas las circunstancias de la vida (artículo 176 del Código Civil) y la obligación alimentaria recíproca (artículo 411, numeral 1), que la Corte Constitucional extendió a los compañeros permanentes (sentencia C-1033 de 2002); también se deben alimentos al cónyuge divorciado o separado de cuerpos sin su culpa (numeral 4). Negar injustificadamente los recursos para la subsistencia de la pareja constituye además violencia económica (artículos 2 y 3 de la Ley 1257 de 2008).', comun];
+      return ['Se deben alimentos a los hermanos (artículo 411, numeral 9, del Código Civil) y a los demás parientes enumerados en esa norma, mientras subsistan las circunstancias que los justifican (artículo 422); cuando la persona beneficiaria tiene una discapacidad que le impide subsistir por su trabajo, la obligación no está sujeta a límite de edad. Las personas con discapacidad son sujetos de especial protección (artículos 13 y 47 de la Constitución y Ley 1618 de 2013).', comun];
+    },
     peticiones: [
-      { v: 'citar', inicial: true, fijo: true, t: 'Que citen al obligado a audiencia de conciliación', legal: d => `Citar a ${d.obligado} a audiencia de conciliación para ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} a favor de los menores relacionados.` },
-      { v: 'fijar', inicial: true, t: 'Que fijen la cuota pedida (y provisionalmente si no asiste)', legal: d => `Fijar la cuota alimentaria mensual en ${R.moneda(d.cuotaPedida) || d.cuotaPedida}, más el 50 % de los gastos extraordinarios de salud, educación y vestuario y una cuota adicional en diciembre, y fijarla provisionalmente en caso de inasistencia o falta de acuerdo.` },
-      { v: 'embargo', t: 'Que ordenen el descuento directo del salario', legal: 'Oficiar al empleador del obligado para que descuente directamente la cuota de su salario y la consigne a la cuenta que se indique.' },
-      { v: 'judicial', t: 'Si no hay acuerdo, que remitan al juez de familia', legal: 'En caso de no lograrse acuerdo o de incumplimiento, remitir las diligencias al juez de familia para el proceso de alimentos, conforme al artículo 129 de la Ley 1098 de 2006.' }
+      { v: 'citar', inicial: true, fijo: true, t: 'Que citen al obligado a audiencia de conciliación', legal: d => `Citar a ${d.obligado} a audiencia de conciliación para ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} a favor de ${benTexto(d)}.` },
+      { v: 'fijar', inicial: true, t: 'Que fijen la cuota pedida (y provisionalmente si no asiste)', legal: d => `Fijar la cuota alimentaria mensual en ${R.moneda(d.cuotaPedida) || d.cuotaPedida}${(d.beneficiario || 'hijos') === 'hijos' ? ', más el 50 % de los gastos extraordinarios de salud, educación y vestuario y una cuota adicional en diciembre' : ''}, y fijarla provisionalmente en caso de inasistencia o falta de acuerdo.` },
+      { v: 'embargo', t: 'Que ordenen el descuento directo del salario o la pensión', legal: 'Oficiar al empleador o a la entidad pagadora del obligado para que descuente directamente la cuota de su salario o pensión y la consigne en la cuenta que se indique.' },
+      { v: 'proteccion', inicial: d => d.beneficiario === 'mayor', t: 'Si hay abandono o maltrato, que dicten medida de protección (personas mayores)', legal: 'Adoptar, además, las medidas de protección previstas en la Ley 294 de 1996 y en la Ley 1850 de 2017 frente al abandono o el maltrato de la persona mayor.' },
+      { v: 'judicial', t: 'Si no hay acuerdo, que remitan al juez de familia', legal: d => `En caso de no lograrse acuerdo o de incumplimiento, remitir las diligencias al juez de familia para el proceso de alimentos (${(d.beneficiario || 'hijos') === 'hijos' ? 'artículo 129 de la Ley 1098 de 2006' : 'artículo 397 del Código General del Proceso'}).` }
     ],
-    anexos: [ { v: 'registros', t: 'Registros civiles de nacimiento de los hijos' }, { v: 'cedula', t: 'Copia de la cédula' }, { v: 'gastos', t: 'Recibos de colegio, salud, alimentación, arriendo' }, { v: 'ingresos', t: 'Pruebas de los ingresos del obligado (si las tienes)' } ],
-    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'La Comisaría o el ICBF deben programar la audiencia en los días siguientes. Lleva los registros civiles. No necesitas abogado.', siNoResponden: 'Si el obligado no paga la cuota fijada: proceso ejecutivo de alimentos ante juez de familia (consultorio jurídico gratuito) y denuncia por inasistencia alimentaria ante la Fiscalía.' }
+    anexos: [
+      { v: 'registros', t: 'Registro civil que pruebe el parentesco (de los hijos, el tuyo, o el de matrimonio)' },
+      { v: 'cedula', t: 'Copia de la cédula' },
+      { v: 'gastos', t: 'Recibos de alimentación, arriendo, salud, medicinas, colegio o universidad' },
+      { v: 'ingresos', t: 'Pruebas de los ingresos del obligado (si las tienes)' },
+      { v: 'estudios', t: 'Certificado de estudios vigente', si: d => d.beneficiario === 'hijo_mayor' },
+      { v: 'medico', t: 'Historia clínica o certificado médico que muestre la situación de salud', si: d => ['mayor', 'otro'].includes(d.beneficiario) },
+      { v: 'union', t: 'Registro civil de matrimonio o declaración de unión marital de hecho', si: d => d.beneficiario === 'conyuge' }
+    ],
+    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'La Comisaría o el ICBF deben programar la audiencia en los días siguientes. Lleva los registros civiles. No necesitas abogado. Las personas mayores tienen derecho a atención prioritaria.', siNoResponden: 'Si el obligado no paga la cuota fijada: proceso ejecutivo de alimentos ante el juez de familia (consultorio jurídico gratuito) y denuncia por inasistencia alimentaria ante la Fiscalía (es delito también frente a los padres y al cónyuge).' }
   },
 
   /* ---------------- FAMILIA: MEDIDA DE PROTECCIÓN ---------------- */
   {
-    id: 'fam_proteccion', tipo: 'familia', categoria: 'municipio',
+    id: 'fam_proteccion', tipo: 'familia', categoria: 'municipio', modulo: 'mujer',
     titulo: 'Solicitud de medida de protección por violencia intrafamiliar',
     resumen: 'Para que el Comisario de Familia ordene al agresor salir de la casa, no acercarse, no contactarte, y disponga protección policial. Plazo: 30 días desde los hechos (pero se puede pedir siempre que haya riesgo). En emergencia llama al 123 o 155.',
     palabras: ['violencia intrafamiliar', 'maltrato', 'agresión', 'golpes', 'amenazas', 'pareja', 'esposo', 'expareja', 'comisaría de familia', 'medida de protección', 'desalojo', 'mujer', 'niños', 'Línea 155'],

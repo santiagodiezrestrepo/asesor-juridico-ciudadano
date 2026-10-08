@@ -35,9 +35,12 @@ y entra a `http://localhost:8791`.
 | `js/datos/comunes.js` | Campos comunes (quién presenta, anonimato, representación, destinatario) y funciones de redacción jurídica |
 | `js/datos/peticiones*.js` | 23 casos de derecho de petición |
 | `js/datos/tutelas*.js` | 15 casos de acción de tutela |
-| `js/datos/otros.js` | Desacato, impugnación, recursos, quejas, hábeas data y familia (11 casos) |
+| `js/datos/otros.js` | Desacato, impugnación, recursos, quejas, hábeas data y familia (11 casos; la cuota alimentaria cubre hijos menores, hijos mayores que estudian, personas mayores, cónyuges y otros familiares dependientes) |
 | `js/datos/contratos.js` | Contratos y documentos privados al estilo de las hojas Minerva: arriendo de vivienda, venta de vehículo y de bienes, servicio doméstico, pagaré, poder, acuerdo de pago y recibo (8 activos; 4 más conservados con la marca `retirado`) |
+| `js/datos/mujer.js` | Módulo "Mujeres y madres cabeza de familia": denuncia penal por violencia, tutela por falta de protección, declaración juramentada de madre cabeza de familia, petición de prioridad como madre cabeza de familia, licencia de maternidad, acoso laboral o sexual, salud sexual y reproductiva, custodia y visitas (8 casos; el módulo agrupa además la cuota alimentaria, la medida de protección y la tutela por despido en embarazo) |
 | `js/datos/sinonimos.js` | Palabras y frases cotidianas por caso para el buscador |
+| `sw.js`, `manifest.webmanifest` | Funcionamiento sin conexión e instalación como aplicación (PWA) |
+| `herramientas/empaquetar.js` | Genera `descargas/asesor-juridico-ciudadano-sin-internet.html`: la plataforma completa en un solo archivo para copiar en computadores sin internet |
 | `docs/ANALISIS.md` | Análisis del problema, cifras, marco jurídico y decisiones de diseño |
 
 ## Cómo agregar o modificar un caso
@@ -67,13 +70,18 @@ Para agregar una norma, añade una entrada en `js/datos/normas.js` con `cita` y 
 
 ## Pruebas
 
-Un script de humo genera los 49 casos con datos de ejemplo en Node y verifica que no haya errores ni textos vacíos:
+Un script de humo genera los 70 casos (66 activos) con datos de ejemplo en Node y verifica que no haya errores ni textos vacíos:
 
 ```bash
 node --check js/app.js
 ```
 
 (Repetir para cada archivo. El script completo usado en el desarrollo está descrito en `docs/ANALISIS.md`.)
+
+## Uso sin internet
+
+- **Instalación como aplicación:** al abrir la página con conexión una vez, el service worker (`sw.js`) guarda todos los archivos y la plataforma sigue funcionando sin red; Chrome y Edge ofrecen "Instalar aplicación".
+- **Un solo archivo para copiar:** `node herramientas/empaquetar.js` genera `descargas/asesor-juridico-ciudadano-sin-internet.html` (estilos, código y logo incrustados). Se copia en una USB, se pega en el escritorio del computador y se abre con doble clic; funciona completo sin conexión. Hay que volver a generarlo y publicarlo con cada cambio.
 
 ## Revisión y alcance
 

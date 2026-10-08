@@ -21,7 +21,7 @@ AJ.campos = {
     { v: 'discapacidad', t: 'Tengo una discapacidad', legal: 'persona en situación de discapacidad' },
     { v: 'enfermedad', t: 'Tengo una enfermedad grave, crónica o catastrófica', legal: 'persona con una enfermedad grave que compromete su salud' },
     { v: 'embarazo', t: 'Estoy embarazada o en período de lactancia', legal: 'mujer en estado de embarazo o lactancia' },
-    { v: 'cabeza_familia', t: 'Soy madre o padre cabeza de familia', legal: 'madre o padre cabeza de familia' },
+    { v: 'cabeza_familia', t: 'Soy madre o padre cabeza de familia', legal: 'madre/padre cabeza de familia' },
     { v: 'menor', t: 'La persona afectada es menor de edad', legal: 'niño, niña o adolescente' },
     { v: 'victima', t: 'Soy víctima del conflicto armado o persona desplazada', legal: 'víctima del conflicto armado' },
     { v: 'migrante', t: 'Soy migrante', legal: 'persona migrante' },
@@ -297,7 +297,7 @@ AJ.red = {
     const cond = (d.condicion || []).filter(c => c !== 'bajos_recursos');
     if (!cond.length) return '';
     const a = this.actor(d);
-    const textos = cond.map(c => this.opcionTexto({ opciones: AJ.campos.condiciones }, c, 'legal'));
+    const textos = cond.map(c => this.generizar(this.opcionTexto({ opciones: AJ.campos.condiciones }, c, 'legal'), a.g));
     const quien = a.tercero ? a.nom : a.nom;
     return `${this.capital(quien)} es sujeto de especial protección constitucional por tratarse de ${this.lista(textos)}, condición que, conforme a los artículos 13, 44, 46 y 47 de la Constitución Política, obliga a las autoridades y a los particulares a brindarle un trato prioritario y a remover las barreras que le impidan el goce efectivo de sus derechos.`;
   },

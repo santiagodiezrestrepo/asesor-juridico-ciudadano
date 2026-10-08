@@ -53,7 +53,7 @@ window.AJ = window.AJ || {};
       id: 'queja', nombre: 'Quejas y reclamaciones', plural: 'Quejas y reclamaciones', icono: 'alerta',
       descripcion: 'Ante superintendencias (salud, financiera) o directamente al vendedor (consumidor). Activan la vigilancia del Estado y son paso previo a otras acciones.',
       titulo: 'QUEJA / RECLAMACIÓN', permiteAnonimo: true, saludo: 'Respetados señores:',
-      intro: (d, c) => `${R.identificacion(d)} en ejercicio del derecho de petición (artículo 23 de la Constitución Política) y de los derechos que me asisten como ${c.id === 'queja_consumidor' ? 'consumidor (Ley 1480 de 2011)' : c.id === 'queja_financiera' ? 'consumidor financiero (Ley 1328 de 2009)' : 'usuario del sistema de salud (Ley 1751 de 2015)'}, presento la siguiente ${c.id === 'queja_consumidor' ? 'RECLAMACIÓN DIRECTA' : 'QUEJA'}, con base en los siguientes:`,
+      intro: (d, c) => `${R.identificacion(d)} en ejercicio del derecho de petición (artículo 23 de la Constitución Política) y de los derechos que me asisten como ${c.rolQueja || (c.id === 'queja_consumidor' ? 'consumidor (Ley 1480 de 2011)' : c.id === 'queja_financiera' ? 'consumidor financiero (Ley 1328 de 2009)' : 'usuario del sistema de salud (Ley 1751 de 2015)')}, presento la siguiente ${c.id === 'queja_consumidor' ? 'RECLAMACIÓN DIRECTA' : 'QUEJA'}, con base en los siguientes:`,
       secciones: ['hechos', 'fundamentos', 'peticiones', 'anexos', 'notificaciones'],
       cierre: 'Agradezco su atención y quedo atento(a) a su respuesta dentro del término legal.'
     },
@@ -64,6 +64,14 @@ window.AJ = window.AJ || {};
       intro: (d, c) => `${R.identificacion(d)} en ejercicio del derecho fundamental de hábeas data (artículo 15 de la Constitución Política) y conforme a ${c.id === 'hd_reclamo' ? 'el artículo 16 de la Ley 1266 de 2008' : 'los artículos 14 y 15 de la Ley 1581 de 2012'}, presento el siguiente RECLAMO, con base en los siguientes:`,
       secciones: ['hechos', 'fundamentos', 'peticiones', 'anexos', 'notificaciones'],
       cierre: 'Quedo atento(a) a su respuesta dentro del término legal de quince (15) días hábiles.'
+    },
+    denuncia: {
+      id: 'denuncia', nombre: 'Denuncia penal', plural: 'Denuncias', icono: 'alerta',
+      descripcion: 'Para poner en conocimiento de la Fiscalía un delito (violencia contra la mujer, intrafamiliar, lesiones, amenazas, acoso sexual) y pedir medidas de protección y atención.',
+      titulo: 'DENUNCIA PENAL', permiteAnonimo: false, saludo: 'Respetado(a) señor(a) Fiscal:',
+      intro: (d, c) => `${R.identificacion(d)} con fundamento en los artículos 67 y 69 de la Ley 906 de 2004 (Código de Procedimiento Penal) y en el artículo 11 del mismo código sobre los derechos de las víctimas, presento DENUNCIA PENAL contra ${R.mayus(d.denunciado) || 'LA PERSONA QUE SE IDENTIFICA EN LOS HECHOS'} por los hechos que paso a relatar, que constituyen conductas punibles, y solicito que se adelante la investigación correspondiente y se adopten las medidas de protección y atención que indico, con base en los siguientes:`,
+      secciones: ['hechos', 'fundamentos', 'pretensiones', 'pruebas', 'juramento', 'notificaciones'],
+      cierre: ''
     },
     contrato: {
       id: 'contrato', nombre: 'Contratos y documentos privados', plural: 'Contratos', icono: 'documento', contrato: true,
@@ -77,7 +85,13 @@ window.AJ = window.AJ || {};
       id: 'familia', nombre: 'Familia y protección', plural: 'Solicitudes de familia', icono: 'familia',
       descripcion: 'Cuota alimentaria y medidas de protección por violencia intrafamiliar ante la Comisaría o la Defensoría de Familia. Gratuitas y sin abogado.',
       titulo: 'SOLICITUD', permiteAnonimo: false, saludo: 'Respetado(a) señor(a) Comisario(a) / Defensor(a) de Familia:',
-      intro: (d, c) => `${R.identificacion(d)} con fundamento en ${c.id === 'fam_alimentos' ? 'los artículos 24, 111 y 129 de la Ley 1098 de 2006' : 'la Ley 294 de 1996, la Ley 575 de 2000, la Ley 1257 de 2008 y la Ley 2126 de 2021'}, presento la siguiente solicitud, con base en los siguientes:`,
+      intro: (d, c) => {
+        const base = c.id === 'fam_alimentos'
+          ? (d.beneficiario && d.beneficiario !== 'hijos' ? 'el artículo 411 del Código Civil, el artículo 111 de la Ley 1098 de 2006 y la Ley 2220 de 2022' : 'los artículos 24, 111 y 129 de la Ley 1098 de 2006')
+          : c.id === 'fam_custodia' ? 'los artículos 23, 82 y 86 de la Ley 1098 de 2006 y la Ley 2220 de 2022'
+          : 'la Ley 294 de 1996, la Ley 575 de 2000, la Ley 1257 de 2008 y la Ley 2126 de 2021';
+        return `${R.identificacion(d)} con fundamento en ${base}, presento la siguiente solicitud, con base en los siguientes:`;
+      },
       secciones: ['hechos', 'fundamentos', 'peticiones', 'pruebas', 'notificaciones'],
       cierre: ''
     }
@@ -157,7 +171,7 @@ window.AJ = window.AJ || {};
     (caso.opcionales || []).forEach(o => { if ((d.opcionales || []).includes(o.v) && o.clausula) { const c = typeof o.clausula === 'function' ? o.clausula(d, P) : o.clausula; if (c) clausulas.push(c); } });
     if (d.clausulaOtra) R.relatoAHechos(d.clausulaOtra).forEach((t, i) => clausulas.push({ t: `ACUERDO ADICIONAL${i ? ' ' + (i + 1) : ''}`, c: t }));
     if (clausulas.length) {
-      b.push({ k: 'h', t: 'CLÁUSULAS' });
+      b.push({ k: 'h', t: caso.tituloClausulas || 'CLÁUSULAS' });
       clausulas.forEach((c, i) => b.push({ k: 'p', t: `${ORDINALES[i] || `CLÁUSULA ${i + 1}`}. ${(c.t || '').toUpperCase()}. ${c.c}` }));
     }
     const cierre = caso.cierre ? evaluar(caso.cierre, d, P) : `Para constancia, las partes firman el presente documento en ${d.ciudad || '[ciudad]'}, el ${fecha}, en dos ejemplares del mismo tenor y valor, uno para cada parte.`;
@@ -179,7 +193,7 @@ window.AJ = window.AJ || {};
       const b = [];
       const a = R.actor(d);
       const hoy = R.hoy();
-      const esJudicial = ['tutela', 'desacato', 'impugnacion'].includes(caso.tipo);
+      const esJudicial = ['tutela', 'desacato', 'impugnacion', 'denuncia'].includes(caso.tipo);
 
       // Encabezado
       b.push({ k: 'fecha', t: `${d.ciudad || '[Ciudad]'}, ${R.fechaLarga(hoy)}` });
@@ -188,6 +202,8 @@ window.AJ = window.AJ || {};
         dest.push('Señor(a)', R.juezTutela(d), 'E. S. D.');
       } else if (caso.tipo === 'desacato' || caso.tipo === 'impugnacion') {
         dest.push('Señor(a)', R.mayus(d.juzgado || 'JUEZ DE PRIMERA INSTANCIA'), 'E. S. D.');
+      } else if (caso.tipo === 'denuncia') {
+        dest.push('Señores', 'FISCALÍA GENERAL DE LA NACIÓN', `Unidad de Reacción Inmediata (URI) / Centro de Atención a Víctimas de ${d.ciudad || '[ciudad]'}`, 'E. S. D.');
       } else {
         dest.push(d.categoria === 'particular' && /^SE[ÑN]OR/i.test(R.entidad(d)) ? 'Señor(a)' : 'Señores', R.entidad(d));
         if (d.entidadCargo) dest.push(d.entidadCargo);
@@ -209,6 +225,10 @@ window.AJ = window.AJ || {};
         ref.push(`Radicado: ${d.radicado || ''}`);
         ref.push(`Accionante: ${a.tercero ? a.nombre : R.mayus(d.nombre)}`);
         ref.push(`Accionado: ${R.entidad(d)}`);
+      }
+      if (caso.tipo === 'denuncia') {
+        ref.push(`Denunciante (víctima): ${a.tercero ? `${a.nombre} (por medio de ${R.mayus(d.nombre)})` : R.mayus(d.nombre)}`);
+        ref.push(`Denunciado: ${R.mayus(d.denunciado) || '[NOMBRE DEL AGRESOR]'}`);
       }
       b.push({ k: 'ref', lines: ref });
 
@@ -241,7 +261,7 @@ window.AJ = window.AJ || {};
           }
           case 'fundamentos': {
             titulo('FUNDAMENTOS DE DERECHO');
-            b.push({ k: 'p', t: caso.tipo === 'tutela' ? 'La presente acción se fundamenta en las siguientes normas y decisiones de la Corte Constitucional:' : 'Esta solicitud se fundamenta en las siguientes normas:' });
+            b.push({ k: 'p', t: caso.tipo === 'tutela' ? 'La presente acción se fundamenta en las siguientes normas y decisiones de la Corte Constitucional:' : caso.tipo === 'denuncia' ? 'Esta denuncia se fundamenta en las siguientes normas:' : 'Esta solicitud se fundamenta en las siguientes normas:' });
             fundamentos(caso, d).forEach(t => b.push({ k: 'p', t, sangria: true }));
             break;
           }
@@ -258,8 +278,8 @@ window.AJ = window.AJ || {};
           case 'pretensiones': {
             const items = marcadas(caso.peticiones, d.peticiones, d, 'legal');
             if (d.peticionOtra) items.push(...R.relatoAHechos(d.peticionOtra));
-            titulo(sec === 'pretensiones' ? 'PRETENSIONES' : 'PETICIÓN');
-            b.push({ k: 'p', t: sec === 'pretensiones' && caso.tipo !== 'recurso' ? 'Con fundamento en lo expuesto, solicito respetuosamente al despacho:' : `Con fundamento en lo anterior, solicito respetuosamente a ${R.entidad(d)}:` });
+            titulo(caso.tipo === 'denuncia' ? 'SOLICITUDES' : sec === 'pretensiones' ? 'PRETENSIONES' : 'PETICIÓN');
+            b.push({ k: 'p', t: caso.tipo === 'denuncia' ? 'Con fundamento en lo expuesto, solicito respetuosamente a la Fiscalía General de la Nación:' : sec === 'pretensiones' && caso.tipo !== 'recurso' ? 'Con fundamento en lo expuesto, solicito respetuosamente al despacho:' : `Con fundamento en lo anterior, solicito respetuosamente a ${R.entidad(d)}:` });
             b.push({ k: 'ol', items: items.length ? items : ['[Indica lo que solicitas]'] });
             break;
           }
@@ -283,7 +303,8 @@ window.AJ = window.AJ || {};
           }
           case 'juramento': {
             titulo('JURAMENTO');
-            b.push({ k: 'p', t: `Bajo la gravedad del juramento manifiesto que no he presentado otra acción de tutela por los mismos hechos y derechos ante ninguna otra autoridad judicial (artículo 37 del Decreto 2591 de 1991)${d.otraTutela === 'si' ? ', salvo la que se describe en los hechos, cuyos fundamentos difieren de los aquí expuestos' : ''}.` });
+            if (caso.tipo === 'denuncia') b.push({ k: 'p', t: 'Declaro bajo la gravedad del juramento que los hechos aquí narrados son ciertos y me constan (artículo 69 de la Ley 906 de 2004), y manifiesto que conozco las consecuencias legales de la falsa denuncia (artículo 435 del Código Penal).' });
+            else b.push({ k: 'p', t: `Bajo la gravedad del juramento manifiesto que no he presentado otra acción de tutela por los mismos hechos y derechos ante ninguna otra autoridad judicial (artículo 37 del Decreto 2591 de 1991)${d.otraTutela === 'si' ? ', salvo la que se describe en los hechos, cuyos fundamentos difieren de los aquí expuestos' : ''}.` });
             break;
           }
           case 'notificaciones': {
@@ -298,7 +319,10 @@ window.AJ = window.AJ || {};
               if (d.telefono) partes.push(`en el teléfono ${d.telefono}`);
               mias.push(`${esJudicial ? 'Recibiré notificaciones' : 'Recibiré respuesta y notificaciones'} ${partes.length ? R.lista(partes) : 'en la dirección indicada al pie de mi firma'}.${esJudicial ? ' Autorizo expresamente la notificación por medios electrónicos conforme a la Ley 2213 de 2022.' : ''}`);
             }
-            if (esJudicial) {
+            if (caso.tipo === 'denuncia') {
+              mias.push(`El denunciado, ${R.mayus(d.denunciado) || '[NOMBRE DEL AGRESOR]'}, puede ser ubicado en ${d.denunciadoDireccion || '[dirección o lugar de trabajo]'}.`);
+              mias.push('Solicito que mi dirección y mis datos de contacto se mantengan en reserva frente al denunciado (artículo 11 de la Ley 906 de 2004).');
+            } else if (esJudicial) {
               mias.push(`${caso.tipo === 'tutela' ? 'La parte accionada' : 'La entidad accionada'}, ${R.entidad(d)}, recibe notificaciones en ${d.entidadDireccion ? d.entidadDireccion : 'su sede principal y en el correo electrónico de notificaciones judiciales registrado ante la autoridad competente'}${d.entidadCiudad ? `, ${d.entidadCiudad}` : ''}.`);
             }
             mias.forEach(t => b.push({ k: 'p', t }));

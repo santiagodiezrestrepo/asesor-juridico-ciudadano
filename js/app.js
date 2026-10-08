@@ -76,11 +76,19 @@ window.AJ = window.AJ || {};
   }
 
   /* ---------- Búsqueda de casos ---------- */
+  /* Módulos: agrupan casos de distintos tipos alrededor de una población */
+  AJ.modulos = {
+    mujer: { id: 'mujer', nombre: 'Mujeres y madres cabeza de familia', icono: 'familia', descripcion: 'Violencia de pareja o intrafamiliar, acoso en el trabajo, despido en embarazo, licencia de maternidad, cuota alimentaria, declaración de madre cabeza de familia y subsidios. Documentos pensados para que ninguna mujer tenga que soportar un abuso por no saber cómo defenderse.' }
+  };
+
   function buscarCasos(q, tipo, categoria) {
+    const modulo = tipo && tipo.startsWith('modulo-') ? tipo.slice(7) : '';
+    if (modulo) tipo = '';
     const VACIAS = new Set(['que', 'con', 'para', 'por', 'una', 'uno', 'los', 'las', 'del', 'mis', 'sus', 'tengo', 'quiero', 'necesito', 'como', 'hacer', 'poner', 'puedo', 'ayuda', 'ayudar', 'porque', 'pero', 'desde', 'hace', 'esta', 'este', 'esto']);
     const terminos = normalizar(q).split(/[^a-z0-9ñ]+/).filter(t => t.length > 2 && !VACIAS.has(t));
     return AJ.casos.map(c => {
       if (tipo && c.tipo !== tipo) return null;
+      if (modulo && c.modulo !== modulo) return null;
       if (categoria && c.categoria !== categoria) return null;
       let puntos = 0;
       if (terminos.length) {
@@ -178,7 +186,14 @@ window.AJ = window.AJ || {};
       <section class="seccion">
         <div class="seccion-cab"><h2>¿Qué documento necesitas?</h2><p>Si no estás seguro, usa el buscador o la <a href="#guia/decidir">guía para decidir</a>.</p></div>
         <div class="grid-tipos">
-          ${tipos.map(t => `<a class="tarjeta tipo" href="#catalogo/${t.id}"><div class="tarjeta-tipo tipo-${t.id}">${icono(t.icono)}</div><h3>${esc(t.nombre)}</h3><p>${esc(t.descripcion)}</p><span class="contador">${(n => `${n} ${n === 1 ? 'caso prediseñado' : 'casos prediseñados'}`)(AJ.casos.filter(c => c.tipo === t.id).length)}</span></a>`).join('')}
+          ${tipos.filter(t => AJ.casos.some(c => c.tipo === t.id)).map(t => `<a class="tarjeta tipo" href="#catalogo/${t.id}"><div class="tarjeta-tipo tipo-${t.id}">${icono(t.icono)}</div><h3>${esc(t.nombre)}</h3><p>${esc(t.descripcion)}</p><span class="contador">${(n => `${n} ${n === 1 ? 'caso prediseñado' : 'casos prediseñados'}`)(AJ.casos.filter(c => c.tipo === t.id).length)}</span></a>`).join('')}
+        </div>
+      </section>
+
+      <section class="seccion">
+        <div class="seccion-cab"><h2>Módulos especiales</h2><p>Documentos reunidos para situaciones que requieren protección reforzada.</p></div>
+        <div class="grid-tipos">
+          ${Object.values(AJ.modulos).map(m => `<a class="tarjeta tipo modulo" href="#catalogo/modulo-${m.id}"><div class="tarjeta-tipo">${icono(m.icono)}</div><h3>${esc(m.nombre)}</h3><p>${esc(m.descripcion)}</p><span class="contador">${AJ.casos.filter(c => c.modulo === m.id).length} documentos</span></a>`).join('')}
         </div>
       </section>
 
@@ -241,7 +256,8 @@ window.AJ = window.AJ || {};
         </div>
         <div class="chips" role="tablist">
           <button class="chip" data-tipo="">Todos</button>
-          ${Object.values(AJ.tipos).map(t => `<button class="chip" data-tipo="${t.id}">${esc(t.nombre)}</button>`).join('')}
+          ${Object.values(AJ.modulos).map(m => `<button class="chip chip-modulo" data-tipo="modulo-${m.id}">${icono(m.icono)} ${esc(m.nombre)}</button>`).join('')}
+          ${Object.values(AJ.tipos).filter(t => AJ.casos.some(c => c.tipo === t.id)).map(t => `<button class="chip" data-tipo="${t.id}">${esc(t.nombre)}</button>`).join('')}
         </div>
         <p class="conteo" id="conteo"></p>
         <div class="grid-casos" id="lista-casos"></div>
@@ -256,17 +272,25 @@ window.AJ = window.AJ || {};
   // Casos en los que tiene sentido presentar sin nombre (interés general, quejas y denuncias)
   const ANONIMO_OK = new Set(['pet_municipio_servicios', 'pet_info_publica', 'pet_queja_funcionario', 'pet_municipio_policia', 'pet_general']);
   // Campos cuyo cambio redefine las peticiones marcadas por defecto
-  const CAMPOS_DECIDEN = new Set(['tramite', 'problema', 'tipoServicio', 'servicio', 'quien', 'motivo', 'queQuiere']);
+  const CAMPOS_DECIDEN = new Set(['tramite', 'problema', 'tipoServicio', 'servicio', 'quien', 'motivo', 'queQuiere', 'delitos', 'riesgo', 'lesiones', 'hijos', 'relacion', 'quienFalla', 'beneficiario', 'conductas', 'aQuien', 'respuesta']);
 
   function peticionesAuto(caso, d) {
     return (caso.peticiones || []).filter(o => o.fijo || (typeof o.inicial === 'function' ? !!o.inicial(d || {}) : !!o.inicial)).map(o => o.v);
   }
 
   function camposContrato(caso) {
+    const fecha = { id: 'fechaFirma', tipo: 'fecha', etiqueta: 'Fecha en que se firma', valorInicial: hoyISO(), ancho: 'media' };
+    if (caso.unilateral) {
+      return [
+        { id: 'quien', titulo: 'Tus datos', ayuda: 'Escribe tus datos como aparecen en la cédula: así quedarán en el documento y en la firma.', campos: AJ.campos.solicitante({ contrato: true }) },
+        { id: 'situacion', titulo: 'Lo que vas a declarar', ayuda: 'Responde con tus palabras; el documento lo convierte en una declaración con el lenguaje y las normas correctas.', campos: [...caso.campos, fecha] },
+        { id: 'testigos', titulo: 'Testigos (opcional)', ayuda: 'Dos personas que conozcan tu situación y firmen contigo refuerzan la declaración; no son obligatorias.', campos: AJ.campos.testigos() }
+      ];
+    }
     const rolCampo = { id: 'miRol', tipo: 'radio', etiqueta: '¿Cuál es tu papel en este documento?', opciones: caso.rolCampo.opciones, requerido: true, valorInicial: 'a' };
     return [
       { id: 'quien', titulo: 'Tus datos', ayuda: 'Tú eres una de las partes. Escribe tus datos como aparecen en la cédula: así quedarán en el documento y en la firma.', campos: AJ.campos.solicitante({ contrato: true }) },
-      { id: 'rol', titulo: 'Tu papel y la fecha', ayuda: 'Según tu papel, el documento pondrá tus datos y los de la otra persona en el lugar correcto.', campos: [rolCampo, { id: 'fechaFirma', tipo: 'fecha', etiqueta: 'Fecha en que se firma', valorInicial: hoyISO(), ancho: 'media' }] },
+      { id: 'rol', titulo: 'Tu papel y la fecha', ayuda: 'Según tu papel, el documento pondrá tus datos y los de la otra persona en el lugar correcto.', campos: [rolCampo, fecha] },
       { id: 'contraparte', titulo: 'Datos de la otra parte', ayuda: 'La persona o empresa con la que firmas. Pide su cédula (o el certificado de Cámara de Comercio si es empresa) para copiar bien los datos.', campos: AJ.campos.contraparte('la otra parte') },
       { id: 'situacion', titulo: 'Detalles del acuerdo', ayuda: 'Responde con tus palabras; el documento los convierte en cláusulas con el lenguaje y las normas correctas.', campos: caso.campos },
       { id: 'opcionales', titulo: 'Cláusulas adicionales (opcional)', ayuda: 'Marca solo las que las dos partes hayan acordado. Puedes escribir otras con tus palabras.', campos: [ { id: 'opcionales', tipo: 'checks', etiqueta: 'Cláusulas que quieres incluir', opciones: caso.opcionales || [] }, { id: 'clausulaOtra', tipo: 'textarea', etiqueta: '¿Algo más que hayan acordado? (una cláusula por línea)', ejemplo: 'Ej.: El arrendatario puede usar el parqueadero número 12.', filas: 2 } ] },
@@ -278,12 +302,13 @@ window.AJ = window.AJ || {};
     const tipo = AJ.tipos[caso.tipo];
     if (tipo.contrato) return camposContrato(caso);
     const permiteAnonimo = tipo.permiteAnonimo && ANONIMO_OK.has(caso.id);
-    const soloPropio = caso.tipo === 'familia';
+    const soloPropio = (caso.tipo === 'familia' || caso.tipo === 'denuncia') && !caso.permiteRepresentante;
     const secciones = [
       { id: 'quien', titulo: '¿Quién presenta el documento?', ayuda: soloPropio ? 'Este trámite lo presenta directamente la persona afectada (la madre, el padre o la víctima). Si alguien te ayuda a escribir, igual pon tus datos: tú firmas.' : permiteAnonimo ? 'A tu nombre, por otra persona que no pueda hacerlo por sí misma, o sin dar tu nombre (anónimo).' : 'A tu nombre, o por otra persona que no pueda hacerlo por sí misma.', campos: AJ.campos.solicitante({ permiteAnonimo, soloPropio }) },
-      { id: 'destino', titulo: ['tutela'].includes(caso.tipo) ? '¿A qué entidad o empresa le pones la tutela?' : ['desacato', 'impugnacion'].includes(caso.tipo) ? '¿Contra qué entidad fue la tutela?' : '¿A quién va dirigido?', ayuda: 'Escribe el nombre como aparece en sus documentos o su página web. Empieza a escribir y te sugerimos entidades conocidas.', campos: AJ.campos.destinatario(caso.destinatario || {}) },
       { id: 'situacion', titulo: 'Tu situación', ayuda: 'Responde con tus palabras. Lo que escribas se convertirá en hechos numerados dentro del documento.', campos: caso.campos }
     ];
+    // La denuncia siempre va a la Fiscalía: no se pregunta el destinatario
+    if (caso.tipo !== 'denuncia') secciones.splice(1, 0, { id: 'destino', titulo: ['tutela'].includes(caso.tipo) ? '¿A qué entidad o empresa le pones la tutela?' : ['desacato', 'impugnacion'].includes(caso.tipo) ? '¿Contra qué entidad fue la tutela?' : '¿A quién va dirigido?', ayuda: 'Escribe el nombre como aparece en sus documentos o su página web. Empieza a escribir y te sugerimos entidades conocidas.', campos: AJ.campos.destinatario(caso.destinatario || {}) });
     if (caso.tipo === 'tutela') {
       const der = { id: 'derechos', tipo: 'checks', etiqueta: 'Derechos que te están afectando (ya marcamos los normales para este caso)', opciones: caso.derechos || [] };
       const extra = [];
@@ -323,9 +348,14 @@ window.AJ = window.AJ || {};
     return datos;
   }
 
+  function coincide(cond, datos) {
+    const v = datos[cond.campo];
+    const vals = cond.valores || [cond.valor];
+    return Array.isArray(v) ? vals.some(x => v.includes(x)) : vals.includes(v);
+  }
   function visible(c, datos) {
-    if (c.mostrarSi) { const v = datos[c.mostrarSi.campo]; if (!(Array.isArray(v) ? v.includes(c.mostrarSi.valor) : v === c.mostrarSi.valor)) return false; }
-    if (c.ocultarSi) { const v = datos[c.ocultarSi.campo]; if (Array.isArray(v) ? v.includes(c.ocultarSi.valor) : v === c.ocultarSi.valor) return false; }
+    if (c.mostrarSi && !coincide(c.mostrarSi, datos)) return false;
+    if (c.ocultarSi && coincide(c.ocultarSi, datos)) return false;
     return true;
   }
 
@@ -452,9 +482,14 @@ window.AJ = window.AJ || {};
     const esContrato = !!tipo.contrato;
     const primera = (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v) && !o.fijo) || (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v));
     let simple;
-    if (esContrato) {
+    if (esContrato && caso.unilateral) {
+      const P = R.partesContrato(caso, d);
+      simple = `Este documento es una declaración que firma <strong>${esc(P.A.nombreFirma)}</strong> bajo juramento. Léela completa y revisa que todo sea cierto antes de firmarla: abajo te decimos dónde presentarla.`;
+    } else if (esContrato) {
       const P = R.partesContrato(caso, d);
       simple = `Este documento deja por escrito el acuerdo entre <strong>${esc(P.A.nombreFirma)}</strong> (${esc(P.A.rol.toLowerCase())}) y <strong>${esc(P.B.nombreFirma)}</strong> (${esc(P.B.rol.toLowerCase())}). ${caso.firmas ? 'Léelo completo y revisa que diga exactamente lo acordado antes de firmar.' : 'Las dos partes deben leerlo completo y firmarlo, y cada una se queda con una copia.'}`;
+    } else if (caso.tipo === 'denuncia') {
+      simple = `Este documento denuncia ante la <strong>Fiscalía</strong> a <strong>${esc(d.denunciado || 'la persona que indicaste')}</strong> y pide que te protejan. Tú solo tienes que firmarlo y entregarlo (abajo te decimos dónde). Si estás en peligro ahora, llama al 123 o al 155.`;
     } else {
       simple = `Este documento le pide a <strong>${esc(d.entidadNombre || 'la entidad')}</strong> ${primera ? esc(primera.t.replace(/^Que /, 'que ').replace(/^Mis /, 'lo que escribiste: ')) : 'lo que escribiste en el formulario'}.${caso.guia && caso.guia.plazo ? ` ${caso.tipo === 'tutela' ? 'El juez tiene hasta 10 días para decidir' : `Tienen ${esc(plazoCorto(caso))} para responder`}.` : ''} Tú solo tienes que firmarlo con tu nombre y entregarlo (abajo te decimos dónde).`;
     }
@@ -548,10 +583,18 @@ window.AJ = window.AJ || {};
     });
   }
 
-  function esJudicialCaso(caso) { return ['tutela', 'desacato', 'impugnacion'].includes(caso.tipo); }
+  function esJudicialCaso(caso) { return ['tutela', 'desacato', 'impugnacion', 'denuncia'].includes(caso.tipo); }
 
   function guiaContrato(caso, d) {
     const g = caso.guia || {};
+    if (caso.unilateral) return `<h2>${icono('estrella')} ¿Qué sigue?</h2>
+      <div class="guia-bloque"><h3>1. Revisa y firma</h3><ul>
+        <li>Léela completa: todo lo que dice debe ser cierto, porque la firmas bajo juramento.</li>
+        <li>Imprímela (una copia por cada entidad donde la vayas a presentar, más una para ti) y fírmala en la línea de firma. La huella es opcional.</li>
+        <li>Si tienes testigos, que firmen en el mismo momento.</li></ul></div>
+      <div class="guia-bloque"><h3>2. Qué hacer después</h3><ul>${(g.pasos || []).map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+      ${g.nota ? `<div class="guia-bloque"><h3>3. Ten en cuenta</h3><p>${esc(g.nota)}</p></div>` : ''}
+      ${enlacesSiguientes(caso)}`;
     return `<h2>${icono('estrella')} ¿Qué sigue?</h2>
       <div class="guia-bloque"><h3>1. Revisa y firma</h3><ul>
         <li>Léelo completo con la otra parte. Si algo no es lo acordado, vuelve a editar.</li>
@@ -575,6 +618,7 @@ window.AJ = window.AJ || {};
       <li>Como la tutela es contra ${esc(cat.nombre.split(' (')[0].toLowerCase().replace(/^eps,/, 'una EPS,').replace(/^una persona/, 'una persona'))}, la decide <strong>${quien} de ${ciudad}</strong>. El sistema escoge cuál; ningún juzgado puede negarse a recibirla.</li>
       <li>Si necesitas ayuda, la <strong>Personería</strong> de tu municipio la presenta contigo, gratis.</li></ul>`;
     }
+    if (caso.tipo === 'denuncia') return `<ul><li>En cualquier <strong>Fiscalía</strong>: Unidad de Reacción Inmediata (URI, atiende 24 horas), Casa de Justicia, Centro de Atención a Víctimas (CAIVAS o CAVIF) o la Policía (también recibe denuncias). Lleva el documento impreso, tu cédula y las pruebas.</li><li><strong>Por internet:</strong> <a href="https://www.fiscalia.gov.co" target="_blank" rel="noopener">www.fiscalia.gov.co</a>, opción "Denuncia virtual (ADenunciar)".</li><li>Pide el <strong>número de noticia criminal</strong>: con él consultas el avance. Si hay peligro inmediato, llama al 123 o al 155.</li><li>Puedes pedir que un(a) funcionario(a) te reciba en privado y, si eres mujer, que te atienda personal especializado (Ley 1257 de 2008).</li></ul>`;
     if (caso.tipo === 'desacato' || caso.tipo === 'impugnacion') return `<ul><li>Ante el <strong>mismo juzgado</strong> que falló la tutela: ${esc(d.juzgado || '')}. Envíalo al correo institucional del despacho (búscalo en www.ramajudicial.gov.co) citando el radicado, o entrégalo en la secretaría del juzgado.</li>${caso.tipo === 'impugnacion' ? '<li>Recuerda: solo tienes <strong>3 días hábiles</strong> desde que te notificaron.</li>' : ''}</ul>`;
     if (caso.tipo === 'familia') return `<ul><li>En la <strong>Comisaría de Familia</strong> de tu municipio o localidad (también en Casas de Justicia) o en el Centro Zonal del ICBF. Atienden sin cita en la mayoría de casos.</li><li>Si hay peligro inmediato: Policía 123, Línea 155 (mujeres), Línea 141 (niños).</li></ul>`;
     return `<ul>
@@ -585,8 +629,9 @@ window.AJ = window.AJ || {};
   }
 
   function enlacesSiguientes(caso) {
-    const mapa = { peticion: ['tut_peticion'], queja: ['tut_salud_servicio', 'tut_peticion'], habeas: ['tut_habeas_data'], tutela: ['desacato', 'impugnacion'], desacato: [], impugnacion: [], recurso: ['tut_debido_proceso'], familia: ['tut_general'], contrato: [] };
-    const ids = (mapa[caso.tipo] || []).filter(id => id !== caso.id);
+    const mapa = { peticion: ['tut_peticion'], queja: ['tut_salud_servicio', 'tut_peticion'], habeas: ['tut_habeas_data'], tutela: ['desacato', 'impugnacion'], desacato: [], impugnacion: [], recurso: ['tut_debido_proceso'], familia: ['tut_general'], contrato: [], denuncia: ['fam_proteccion', 'muj_tutela_proteccion'] };
+    const porCaso = { fam_proteccion: ['muj_denuncia', 'muj_tutela_proteccion'], muj_acoso_laboral: ['muj_denuncia', 'tut_estabilidad'], muj_licencia_maternidad: ['tut_estabilidad', 'queja_supersalud'], muj_salud_sexual: ['tut_salud_servicio', 'queja_supersalud'], muj_cabeza_familia: ['tut_peticion', 'muj_declaracion_cabeza'], muj_declaracion_cabeza: ['muj_cabeza_familia'], fam_alimentos: ['fam_custodia', 'tut_general'], fam_custodia: ['fam_alimentos', 'fam_proteccion'], muj_tutela_proteccion: ['desacato', 'impugnacion'] };
+    const ids = (porCaso[caso.id] || mapa[caso.tipo] || []).filter(id => id !== caso.id);
     if (!ids.length) return '';
     return `<ul class="enlaces">${ids.map(id => { const c = AJ.casos.find(x => x.id === id); return c ? `<li><a href="#caso/${c.id}">${icono('flecha')} ${esc(c.titulo)}</a></li>` : ''; }).join('')}</ul>`;
   }
@@ -642,7 +687,16 @@ window.AJ = window.AJ || {};
       { q: 'Colpensiones o el fondo no resuelve mi pensión', id: 'pet_pension', t: 'Petición a pensiones (y luego tutela)' },
       { q: 'Un almacén no me responde por la garantía de un producto', id: 'queja_consumidor', t: 'Reclamación directa al vendedor' },
       { q: 'Sufro violencia en mi familia', id: 'fam_proteccion', t: 'Medida de protección' },
+      { q: 'Mi pareja, expareja u otra persona me maltrata, me amenaza o abusó de mí y quiero denunciarlo', id: 'muj_denuncia', t: 'Denuncia penal (y medida de protección)' },
+      { q: 'Pedí protección y la Comisaría, la Fiscalía, la Policía o la EPS no hacen nada', id: 'muj_tutela_proteccion', t: 'Tutela por falta de protección' },
       { q: 'El padre o madre de mis hijos no da para su sostenimiento', id: 'fam_alimentos', t: 'Conciliación de cuota alimentaria' },
+      { q: 'Soy una persona mayor y mis hijos no me ayudan, o mi pareja no me da para vivir', id: 'fam_alimentos', t: 'Conciliación de cuota alimentaria (personas mayores, padres, cónyuge)' },
+      { q: 'Mi expareja no me deja ver a mis hijos o quiere quitármelos', id: 'fam_custodia', t: 'Conciliación de custodia y visitas' },
+      { q: 'Necesito acreditar que soy madre (o padre) cabeza de familia', id: 'muj_declaracion_cabeza', t: 'Declaración juramentada de madre cabeza de familia' },
+      { q: 'Soy madre cabeza de familia y no me dan la prioridad en vivienda, educación, empleo o subsidios', id: 'muj_cabeza_familia', t: 'Petición como madre cabeza de familia' },
+      { q: 'No me pagan la licencia de maternidad', id: 'muj_licencia_maternidad', t: 'Petición por la licencia de maternidad' },
+      { q: 'Mi jefe o un compañero me acosa en el trabajo (sexual o laboralmente)', id: 'muj_acoso_laboral', t: 'Queja por acoso laboral o sexual' },
+      { q: 'La EPS no me da el control prenatal, el método anticonceptivo, la IVE o la atención por violencia sexual', id: 'muj_salud_sexual', t: 'Petición a la EPS por salud sexual y reproductiva' },
       { q: 'Tengo un problema del barrio con la alcaldía (vías, basuras, ruido)', id: 'pet_municipio_servicios', t: 'Petición a la alcaldía o querella policiva' },
       { q: 'Me quitaron el subsidio (Renta Ciudadana, Colombia Mayor, Familias en Acción) o no me ha llegado el giro', id: 'pet_prosperidad', t: 'Petición a Prosperidad Social (y recurso si hubo resolución)' },
       { q: 'Mi hijo no tiene cupo en el colegio o lo expulsaron', id: 'tut_educacion', t: 'Tutela por el derecho a la educación' },
@@ -741,7 +795,7 @@ window.AJ = window.AJ || {};
         </details>
 
         <details id="legal-responsabilidad"><summary>4. Limitación de responsabilidad</summary>
-          <p>La plataforma se ofrece <strong>"tal como está"</strong> y "según disponibilidad", sin garantías de ningún tipo, expresas o implícitas. En la máxima medida permitida por la ley colombiana, la Fundación La Sueñomotora, sus fundadores <strong>Santiago Diez Restrepo y Juan Gonzalo Lalinde</strong>, sus directivos, empleados, voluntarios, revisores, colaboradores y las personas o entidades que la alojan o la difunden <strong>no responden</strong> por ningún daño, perjuicio, pérdida, costo, sanción, decisión desfavorable o lucro cesante, directo o indirecto, que se derive del uso o de la imposibilidad de uso de la plataforma, de errores, omisiones o desactualización de sus contenidos, de los documentos generados o de las decisiones que la persona usuaria tome con base en ellos.</p>
+          <p>La plataforma se ofrece <strong>"tal como está"</strong> y "según disponibilidad", sin garantías de ningún tipo, expresas o implícitas. En la máxima medida permitida por la ley colombiana, la Fundación La Sueñomotora, sus fundadores <strong>Juan Gonzalo Lalinde Herrera, Jose Fernando Montoya Ortega, Santiago Díez Restrepo, Angélica Castrillón Duque y Jorge Manrique</strong>, sus directivos, empleados, voluntarios, revisores, colaboradores y las personas o entidades que la alojan o la difunden <strong>no responden</strong> por ningún daño, perjuicio, pérdida, costo, sanción, decisión desfavorable o lucro cesante, directo o indirecto, que se derive del uso o de la imposibilidad de uso de la plataforma, de errores, omisiones o desactualización de sus contenidos, de los documentos generados o de las decisiones que la persona usuaria tome con base en ellos.</p>
           <p>La plataforma puede estar temporalmente fuera de servicio, presentar fallas o cambiar sin aviso; La Sueñomotora no garantiza su disponibilidad continua ni conserva copias de lo que las personas escriben.</p>
           <p>Nada de lo aquí dispuesto limita responsabilidades que la ley colombiana no permita excluir.</p>
         </details>
@@ -784,14 +838,14 @@ window.AJ = window.AJ || {};
       <section class="seccion acerca">
         <div class="acerca-cab">
           <figure class="acerca-logo">
-            <img src="img/logo-suenomotora.webp?v=2" alt="Logo de La Sueñomotora" width="1817" height="632" onerror="this.closest('.acerca-logo').hidden = true">
+            <img src="img/logo-suenomotora.webp?v=3" alt="Logo de La Sueñomotora" width="1393" height="987" onerror="this.closest('.acerca-logo').hidden = true">
           </figure>
           <div class="acerca-texto">
             <p class="eyebrow">Una iniciativa de La Sueñomotora</p>
             <h1>Acerca de esta plataforma</h1>
-            <p class="acerca-lead">La Sueñomotora es una fundación creada hace catorce años por Santiago Diez Restrepo y Juan Gonzalo Lalinde para llevar libros y computadores a las zonas más apartadas de Colombia: veredas, corregimientos y pueblos con dificultades de comunicación y marcados por el conflicto armado. En ese camino ha entregado más de mil bibliotecas en los lugares más lejanos del país.</p>
-            <p>En cada viaje hemos visto cómo las personas de estas comunidades son atropelladas en sus derechos: por otras personas, grupos o entidades.</p>
-            <p>Asesor Jurídico Ciudadano nace de esa experiencia. Es una herramienta para que la sociedad civil, desde los niños hasta los mayores, cualquiera que sepa usar un computador y tenga conexión a internet, pueda defender sus derechos y los de su familia, sus conocidos y su comunidad, con documentos claros, bien fundamentados en la ley y listos para presentar.</p>
+            <p class="acerca-lead">La Sueñomotora es una fundación creada hace quince años por Juan Gonzalo Lalinde Herrera, Jose Fernando Montoya Ortega, Santiago Díez Restrepo, Angélica Castrillón Duque y Jorge Manrique, para llevar libros y computadores a las zonas más apartadas de Colombia: veredas, corregimientos y pueblos con dificultades de comunicación y marcados por el conflicto armado. En ese camino ha entregado más de mil quinientas bibliotecas en los lugares más lejanos del país.</p>
+            <p>En cada viaje hemos visto cómo a las personas de estas comunidades les han sido vulnerados sus derechos: por otras personas, grupos o entidades.</p>
+            <p>Asesor Jurídico Ciudadano nace de esa experiencia. Es una herramienta gratuita para que la sociedad civil, desde los niños hasta los mayores, cualquiera que sepa usar un computador o un celular, con o sin internet, pueda defender sus derechos y los de su familia, sus conocidos y su comunidad, con documentos claros, bien fundamentados en la ley y listos para presentar.</p>
           </div>
         </div>
       </section>
@@ -815,12 +869,32 @@ window.AJ = window.AJ || {};
         </ul>
       </section>
 
+      <section class="seccion" id="sin-internet">
+        <div class="seccion-cab"><h2>Usar sin internet</h2><p>Pensado para los computadores que La Sueñomotora entrega en veredas y pueblos sin conexión, y para cualquier celular.</p></div>
+        <div class="grid-principios">
+          ${window.AJ_SIN_INTERNET ? `<div class="principio">${icono('check')}<h3>Estás usando la versión sin internet</h3><p>Todo funciona en este computador sin conexión. Los documentos que guardes quedan solo aquí. Para tener la versión más reciente, copia de nuevo el archivo cuando alguien lo descargue de la página.</p></div>` : `<div class="principio">${icono('descargar')}<h3>Un solo archivo para copiar</h3><p>Descarga <a href="descargas/asesor-juridico-ciudadano-sin-internet.html" download="asesor-juridico-ciudadano-sin-internet.html">la versión sin internet</a> (un solo archivo .html de poco más de 1 MB). Cópialo en una memoria USB y pégalo en el escritorio de cada computador: se abre con doble clic en cualquier navegador (Chrome, Edge, Firefox) y funciona completo sin conexión.</p></div>
+          <div class="principio">${icono('estrella')}<h3>Instalar como aplicación</h3><p>Si abres esta página con internet una vez, queda guardada en el navegador y después funciona sin conexión. En el celular o el computador puedes instalarla: en Chrome o Edge, menú ⋮ → "Instalar aplicación" (o "Añadir a la pantalla de inicio"). <button type="button" class="btn btn-mini" id="b-instalar" hidden>Instalar ahora</button></p></div>`}
+          <div class="principio">${icono('libro')}<h3>En las bibliotecas</h3><p>Deja el archivo en el escritorio con el nombre "Asesor Jurídico" y enséñale a la persona encargada a usarlo. Las guías, las normas y los documentos están completos; solo los enlaces a páginas de entidades necesitan conexión.</p></div>
+          <div class="principio">${icono('escudo')}<h3>Qué pasa con los datos</h3><p>Los documentos se guardan en el navegador de ese computador ("Mis documentos"). En un computador compartido, no marques "Recordar mis datos" y usa "Borrar todos mis datos" al terminar.</p></div>
+        </div>
+      </section>
+
       <section class="seccion nota-legal">
         <h2>Aviso</h2>
         <p>Esta plataforma orienta y redacta borradores con base en la normativa vigente, pero no presta asesoría jurídica, no sustituye la valoración de un abogado ni constituye representación legal. Para acompañamiento gratuito acude a la Personería de tu municipio, a la Defensoría del Pueblo o a un consultorio jurídico universitario. Consulta la <a href="#guia/directorio">lista de entidades que ayudan sin costo</a> y el <a href="#acerca/legal">aviso legal completo</a>.</p>
       </section>
       ${avisoLegalHTML()}`;
+    const bi = $('#b-instalar');
+    if (bi && promptInstalar) { bi.hidden = false; bi.addEventListener('click', async () => { try { promptInstalar.prompt(); await promptInstalar.userChoice; promptInstalar = null; bi.hidden = true; } catch (e) { /* el navegador no permitió instalar */ } }); }
     if (arg) { const el = document.getElementById(arg); if (el) { if (el.tagName === 'DETAILS') el.open = true; setTimeout(() => el.scrollIntoView({ behavior: 'auto', block: 'start' }), 80); } }
+  }
+
+  /* Instalación como aplicación (PWA) y funcionamiento sin conexión */
+  let promptInstalar = null;
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); promptInstalar = e; const bi = $('#b-instalar'); if (bi) bi.hidden = false; });
+  function registrarSinConexion() {
+    if (window.AJ_SIN_INTERNET || !('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+    navigator.serviceWorker.register('sw.js').catch(() => { /* sin soporte o sin permiso: la página sigue funcionando en línea */ });
   }
 
   /* Franja de aceptación de condiciones (se muestra hasta que la persona la cierra) */
@@ -852,5 +926,6 @@ window.AJ = window.AJ || {};
     }
     window.addEventListener('hashchange', render);
     render();
+    registrarSinConexion();
   });
 })();

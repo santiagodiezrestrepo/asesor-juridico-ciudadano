@@ -57,13 +57,14 @@ Conclusiones para el diseño:
 - **Víctimas y seguridad:** Ley 1448 de 2011, Sentencia T-025 de 2004, Decreto 1066 de 2015 (UNP).
 - **Municipio:** Ley 136 de 1994, Ley 388 de 1997 y Decreto 1077 de 2015 (licencias en 45 días hábiles), Ley 1801 de 2016 (querellas), Ley 142 (estratificación), Sisbén IV.
 
-## 4. Base de datos de casos (58 plantillas activas)
+## 4. Base de datos de casos (66 plantillas activas)
 
 | Tipo | Casos |
 |---|---|
 | Derecho de petición (24) | Planeación municipal; problemas del barrio (interés general); Sisbén; Tránsito (prescripción, fotomultas); Hacienda (predial, prescripción); querella ante Inspección de Policía; EPS (autorizaciones); historia clínica; incapacidades; pensiones; empleador; servicios públicos; banco; colegio y universidad; información pública (Ley 1712); copias; queja contra funcionario; Unidad para las Víctimas; Migración Colombia; juzgado o fiscalía; ICBF y comisaría; arrendador; Prosperidad Social (subsidios); petición general |
 | Acción de tutela (15) | Salud (servicio negado); tratamiento integral; derecho de petición sin respuesta; salarios (mínimo vital); incapacidades; pensión; estabilidad laboral reforzada; educación; debido proceso; hábeas data; corte de servicios públicos; víctimas; vida y seguridad (UNP); migrantes; tutela general |
-| Otros (11) | Incidente de desacato; impugnación; recurso de reposición y apelación; recurso ante empresa de servicios públicos; queja ante Supersalud; reclamación directa al vendedor; queja ante Defensor del Consumidor Financiero; reclamo de hábeas data; supresión de datos personales; cuota alimentaria; medida de protección por violencia intrafamiliar |
+| Otros (11) | Incidente de desacato; impugnación; recurso de reposición y apelación; recurso ante empresa de servicios públicos; queja ante Supersalud; reclamación directa al vendedor; queja ante Defensor del Consumidor Financiero; reclamo de hábeas data; supresión de datos personales; cuota alimentaria (hijos menores, hijos mayores que estudian, personas mayores, cónyuges y familiares dependientes: artículos 411 y siguientes del Código Civil, Ley 1850 de 2017, sentencia C-1033 de 2002); medida de protección por violencia intrafamiliar |
+| Módulo "Mujeres y madres cabeza de familia" (8 nuevos + 3 existentes) | Denuncia penal por violencia contra la mujer o intrafamiliar (Ley 906 de 2004, Ley 1257 de 2008, Ley 1542 de 2012, Ley 1761 de 2015, Convención de Belém do Pará); tutela por falta de protección (T-735/2017, T-338/2018, T-462/2018, SU-080/2020); declaración juramentada de madre o padre cabeza de familia (Ley 82 de 1993, Ley 1232 de 2008, SU-388 y SU-389 de 2005); petición de prioridad como madre cabeza de familia (Ley 1537 de 2012); licencia de maternidad (CST art. 236, Ley 1822 de 2017, Ley 2114 de 2021, Decreto 780 de 2016); queja por acoso laboral o sexual (Ley 1010 de 2006, art. 210A del Código Penal, Ley 2365 de 2024); salud sexual y reproductiva (C-355/2006, SU-096/2018, C-055/2022, Resolución 051 de 2023, Resolución 459 de 2012, Ley 1412 de 2010); custodia y visitas (Ley 1098 de 2006 arts. 23, 82 y 86). El módulo reúne también la cuota alimentaria, la medida de protección y la tutela por despido en embarazo |
 
 Cada caso define, en lenguaje común, las preguntas que debe responder la persona (con ayudas y ejemplos), y en lenguaje jurídico: el asunto, los hechos estructurados, las normas y sentencias, los argumentos de procedencia (en tutela), las peticiones o pretensiones marcables, los anexos sugeridos y la guía de qué hacer después (dónde radicar, plazo, siguiente paso si no responden).
 
@@ -97,7 +98,7 @@ Dos revisores independientes evaluaron 56 documentos generados con datos realist
 
 ## 7. Evolución sugerida
 
-1. Alojamiento público (GitHub Pages, Netlify) y versión instalable (PWA) para uso sin conexión.
+1. ~~Alojamiento público (GitHub Pages, Netlify) y versión instalable (PWA) para uso sin conexión.~~ Hecho: publicada en GitHub Pages, instalable como aplicación (service worker y manifiesto) y disponible como un solo archivo `.html` para copiar en los computadores que La Sueñomotora entrega en zonas sin conexión (`herramientas/empaquetar.js`).
 2. Directorio de correos de notificación judicial y PQRS por entidad y municipio.
 3. Generación de PDF nativo con firma digital opcional.
 4. Más casos: acción popular, acción de cumplimiento, conciliación extrajudicial, denuncia penal, revocatoria directa, solicitudes ante la UGPP, Fomag y regímenes especiales.

@@ -1,0 +1,12 @@
+ASESOR JURÍDICO CIUDADANO — VERSIÓN SIN INTERNET
+
+Qué es: la plataforma completa en un solo archivo (asesor-juridico-ciudadano-sin-internet.html).
+Cómo usarla: copia el archivo en una memoria USB, pégalo en el escritorio del computador y ábrelo con doble clic.
+Se abre en cualquier navegador (Chrome, Edge, Firefox) y funciona sin conexión a internet.
+Para imprimir o guardar en PDF: dentro de la plataforma, botón "Guardar PDF / Imprimir".
+Los documentos guardados quedan en el navegador de ese computador ("Mis documentos").
+
+Generado el 8/10/2026 a partir de https://santiagodiezrestrepo.github.io/asesor-juridico-ciudadano/
+Para actualizarla, vuelve a descargar el archivo desde esa página (sección "Acerca de" → "Usar sin internet").
+
+Una iniciativa de la Fundación La Sueñomotora. Herramienta gratuita de orientación general: no presta asesoría jurídica.

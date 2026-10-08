@@ -376,7 +376,7 @@ AJ.casos = AJ.casos || [];
 
   /* ---------------- TUTELA ESTABILIDAD LABORAL REFORZADA ---------------- */
   {
-    id: 'tut_estabilidad', tipo: 'tutela', categoria: 'empleador',
+    id: 'tut_estabilidad', tipo: 'tutela', categoria: 'empleador', modulo: 'mujer',
     titulo: 'Tutela por despido en embarazo, enfermedad o discapacidad (estabilidad laboral reforzada)',
     resumen: 'Te despidieron o no renovaron el contrato estando embarazada, en licencia de maternidad, incapacitado, con una enfermedad grave o con discapacidad, sin permiso del Ministerio del Trabajo.',
     palabras: ['tutela', 'despido', 'embarazo', 'embarazada', 'lactancia', 'licencia de maternidad', 'enfermedad', 'incapacidad', 'discapacidad', 'reintegro', 'fuero', 'estabilidad laboral reforzada', 'no renovaron', 'contrato', 'prepensionado'],

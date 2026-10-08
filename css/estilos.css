@@ -139,6 +139,10 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
 .chips .chip { cursor: pointer; font-weight: 600; border-color: var(--borde); background: var(--superficie); }
 .chips .chip.activo { background: var(--acento); color: var(--acento-texto); border-color: var(--acento); }
+.chips .chip-modulo { border-color: var(--dorado); color: var(--dorado); }
+.chips .chip-modulo.activo { background: var(--dorado); color: #fff; border-color: var(--dorado); }
+.tarjeta.modulo { border-color: var(--dorado); }
+.tarjeta.modulo .tarjeta-tipo .ico { background: var(--dorado-suave); color: var(--dorado); }
 .conteo { color: var(--fg-suave); font-size: .9rem; }
 .filtros { display: flex; gap: 10px; flex-wrap: wrap; }
 .filtros .buscador { flex: 1 1 320px; }
