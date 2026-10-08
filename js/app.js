@@ -595,7 +595,7 @@ window.AJ = window.AJ || {};
       <section class="seccion acerca">
         <div class="acerca-cab">
           <figure class="acerca-logo">
-            <img src="img/logo-suenomotora.png" alt="Logo de La Sueñomotora" onerror="this.closest('.acerca-logo').hidden = true">
+            <img src="img/logo-suenomotora.webp" alt="Logo de La Sueñomotora" width="1456" height="1092" onerror="this.closest('.acerca-logo').hidden = true">
           </figure>
           <div class="acerca-texto">
             <p class="eyebrow">Una iniciativa de La Sueñomotora</p>
