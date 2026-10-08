@@ -165,7 +165,6 @@ window.AJ = window.AJ || {};
                 <circle class="cabeza" cx="107" cy="83" r="3.4"/>
               </g>
             </svg>
-            <figcaption>La ciudadanía con las herramientas para defenderse</figcaption>
           </figure>
         </div>
         <form class="buscador" id="buscador-inicio" role="search">

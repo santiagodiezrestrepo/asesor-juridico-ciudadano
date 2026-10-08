@@ -99,7 +99,6 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .hero-arte .mapa { fill: var(--acento-suave); stroke: var(--acento); stroke-width: 2; stroke-linejoin: round; }
 .hero-arte .gente { stroke: var(--acento-fuerte); }
 .hero-arte .cabeza { fill: var(--acento-fuerte); stroke: none; }
-.hero-arte figcaption { font-size: .8rem; color: var(--fg-suave); text-align: center; text-transform: uppercase; letter-spacing: .06em; }
 .buscador { display: flex; align-items: center; gap: 10px; background: var(--superficie); border: 2px solid var(--borde); border-radius: 14px; padding: 8px 8px 8px 16px; box-shadow: var(--sombra); margin-top: 22px; }
 .buscador:focus-within { border-color: var(--acento); }
 .buscador .ico { color: var(--fg-suave); }
