@@ -45,8 +45,8 @@ AJ.casos = AJ.casos || [];
       h.push(...R.hechosPrevio(d, 'el pago de las incapacidades'));
       return h;
     },
-    normas: ['cp48', 'cp53', 'l100_206', 'l1562', 'cp23', 'l1755_33', 'l1755_14', 'su995'],
-    fundamentos: d => d.quien === 'afp' ? ['Conforme al artículo 142 del Decreto Ley 019 de 2012, cuando la incapacidad supera los 180 días, la EPS debe emitir el concepto de rehabilitación antes del día 120 y remitirlo a la administradora de pensiones antes del día 150; si el concepto es favorable, la AFP debe postergar la calificación y pagar el subsidio hasta el día 540. Si la EPS no emitió el concepto oportunamente, ella misma debe asumir el pago.'] : [],
+    normas: d => ['cp48', 'cp53', 'l100_206', d.quien === 'arl' ? 'l1562' : null, 'cp23', 'l1755_33', 'l1755_14', 'su995'].filter(Boolean),
+    fundamentos: d => d.quien === 'afp' ? ['Conforme al artículo 142 del Decreto Ley 019 de 2012, condicionado por la Sentencia C-270 de 2023, cuando la incapacidad supera los 180 días la EPS debe emitir el concepto de rehabilitación antes del día 120 y remitirlo a la administradora de pensiones antes del día 150; la administradora de pensiones debe pagar el subsidio desde el día 181 hasta el 540 tanto si el concepto es favorable como si es desfavorable (en este último caso iniciando de inmediato la calificación de pérdida de capacidad laboral). Si la EPS no emitió ni remitió el concepto oportunamente, ella misma debe asumir el pago desde el día 181.'] : [],
     peticiones: [
       { v: 'pagar', inicial: true, t: 'Que paguen todas las incapacidades pendientes en un plazo corto', legal: 'Reconocer y pagar la totalidad de las incapacidades relacionadas en los hechos, con los intereses moratorios a que haya lugar, dentro de un término que no supere los diez (10) días hábiles, dada la afectación del mínimo vital.' },
       { v: 'liquidacion', inicial: true, t: 'Que me entreguen la liquidación detallada de cada incapacidad', legal: 'Entregar la liquidación detallada de cada incapacidad (días, ingreso base, porcentaje aplicado y valor), indicando las ya pagadas y las pendientes.' },
@@ -85,7 +85,7 @@ AJ.casos = AJ.casos || [];
       { id: 'situacion', tipo: 'textarea', etiqueta: '¿Cómo te afecta la demora?', ejemplo: 'Ej.: No tengo otro ingreso; dependo de mis hijos y tengo hipertensión.', filas: 2, requerido: true },
       C.relato({ requerido: false, etiqueta: '¿Algo más que debamos contar? (opcional)' })
     ],
-    asunto: d => `Derecho de petición – ${R.opcionTexto(cd('pet_pension', 'tramite'), d.tramite)}${d.radicado ? ` (radicado ${d.radicado})` : ''}`,
+    asunto: d => `Derecho de petición – ${R.capital(R.opcionTexto(cd('pet_pension', 'tramite'), d.tramite))}${d.radicado ? ` (radicado ${d.radicado})` : ''}`,
     hechos: d => {
       const a = R.actor(d);
       const h = [];
@@ -99,8 +99,8 @@ AJ.casos = AJ.casos || [];
       if (d.situacion) h.push(`La demora afecta gravemente el mínimo vital y la seguridad social: ${R.oracion(d.situacion)}`);
       return h;
     },
-    normas: ['cp48', 'cp46', 'cp23', 'l1755_14', 'l1755_20', 'l100_33', 'l717', 'l700_4', 't377'],
-    fundamentos: d => d.tramite === 'historia' ? ['La historia laboral es el soporte del derecho pensional. Conforme a la jurisprudencia constitucional (entre otras, sentencias T-855 de 2011 y SU-226 de 2019), la administradora de pensiones tiene la obligación de mantenerla completa y actualizada, de realizar las gestiones de cobro de los aportes que los empleadores dejaron de pagar y de no trasladar al afiliado las consecuencias de la mora patronal.'] : [],
+    normas: d => ['cp48', 'cp46', 'cp23', 'l1755_14', 'l1755_20', 'l100_33', d.tramite === 'sobrevivientes' ? 'l717' : null, ['nomina', 'vejez', 'invalidez'].includes(d.tramite) ? 'l700_4' : null, 't377'].filter(Boolean),
+    fundamentos: d => d.tramite === 'historia' ? ['La historia laboral es el soporte del derecho pensional. Conforme a la jurisprudencia constitucional (sentencias T-855 de 2011 y SU-226 de 2019), la administradora debe mantenerla completa y actualizada, adelantar las acciones de cobro de los aportes en mora y, cuando el empleador omitió la afiliación, exigirle el cálculo actuarial, sin trasladar al afiliado las consecuencias de la mora o de la omisión patronal.'] : [],
     peticiones: [
       { v: 'resolver', inicial: true, t: 'Que resuelvan de fondo mi solicitud mediante resolución', legal: d => `Resolver de fondo, mediante acto administrativo motivado, ${R.opcionTexto(cd('pet_pension', 'tramite'), d.tramite)}, dentro de los términos legales, y notificármelo en la dirección y correo indicados.` },
       { v: 'estado', inicial: true, t: 'Que me informen el estado del trámite y qué documentos faltan', legal: 'Informar el estado actual del trámite, los documentos que eventualmente falten y la fecha en que se expedirá la decisión.' },
@@ -122,7 +122,7 @@ AJ.casos = AJ.casos || [];
     destinatario: { categoria: 'empleador', ejemploNombre: 'Ej.: Distribuidora El Sol S.A.S.', cargo: 'Representante legal / Gerencia de talento humano' },
     campos: [
       { id: 'vinculo', tipo: 'select', etiqueta: '¿Qué tipo de vínculo tienes o tenías?', requerido: true, opciones: [
-        { v: 'laboral', t: 'Contrato de trabajo (fijo, indefinido, por obra, verbal)', legal: 'un contrato de trabajo' }, { v: 'domestico', t: 'Trabajo doméstico o de cuidado', legal: 'un contrato de trabajo como empleada o empleado del servicio doméstico' },
+        { v: 'laboral', t: 'Contrato de trabajo (fijo, indefinido, por obra, verbal)', legal: 'un contrato de trabajo' }, { v: 'domestico', t: 'Trabajo doméstico o de cuidado', legal: 'un contrato de trabajo como empleado(a) del servicio doméstico' },
         { v: 'prestacion', t: 'Contrato de prestación de servicios (honorarios)', legal: 'un contrato de prestación de servicios' }, { v: 'verbal', t: 'Sin contrato escrito (de palabra)', legal: 'un contrato de trabajo verbal' }
       ], ancho: 'media' },
       { id: 'estado', tipo: 'select', etiqueta: '¿Sigues trabajando allí?', opciones: [ { v: 'activo', t: 'Sí, sigo trabajando', legal: 'la relación laboral se encuentra vigente' }, { v: 'terminado', t: 'No, ya terminó', legal: 'la relación laboral terminó' } ], valorInicial: 'activo', ancho: 'media' },
@@ -147,13 +147,19 @@ AJ.casos = AJ.casos || [];
     hechos: d => {
       const a = R.actor(d);
       const h = [];
-      h.push(`${a.Nom} ${d.estado === 'terminado' ? 'estuvo vinculad' + a.o : 'se encuentra vinculad' + a.o} a ${R.entidad(d)} mediante ${R.opcionTexto(cd('pet_empleador', 'vinculo'), d.vinculo)}${d.cargo ? `, desempeñando el cargo de ${d.cargo}` : ''}${d.fechaInicio ? `, desde ${R.fechaLarga(d.fechaInicio)}` : ''}${d.estado === 'terminado' && d.fechaFin ? ` hasta ${R.fechaLarga(d.fechaFin)}` : ''}${d.salario ? `, con una remuneración mensual de ${R.moneda(d.salario) || d.salario}` : ''}.`);
+      h.push(`${a.Nom} ${d.estado === 'terminado' ? 'estuvo vinculad' + a.o : 'se encuentra vinculad' + a.o} a ${R.entidad(d)} mediante ${R.generizar(R.opcionTexto(cd('pet_empleador', 'vinculo'), d.vinculo), a.g)}${d.cargo ? `, desempeñando el cargo de ${d.cargo}` : ''}${d.fechaInicio ? `, desde el ${R.fechaLarga(d.fechaInicio)}` : ''}${d.estado === 'terminado' && d.fechaFin ? ` hasta el ${R.fechaLarga(d.fechaFin)}` : ''}${d.salario ? `, con una remuneración mensual de ${R.moneda(d.salario) || d.salario}` : ''}.`);
       h.push(`A la fecha, el empleador adeuda o no ha entregado ${R.lista((d.reclamo || []).map(v => R.opcionTexto(cd('pet_empleador', 'reclamo'), v)))}${d.periodoDeuda ? ` (${d.periodoDeuda})` : ''}${d.valorDeuda ? `, por un valor aproximado de ${R.moneda(d.valorDeuda) || d.valorDeuda}` : ''}.`);
       if (d.vinculo === 'prestacion' || d.vinculo === 'verbal') h.push('Con independencia del nombre que se haya dado al contrato, en la práctica se cumplió horario, se recibieron órdenes y se prestó el servicio de manera personal, de modo que opera el principio de primacía de la realidad sobre las formas (artículo 53 de la Constitución y artículo 24 del Código Sustantivo del Trabajo).');
       h.push(...R.hechosPrevio(d, 'el pago y la entrega de lo aquí reclamado'));
       return h;
     },
     normas: ['cp25', 'cp53', 'cst_57', 'cst_134', 'cst_65', 'l50_99', 'pila', 'cp23', 'l1755_32', 'su995'],
+    fundamentos: d => {
+      const f = [];
+      if ((d.reclamo || []).includes('horas')) f.push('Conforme a la Ley 2466 de 2025 (reforma laboral), el trabajo nocturno se remunera con recargo del treinta y cinco por ciento (35 %) desde las 7:00 p. m. (artículo 160 del Código Sustantivo del Trabajo, vigente desde el 25 de diciembre de 2025), y el trabajo en dominicales y festivos con recargo del ochenta por ciento (80 %) desde julio de 2025, del noventa por ciento (90 %) desde julio de 2026 y del cien por ciento (100 %) desde julio de 2027 (artículo 179 del mismo código).');
+      if (d.vinculo === 'domestico') f.push('Las trabajadoras y trabajadores del servicio doméstico tienen derecho a prima de servicios (Ley 1788 de 2016), a la afiliación a caja de compensación (Decreto 721 de 2013) y a todas las prestaciones del Código Sustantivo del Trabajo (Convenio 189 de la OIT, Ley 1595 de 2012). Cuando el empleador omitió la afiliación a pensiones, debe pagar el cálculo actuarial por el tiempo no cotizado (literal d del parágrafo 1 del artículo 33 de la Ley 100 de 1993; Sentencia SU-226 de 2019).');
+      return f;
+    },
     peticiones: [
       { v: 'pagar', inicial: true, t: 'Que me paguen todo lo que me deben en un plazo corto', legal: d => `Pagar dentro de los cinco (5) días hábiles siguientes ${R.lista((d.reclamo || []).filter(v => !['certificado', 'planillas', 'contrato'].includes(v)).map(v => R.opcionTexto(cd('pet_empleador', 'reclamo'), v))) || 'las sumas adeudadas'}, debidamente liquidadas, junto con la indemnización moratoria que corresponda.` },
       { v: 'liquidacion', inicial: true, t: 'Que me entreguen la liquidación detallada por escrito', legal: 'Entregar por escrito la liquidación detallada de cada concepto (salarios, prestaciones, vacaciones, indemnizaciones), con los períodos, bases y valores aplicados.' },
@@ -168,6 +174,7 @@ AJ.casos = AJ.casos || [];
   /* ---------------- SERVICIOS PÚBLICOS ---------------- */
   {
     id: 'pet_spd', tipo: 'peticion', categoria: 'spd',
+    tituloDoc: d => d.servicio === 'internet' ? 'RECLAMACIÓN (PQR) – SERVICIOS DE COMUNICACIONES' : 'RECLAMACIÓN (artículos 152 y 154 de la Ley 142 de 1994)',
     titulo: 'Reclamo a la empresa de servicios públicos (factura alta, cobro indebido, corte, reconexión)',
     resumen: 'Reclamación formal por facturas excesivas, cobros de servicios no prestados, suspensión indebida, medidor dañado o no reconexión. Si no responden en 15 días hábiles, se entiende resuelto a tu favor.',
     palabras: ['factura', 'recibo', 'luz', 'energía', 'agua', 'acueducto', 'gas', 'aseo', 'internet', 'telefonía', 'corte', 'suspensión', 'reconexión', 'medidor', 'cobro', 'EPM', 'Enel', 'Air-e', 'Afinia', 'Claro', 'Movistar', 'Tigo'],
@@ -193,7 +200,7 @@ AJ.casos = AJ.casos || [];
       ...C.previo({ etiqueta: '¿Ya habías reclamado a la empresa?' }),
       C.relato({ ejemplo: 'Ej.:\nEl recibo de agosto llegó por 480.000 pesos; normalmente pago entre 80.000 y 95.000.\nNo hemos cambiado nada en la casa ni tenemos fugas.\nFui a la oficina y me dijeron que pagara y después reclamara.' })
     ],
-    asunto: d => `Reclamación – ${R.opcionTexto(cd('pet_spd', 'problema'), d.problema, 't')} (cuenta ${d.cuenta || 'N/A'})`,
+    asunto: d => `Reclamación – ${R.capital(R.opcionTexto(cd('pet_spd', 'problema'), d.problema))} (cuenta ${d.cuenta || 'N/A'})`,
     hechos: d => {
       const a = R.actor(d);
       const h = [];
@@ -203,23 +210,22 @@ AJ.casos = AJ.casos || [];
       h.push(...R.hechosPrevio(d, 'la corrección de la facturación'));
       return h;
     },
-    normas: ['cp365', 'l142_152', 'l142_146', 'l142_140', 'l142_158', 'l142_154', 'cp23', 'l1755_33'],
+    normas: d => d.servicio === 'internet' ? ['cp365', 'tic', 'l1480_23', 'cp23', 'l1755_33'] : ['cp365', 'l142_152', 'l142_146', 'l142_140', 'l142_158', 'l142_154', 'cp23', 'l1755_33'],
     fundamentos: d => {
       const f = [];
-      if (d.problema === 'corte' || d.problema === 'reconexion') f.push(AJ.normas.t740.texto + ` (${AJ.normas.t740.cita}).`);
-      if (d.servicio === 'internet') f.push('Los servicios de telecomunicaciones se rigen por la Ley 1341 de 2009 y el Régimen de Protección de los Derechos de los Usuarios de la Comisión de Regulación de Comunicaciones (Resolución CRC 5050 de 2016), que obligan al operador a responder las PQR en quince (15) días hábiles, a no cobrar servicios no solicitados y a permitir la terminación del contrato sin penalidades indebidas. La segunda instancia corresponde a la Superintendencia de Industria y Comercio.');
+      if ((d.problema === 'corte' || d.problema === 'reconexion') && d.servicio !== 'internet') f.push(AJ.normas.t740.texto + ` (${AJ.normas.t740.cita}).`);
       return f;
     },
     peticiones: [
-      { v: 'revisar', inicial: true, t: 'Que revisen la factura y la corrijan según el consumo real', legal: 'Revisar la facturación reclamada, investigar la desviación significativa conforme al artículo 149 de la Ley 142 de 1994 y reliquidarla con base en el consumo real o el promedio histórico del inmueble.' },
-      { v: 'no_cortar', inicial: true, t: 'Que no suspendan el servicio mientras resuelven el reclamo', legal: 'Abstenerse de suspender el servicio o de iniciar cobros por las sumas reclamadas mientras se resuelve esta petición y los recursos, conforme al artículo 155 de la Ley 142 de 1994, aceptando el pago de los valores no reclamados.' },
+      { v: 'revisar', inicial: true, t: 'Que revisen la factura y la corrijan según el consumo real', legal: d => d.servicio === 'internet' ? 'Revisar la facturación reclamada, retirar los cargos por servicios no solicitados o no informados y reliquidar las facturas, conforme al Régimen de Protección de los Derechos de los Usuarios de Servicios de Comunicaciones (Resolución CRC 5050 de 2016).' : 'Revisar la facturación reclamada, investigar la desviación significativa conforme al artículo 149 de la Ley 142 de 1994 y reliquidarla con base en el consumo real o el promedio histórico del inmueble.' },
+      { v: 'no_cortar', inicial: true, t: 'Que no suspendan el servicio mientras resuelven el reclamo', legal: d => d.servicio === 'internet' ? 'Abstenerse de suspender el servicio o de iniciar cobros por las sumas reclamadas mientras se resuelve esta petición y los recursos, aceptando el pago de los valores no reclamados.' : 'Abstenerse de suspender el servicio o de iniciar cobros por las sumas reclamadas mientras se resuelve esta petición y los recursos, conforme al artículo 155 de la Ley 142 de 1994, aceptando el pago de los valores no reclamados.' },
       { v: 'reconectar', inicial: d => ['corte', 'reconexion'].includes(d.problema), t: 'Que reconecten el servicio de inmediato', legal: 'Restablecer el servicio de manera inmediata, en un término no superior a veinticuatro (24) horas, dado que se eliminó la causa de la suspensión o esta fue ilegal.' },
       { v: 'medidor', inicial: d => d.problema === 'medidor', t: 'Que revisen o cambien el medidor con mi presencia', legal: 'Practicar una revisión técnica del medidor y de las instalaciones, en fecha y hora que se me informen previamente para estar presente, y entregar copia del acta.' },
       { v: 'copias', t: 'Que me entreguen el historial de consumos y las lecturas', legal: 'Entregar el historial de consumos y facturación de los últimos veinticuatro (24) meses, las lecturas del medidor y los soportes de la facturación reclamada.' },
       { v: 'devolver', t: 'Que me devuelvan o abonen lo cobrado de más', legal: 'Devolver o abonar en las siguientes facturas las sumas cobradas en exceso, debidamente indexadas.' }
     ],
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'facturas', t: 'Copia de las facturas reclamadas y de facturas anteriores' }, { v: 'pagos', t: 'Soportes de pago' }, { v: 'fotos', t: 'Fotos del medidor o de las instalaciones' }, { v: 'medicas', t: 'Certificados médicos (si alguien depende del servicio)' } ],
-    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Si no responden en 15 días hábiles, opera el silencio administrativo positivo: tu reclamo se entiende resuelto a tu favor (artículo 158 de la Ley 142 de 1994). Si responden negando, tienes 5 días hábiles para presentar recurso de reposición y en subsidio apelación ante la Superservicios (en esta plataforma: "Recurso contra la respuesta de la empresa de servicios públicos").', siNoResponden: 'Pide a la empresa que reconozca el silencio administrativo positivo; si se niega, queja ante la Superservicios. Si hay personas vulnerables sin agua o energía, presenta la "Tutela por corte de servicios públicos".' }
+    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Si no responden en 15 días hábiles, opera el silencio administrativo positivo: tu reclamo se entiende resuelto a tu favor (artículo 158 de la Ley 142 de 1994). Si responden negando, tienes 5 días hábiles para presentar recurso de reposición y en subsidio apelación ante la Superservicios (en esta plataforma: "Recurso contra la respuesta de la empresa de servicios públicos"). Si es internet, telefonía o televisión, el plazo para recurrir es de 10 días hábiles y la apelación va a la Superintendencia de Industria y Comercio, no a la Superservicios.', siNoResponden: 'Pide a la empresa que reconozca el silencio administrativo positivo; si se niega, queja ante la Superservicios. Si hay personas vulnerables sin agua o energía, presenta la "Tutela por corte de servicios públicos".' }
   },
 
   /* ---------------- BANCO ---------------- */
@@ -258,8 +264,8 @@ AJ.casos = AJ.casos || [];
     normas: ['cp23', 'l1755_32', 'l1755_33', 'l1755_14', 'l1328_7', 'l1328_13', 'cp15', 'cp83'],
     fundamentos: d => {
       const f = [];
-      if ((d.tramite || []).includes('no_reconozco')) f.push('Conforme al artículo 51 de la Ley 1480 de 2011 y a la jurisprudencia de la Corte Suprema de Justicia (entre otras, Sentencia SC-5157 de 2019), las entidades financieras responden por las transacciones fraudulentas realizadas con sus productos cuando no acreditan haber adoptado medidas de seguridad idóneas, pues son profesionales que asumen los riesgos propios de su actividad; la carga de la prueba de la autoría del titular corresponde al banco.');
-      if ((d.tramite || []).includes('cobranza')) f.push('La Circular Externa 029 de 2014 de la Superintendencia Financiera y la Ley 1328 de 2009 prohíben las prácticas de cobranza abusivas: llamadas o mensajes a terceros, contactos fuera de los horarios permitidos, amenazas o informaciones engañosas, y exigen informar previamente los gastos de cobranza.');
+      if ((d.tramite || []).includes('no_reconozco')) f.push('Conforme al artículo 51 de la Ley 1480 de 2011, a la Ley 1328 de 2009 y a la jurisprudencia de la Sala de Casación Civil de la Corte Suprema de Justicia (sentencias SC18614-2016 del 19 de diciembre de 2016 y SC5176-2020 del 18 de diciembre de 2020), las entidades financieras asumen, como riesgo propio de su actividad profesional, las consecuencias de las transacciones fraudulentas realizadas a través de sus productos y canales electrónicos, salvo que demuestren la culpa del cliente o una causa extraña; la carga de probar que la operación fue realizada por el titular corresponde al banco. Además, la Ley Estatutaria 2573 de 2026 obliga a suspender los cobros, los intereses y los reportes negativos mientras se verifica una suplantación de identidad denunciada por el titular.');
+      if ((d.tramite || []).includes('cobranza')) f.push('La Ley 2300 de 2023 establece que la cobranza solo puede realizarse de lunes a viernes entre las 7:00 a. m. y las 7:00 p. m. y los sábados entre las 8:00 a. m. y las 3:00 p. m., nunca en domingos o festivos, con un máximo de un contacto a la semana y uno al día, por los canales autorizados por el deudor y sin contactar a terceros; la Circular Externa 029 de 2014 de la Superintendencia Financiera y la Ley 1328 de 2009 prohíben además las amenazas, las informaciones engañosas y los gastos de cobranza no informados previamente.');
       return f;
     },
     peticiones: [
@@ -295,7 +301,7 @@ AJ.casos = AJ.casos || [];
       ...C.previo({ etiqueta: '¿Ya lo habías solicitado al colegio o universidad?' }),
       C.relato({ ejemplo: 'Ej.:\nMi hijo terminó 7° en 2025 en el colegio.\nNos trasladamos de ciudad y el nuevo colegio exige los certificados.\nEl colegio anterior dice que no los entrega hasta que pague dos meses de pensión atrasados.' })
     ],
-    asunto: d => `Derecho de petición – ${R.opcionTexto(cd('pet_colegio', 'tramite'), d.tramite)} – ${d.estudiante || 'estudiante'}`,
+    asunto: d => `Derecho de petición – ${R.capital(R.opcionTexto(cd('pet_colegio', 'tramite'), d.tramite))} – ${d.estudiante || 'estudiante'}`,
     hechos: d => {
       const a = R.actor(d);
       const h = [];
@@ -311,7 +317,7 @@ AJ.casos = AJ.casos || [];
       if (d.tramite === 'sancion') f.push(AJ.normas.cp29.texto + ` (${AJ.normas.cp29.cita}).`, 'La Corte Constitucional ha reiterado (entre otras, sentencias T-390 de 2011 y T-478 de 2015) que el manual de convivencia debe respetar la Constitución y que toda sanción exige un procedimiento previo con comunicación de los cargos, oportunidad de defensa, pruebas, decisión motivada y recursos.');
       if (d.tramite === 'acoso') f.push('La Ley 1620 de 2013 y el Decreto 1965 de 2013 obligan a las instituciones a activar la Ruta de Atención Integral para la Convivencia Escolar ante situaciones de acoso, con medidas de protección a la víctima, atención y reporte al comité de convivencia y, cuando corresponda, a las autoridades.');
       if (d.tramite === 'inclusion') f.push('El Decreto 1421 de 2017 obliga a las instituciones educativas a elaborar el Plan Individual de Ajustes Razonables (PIAR) y a garantizar los apoyos necesarios para los estudiantes con discapacidad, sin que puedan negar el cupo ni condicionar la permanencia.');
-      if (d.tramite === 'cupo') f.push('Conforme al artículo 67 de la Constitución, al artículo 28 de la Ley 1098 de 2006 y a la jurisprudencia constitucional (Sentencia T-779 de 2011, entre otras), las secretarías de educación deben garantizar un cupo en una institución oficial cercana a la residencia del menor; la falta de cupo no es excusa válida para negar el acceso.');
+      if (d.tramite === 'cupo') f.push('Conforme al artículo 67 de la Constitución, al artículo 28 de la Ley 1098 de 2006 y a la jurisprudencia constitucional (sentencias T-008 de 2016 y T-434 de 2018, entre otras), las secretarías de educación deben garantizar un cupo en una institución oficial cercana a la residencia del menor y, cuando la distancia lo exige, el transporte escolar; la falta de cupo no es excusa válida para negar el acceso.');
       return f;
     },
     peticiones: [

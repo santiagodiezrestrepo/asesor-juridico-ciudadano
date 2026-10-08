@@ -21,7 +21,7 @@ window.AJ = window.AJ || {};
       id: 'tutela', nombre: 'Acción de tutela', plural: 'Acciones de tutela', icono: 'balanza',
       descripcion: 'Para pedirle a un juez que proteja de inmediato un derecho fundamental (salud, petición, mínimo vital, educación, debido proceso). El juez decide en máximo 10 días. No necesitas abogado.',
       titulo: 'ACCIÓN DE TUTELA', permiteAnonimo: false, saludo: 'Respetado(a) señor(a) Juez:',
-      intro: (d, c) => `${R.identificacion(d, { tutela: true })} con fundamento en el artículo 86 de la Constitución Política y en el Decreto 2591 de 1991, presento ACCIÓN DE TUTELA contra ${R.entidad(d)}${d.entidadCargo ? `, representada por su ${d.entidadCargo}` : ''}, por la vulneración de los derechos fundamentales que se indican más adelante, con base en los siguientes:`,
+      intro: (d, c) => `${R.identificacion(d, { tutela: true })} con fundamento en el artículo 86 de la Constitución Política y en el Decreto 2591 de 1991, presento ACCIÓN DE TUTELA contra ${R.entidad(d)}, a través de su representante legal o de quien haga sus veces${d.entidadCargo ? ` (${d.entidadCargo})` : ''}, por la vulneración de los derechos fundamentales que se indican más adelante, con base en los siguientes:`,
       secciones: ['hechos', 'derechos', 'fundamentos', 'procedencia', 'pretensiones', 'medida', 'pruebas', 'juramento', 'notificaciones'],
       cierre: ''
     },
@@ -65,6 +65,14 @@ window.AJ = window.AJ || {};
       secciones: ['hechos', 'fundamentos', 'peticiones', 'anexos', 'notificaciones'],
       cierre: 'Quedo atento(a) a su respuesta dentro del término legal de quince (15) días hábiles.'
     },
+    contrato: {
+      id: 'contrato', nombre: 'Contratos y documentos privados', plural: 'Contratos', icono: 'documento', contrato: true,
+      descripcion: 'Arriendo de vivienda, venta de un vehículo o de un bien, contrato para empleada o empleado doméstico, pagaré, poder, acuerdo de pago y recibo: como las hojas Minerva, pero con tus datos y las cláusulas que protegen a las dos partes.',
+      titulo: 'CONTRATO', permiteAnonimo: false, saludo: '',
+      intro: () => '',
+      secciones: [],
+      cierre: ''
+    },
     familia: {
       id: 'familia', nombre: 'Familia y protección', plural: 'Solicitudes de familia', icono: 'familia',
       descripcion: 'Cuota alimentaria y medidas de protección por violencia intrafamiliar ante la Comisaría o la Defensoría de Familia. Gratuitas y sin abogado.',
@@ -83,7 +91,7 @@ window.AJ = window.AJ || {};
     return String(t == null ? '' : t)
       .replace(/(^|[\s(])de el\(la\)(?=[\s,.;:)])/g, '$1del(la)').replace(/(^|[\s(])a el\(la\)(?=[\s,.;:)])/g, '$1al(la)')
       .replace(/(^|[\s(])de el(?=[\s,.;:)])/g, '$1del').replace(/(^|[\s(])a el(?=[\s,.;:)])/g, '$1al')
-      .replace(/\s+([,.;:])/g, '$1').replace(/\.\./g, '.');
+      .replace(/ {2,}/g, ' ').replace(/\s+([,.;:])/g, '$1').replace(/\.\./g, '.');
   }
 
   function aplanar(arr) {
@@ -111,7 +119,8 @@ window.AJ = window.AJ || {};
 
   function fundamentos(caso, d) {
     const out = [];
-    (caso.normas || []).forEach(id => {
+    const ids = aplanar(evaluar(caso.normas, d, caso));
+    ids.forEach(id => {
       const n = AJ.normas[id];
       if (n) out.push(`${n.texto} (${n.cita}).`);
     });
@@ -119,7 +128,7 @@ window.AJ = window.AJ || {};
     if (esp) out.push(esp);
     if (caso.tipo === 'peticion' || caso.tipo === 'queja' || caso.tipo === 'habeas') {
       const cat = AJ.entidades.categoria(d.categoria);
-      if (cat.naturaleza !== 'publica' && !(caso.normas || []).includes('l1755_32')) {
+      if (cat.naturaleza !== 'publica' && !ids.includes('l1755_32')) {
         const n = AJ.normas.l1755_32; out.push(`${n.texto} (${n.cita}).`);
       }
     }
@@ -131,10 +140,42 @@ window.AJ = window.AJ || {};
     return out;
   }
 
+  const ORDINALES = ['PRIMERA', 'SEGUNDA', 'TERCERA', 'CUARTA', 'QUINTA', 'SEXTA', 'SÉPTIMA', 'OCTAVA', 'NOVENA', 'DÉCIMA', 'DÉCIMA PRIMERA', 'DÉCIMA SEGUNDA', 'DÉCIMA TERCERA', 'DÉCIMA CUARTA', 'DÉCIMA QUINTA', 'DÉCIMA SEXTA', 'DÉCIMA SÉPTIMA', 'DÉCIMA OCTAVA', 'DÉCIMA NOVENA', 'VIGÉSIMA', 'VIGÉSIMA PRIMERA', 'VIGÉSIMA SEGUNDA', 'VIGÉSIMA TERCERA', 'VIGÉSIMA CUARTA', 'VIGÉSIMA QUINTA'];
+
+  /* Contratos y documentos privados: partes, cláusulas numeradas y firmas */
+  function generarContrato(caso, d) {
+    const tipo = AJ.tipos[caso.tipo];
+    const b = [];
+    const P = R.partesContrato(caso, d);
+    const hoy = R.hoy();
+    const fecha = d.fechaFirma ? R.fechaLarga(d.fechaFirma) : R.fechaLarga(hoy);
+    const titulo = typeof caso.tituloDoc === 'function' ? caso.tituloDoc(d, P) : (caso.tituloDoc || tipo.titulo);
+    if (caso.encabezado) aplanar(evaluar(caso.encabezado, d, P)).forEach(l => b.push({ k: 'ref', lines: [l] }));
+    const intro = caso.intro ? evaluar(caso.intro, d, P) : `Entre los suscritos a saber: ${P.A.ident}, quien en adelante se denominará ${P.A.rol}, por una parte; y ${P.B.ident}, quien en adelante se denominará ${P.B.rol}, por la otra, hemos acordado celebrar el presente ${caso.nombreContrato || 'contrato'}, que se regirá por las normas colombianas vigentes y en especial por las siguientes:`;
+    if (intro) b.push({ k: 'p', t: intro });
+    const clausulas = [...aplanar(evaluar(caso.clausulas, d, P))];
+    (caso.opcionales || []).forEach(o => { if ((d.opcionales || []).includes(o.v) && o.clausula) { const c = typeof o.clausula === 'function' ? o.clausula(d, P) : o.clausula; if (c) clausulas.push(c); } });
+    if (d.clausulaOtra) R.relatoAHechos(d.clausulaOtra).forEach((t, i) => clausulas.push({ t: `ACUERDO ADICIONAL${i ? ' ' + (i + 1) : ''}`, c: t }));
+    if (clausulas.length) {
+      b.push({ k: 'h', t: 'CLÁUSULAS' });
+      clausulas.forEach((c, i) => b.push({ k: 'p', t: `${ORDINALES[i] || `CLÁUSULA ${i + 1}`}. ${(c.t || '').toUpperCase()}. ${c.c}` }));
+    }
+    const cierre = caso.cierre ? evaluar(caso.cierre, d, P) : `Para constancia, las partes firman el presente documento en ${d.ciudad || '[ciudad]'}, el ${fecha}, en dos ejemplares del mismo tenor y valor, uno para cada parte.`;
+    if (cierre) b.push({ k: 'p', t: cierre });
+    const firmas = caso.firmas ? evaluar(caso.firmas, d, P) : [{ rol: P.A.rol, lines: P.A.firma }, { rol: P.B.rol, lines: P.B.firma }];
+    if (d.testigo1Nombre) firmas.push({ rol: 'TESTIGO', lines: [R.mayus(d.testigo1Nombre), d.testigo1Doc ? `C.C. No. ${d.testigo1Doc}` : ''].filter(Boolean) });
+    if (d.testigo2Nombre) firmas.push({ rol: 'TESTIGO', lines: [R.mayus(d.testigo2Nombre), d.testigo2Doc ? `C.C. No. ${d.testigo2Doc}` : ''].filter(Boolean) });
+    b.push({ k: 'firmas', items: firmas });
+    b.forEach(x => { if (x.t) x.t = pulir(x.t); if (x.items && typeof x.items[0] === 'string') x.items = x.items.map(pulir); if (x.lines) x.lines = x.lines.map(pulir); });
+    const tipoDoc = { titulo };
+    return { bloques: b, html: AJ.motor.aHtml(b, tipoDoc, caso), texto: AJ.motor.aTexto(b, tipoDoc), titulo };
+  }
+
   /* ---------- Generación ---------- */
   AJ.motor = {
     generar(caso, d) {
       const tipo = AJ.tipos[caso.tipo];
+      if (tipo.contrato) return generarContrato(caso, d);
       const b = [];
       const a = R.actor(d);
       const hoy = R.hoy();
@@ -148,7 +189,7 @@ window.AJ = window.AJ || {};
       } else if (caso.tipo === 'desacato' || caso.tipo === 'impugnacion') {
         dest.push('Señor(a)', R.mayus(d.juzgado || 'JUEZ DE PRIMERA INSTANCIA'), 'E. S. D.');
       } else {
-        dest.push('Señores', R.entidad(d));
+        dest.push(d.categoria === 'particular' && /^SE[ÑN]OR/i.test(R.entidad(d)) ? 'Señor(a)' : 'Señores', R.entidad(d));
         if (d.entidadCargo) dest.push(d.entidadCargo);
         if (d.entidadDireccion) dest.push(d.entidadDireccion);
         if (d.entidadCiudad) dest.push(d.entidadCiudad);
@@ -171,7 +212,7 @@ window.AJ = window.AJ || {};
       }
       b.push({ k: 'ref', lines: ref });
 
-      b.push({ k: 'p', t: tipo.saludo });
+      b.push({ k: 'p', t: caso.saludoDoc || tipo.saludo });
       b.push({ k: 'p', t: tipo.intro(d, caso) });
 
       let n = 0;
@@ -207,7 +248,7 @@ window.AJ = window.AJ || {};
           case 'procedencia': {
             titulo('PROCEDENCIA DE LA ACCIÓN');
             const pr = [
-              `Legitimación: ${a.tercero ? `${R.mayus(d.nombre)} actúa ${d.afectadoRazon === 'menor' ? 'como representante legal' : 'como agente oficioso'} de ${a.nom}, titular de los derechos, quien ${R.opcionTexto({ opciones: AJ.campos.solicitante({ permiteAnonimo: true }).find(c => c.id === 'afectadoRazon').opciones }, d.afectadoRazon, 'legal')}, conforme al artículo 10 del Decreto 2591 de 1991.` : `${a.Nom} es titular de los derechos fundamentales cuya protección se reclama (artículo 10 del Decreto 2591 de 1991).`} ${R.entidad(d)} es la ${AJ.entidades.categoria(d.categoria).naturaleza === 'publica' ? 'autoridad pública' : 'entidad'} responsable de la acción u omisión que origina la vulneración (artículos 5, 13 y 42 del Decreto 2591 de 1991).`,
+              `Legitimación: ${a.tercero ? `${R.mayus(d.nombre)} actúa ${d.afectadoRazon === 'menor' ? 'como representante legal' : R.terminacion(d.genero, 'como agente oficioso', 'como agente oficiosa')} de ${a.nom}, titular de los derechos, quien ${R.generizar(R.opcionTexto({ opciones: AJ.campos.solicitante({ permiteAnonimo: true }).find(c => c.id === 'afectadoRazon').opciones }, d.afectadoRazon, 'legal'), a.g)}, conforme al artículo 10 del Decreto 2591 de 1991.` : `${a.Nom} es titular de los derechos fundamentales cuya protección se reclama (artículo 10 del Decreto 2591 de 1991).`} ${R.entidad(d)} es la ${AJ.entidades.categoria(d.categoria).naturaleza === 'publica' ? 'autoridad pública' : 'entidad'} responsable de la acción u omisión que origina la vulneración (artículos 5, 13 y 42 del Decreto 2591 de 1991).`,
               ...aplanar(evaluar(caso.procedencia, d, caso))
             ];
             pr.forEach(t => b.push({ k: 'p', t, sangria: true }));
@@ -231,13 +272,13 @@ window.AJ = window.AJ || {};
           }
           case 'anexos':
           case 'pruebas': {
-            const items = marcadas(caso.anexos, d.anexos, d, 't').filter(x => !(R.esAnonimo(d) && /c[ée]dula/i.test(x)));
+            const items = marcadas((caso.anexos || []).filter(o => !o.si || o.si(d)), d.anexos, d, 't').filter(x => !(R.esAnonimo(d) && /c[ée]dula/i.test(x)));
             if (d.anexosOtros) items.push(...R.relatoAHechos(d.anexosOtros));
             titulo(sec === 'pruebas' ? 'PRUEBAS Y ANEXOS' : 'ANEXOS');
             if (sec === 'pruebas') b.push({ k: 'p', t: 'Solicito tener como pruebas los siguientes documentos, que se anexan, y los demás que el despacho considere pertinentes decretar de oficio:' });
             else b.push({ k: 'p', t: 'Me permito anexar los siguientes documentos:' });
             b.push({ k: 'ol', items: items.length ? items : ['Copia del documento de identidad.'] });
-            if (caso.tipo === 'tutela' && d.yaPedi === 'si') b.push({ k: 'p', t: 'Solicito igualmente que, conforme al artículo 19 del Decreto 2591 de 1991, se requiera a la entidad accionada para que rinda informe sobre los hechos y aporte los documentos relacionados con el caso, bajo la advertencia de la presunción de veracidad del artículo 20.' });
+            if (caso.tipo === 'tutela') b.push({ k: 'p', t: 'Solicito igualmente que, conforme al artículo 19 del Decreto 2591 de 1991, se requiera a la parte accionada para que rinda informe sobre los hechos y aporte los documentos relacionados con el caso, bajo la advertencia de que, si no lo hace en el plazo que fije el despacho, se tendrán por ciertos los hechos de esta solicitud (artículo 20 del mismo decreto).' });
             break;
           }
           case 'juramento': {
@@ -285,7 +326,8 @@ window.AJ = window.AJ || {};
       b.push({ k: 'firma', lines: firma });
 
       b.forEach(x => { if (x.t) x.t = pulir(x.t); if (x.items) x.items = x.items.map(pulir); if (x.lines) x.lines = x.lines.map(pulir); });
-      return { bloques: b, html: this.aHtml(b, tipo, caso), texto: this.aTexto(b, tipo), titulo: tipo.titulo };
+      const tipoDoc = { titulo: caso.tituloDoc || tipo.titulo };
+      return { bloques: b, html: this.aHtml(b, tipoDoc, caso), texto: this.aTexto(b, tipoDoc), titulo: tipoDoc.titulo };
     },
 
     esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); },
@@ -303,6 +345,7 @@ window.AJ = window.AJ || {};
           case 'ol': h += `<ol class="doc-ol">${x.items.map(i => `<li>${e(i)}</li>`).join('')}</ol>`; break;
           case 'ul': h += `<ul class="doc-ul">${x.items.map(i => `<li>${e(i)}</li>`).join('')}</ul>`; break;
           case 'firma': h += `<div class="doc-firma"><div class="doc-linea"></div>${x.lines.map((l, i) => i === 0 ? `<strong>${e(l)}</strong>` : e(l)).join('<br>')}</div>`; break;
+          case 'firmas': h += `<div class="doc-firmas">${x.items.map(f => `<div class="doc-firma"><div class="doc-linea"></div><strong>${e(f.rol)}</strong><br>${f.lines.map(e).join('<br>')}<br><span class="doc-huella">Huella</span></div>`).join('')}</div>`; break;
         }
       });
       return h;
@@ -320,6 +363,7 @@ window.AJ = window.AJ || {};
           case 'ol': x.items.forEach((i, k) => out.push(`${k + 1}. ${i}`)); out.push(''); break;
           case 'ul': x.items.forEach(i => out.push(`- ${i}`)); out.push(''); break;
           case 'firma': out.push('', '', '______________________________', ...x.lines); break;
+          case 'firmas': x.items.forEach(f => out.push('', '', '______________________________', f.rol, ...f.lines, 'Huella: [        ]')); break;
         }
       });
       return out.join('\n');
@@ -327,7 +371,7 @@ window.AJ = window.AJ || {};
 
     /* HTML completo para exportar a Word (.doc) */
     aWord(html, titulo) {
-      return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${this.esc(titulo)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>@page{size:21.59cm 27.94cm;margin:2.5cm 3cm}body{font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.4;color:#000}.doc-titulo{text-align:center;font-weight:bold;font-size:14pt;margin:0 0 18pt}.doc-fecha{margin:0 0 14pt}.doc-dest{margin:0 0 14pt}.doc-ref{margin:0 0 14pt}.doc-h{font-size:12pt;font-weight:bold;margin:16pt 0 8pt;text-transform:uppercase}.doc-p{text-align:justify;margin:0 0 10pt}.doc-sangria{margin-left:0}.doc-ol,.doc-ul{margin:0 0 10pt 24pt}.doc-ol li,.doc-ul li{text-align:justify;margin-bottom:6pt}.doc-firma{margin-top:40pt}.doc-linea{width:220pt;border-top:1px solid #000;margin-bottom:4pt}</style></head><body>${html}</body></html>`;
+      return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>${this.esc(titulo)}</title><!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml><![endif]--><style>@page{size:21.59cm 27.94cm;margin:2.5cm 3cm}body{font-family:'Times New Roman',Times,serif;font-size:12pt;line-height:1.4;color:#000}.doc-titulo{text-align:center;font-weight:bold;font-size:14pt;margin:0 0 18pt}.doc-fecha{margin:0 0 14pt}.doc-dest{margin:0 0 14pt}.doc-ref{margin:0 0 14pt}.doc-h{font-size:12pt;font-weight:bold;margin:16pt 0 8pt;text-transform:uppercase}.doc-p{text-align:justify;margin:0 0 10pt}.doc-sangria{margin-left:0}.doc-ol,.doc-ul{margin:0 0 10pt 24pt}.doc-ol li,.doc-ul li{text-align:justify;margin-bottom:6pt}.doc-firma{margin-top:40pt}.doc-linea{width:220pt;border-top:1px solid #000;margin-bottom:4pt}.doc-firmas{margin-top:30pt}.doc-huella{display:inline-block;border:1px solid #000;padding:14pt 18pt;margin-top:6pt;font-size:9pt;color:#555}</style></head><body>${html}</body></html>`;
     }
   };
 })();

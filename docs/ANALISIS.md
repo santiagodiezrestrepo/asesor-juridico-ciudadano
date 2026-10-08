@@ -57,15 +57,27 @@ Conclusiones para el diseño:
 - **Víctimas y seguridad:** Ley 1448 de 2011, Sentencia T-025 de 2004, Decreto 1066 de 2015 (UNP).
 - **Municipio:** Ley 136 de 1994, Ley 388 de 1997 y Decreto 1077 de 2015 (licencias en 45 días hábiles), Ley 1801 de 2016 (querellas), Ley 142 (estratificación), Sisbén IV.
 
-## 4. Base de datos de casos (49 plantillas)
+## 4. Base de datos de casos (58 plantillas activas)
 
 | Tipo | Casos |
 |---|---|
-| Derecho de petición (23) | Planeación municipal; problemas del barrio (interés general); Sisbén; Tránsito (prescripción, fotomultas); Hacienda (predial, prescripción); querella ante Inspección de Policía; EPS (autorizaciones); historia clínica; incapacidades; pensiones; empleador; servicios públicos; banco; colegio y universidad; información pública (Ley 1712); copias; queja contra funcionario; Unidad para las Víctimas; Migración Colombia; juzgado o fiscalía; ICBF y comisaría; arrendador; petición general |
+| Derecho de petición (24) | Planeación municipal; problemas del barrio (interés general); Sisbén; Tránsito (prescripción, fotomultas); Hacienda (predial, prescripción); querella ante Inspección de Policía; EPS (autorizaciones); historia clínica; incapacidades; pensiones; empleador; servicios públicos; banco; colegio y universidad; información pública (Ley 1712); copias; queja contra funcionario; Unidad para las Víctimas; Migración Colombia; juzgado o fiscalía; ICBF y comisaría; arrendador; Prosperidad Social (subsidios); petición general |
 | Acción de tutela (15) | Salud (servicio negado); tratamiento integral; derecho de petición sin respuesta; salarios (mínimo vital); incapacidades; pensión; estabilidad laboral reforzada; educación; debido proceso; hábeas data; corte de servicios públicos; víctimas; vida y seguridad (UNP); migrantes; tutela general |
 | Otros (11) | Incidente de desacato; impugnación; recurso de reposición y apelación; recurso ante empresa de servicios públicos; queja ante Supersalud; reclamación directa al vendedor; queja ante Defensor del Consumidor Financiero; reclamo de hábeas data; supresión de datos personales; cuota alimentaria; medida de protección por violencia intrafamiliar |
 
 Cada caso define, en lenguaje común, las preguntas que debe responder la persona (con ayudas y ejemplos), y en lenguaje jurídico: el asunto, los hechos estructurados, las normas y sentencias, los argumentos de procedencia (en tutela), las peticiones o pretensiones marcables, los anexos sugeridos y la guía de qué hacer después (dónde radicar, plazo, siguiente paso si no responden).
+
+### 4.1 Módulo de contratos (hojas Minerva)
+
+| Activos | Conservados pero retirados del catálogo |
+|---|---|
+| Arrendamiento de vivienda (Ley 820 de 2003), compraventa de vehículo, compraventa de bien mueble, contrato de servicio doméstico (CST, Ley 1788 de 2016, Convenio 189 OIT), pagaré (C. de Co. arts. 709 ss.), poder especial, acuerdo de pago y recibo o paz y salvo | Promesa de compraventa de inmueble, arrendamiento de local comercial, contrato de trabajo general y prestación de servicios: son el trabajo habitual de los abogados en negocios entre particulares y no están dirigidos a población vulnerable. Siguen en `js/datos/contratos.js` con la marca `retirado: true` |
+
+Cada contrato se construye con las dos partes (persona o empresa), el papel de quien llena el formulario, cláusulas numeradas con los artículos aplicables, cláusulas opcionales, testigos, firmas con espacio para huella y una guía de qué hacer después (autenticación, traspaso, afiliaciones).
+
+### 4.2 Revisión jurídica y de usabilidad (8 de octubre de 2026)
+
+Dos revisores independientes evaluaron 56 documentos generados con datos realistas. El revisor jurídico verificó 63 sentencias en la relatoría de la Corte Constitucional: 12 citas resultaron erradas o inexistentes y fueron reemplazadas por las decisiones correctas (entre otras, T-224/2020, T-425/2017, T-016/2015, T-246/2018, T-514/2020, C-270/2023, T-168/2010, T-017/2011, T-436/2024, T-029/2025, T-185/2021, T-659/2012, T-086/2020 y las sentencias SC18614-2016 y SC5176-2020 de la Corte Suprema). Se corrigieron reglas derogadas o mal citadas (término del PARD según la Ley 1878/2018, artículos del Código General Disciplinario, Ley 294/1996 y Ley 575/2000, Ley 2220/2022 en lugar de la derogada Ley 640/2001, incapacidades 181-540 según la Sentencia C-270/2023) y se incorporaron normas recientes (Ley 2466/2025 sobre recargos, Ley 2300/2023 sobre cobranza, Ley Estatutaria 2573/2026 sobre suplantación de identidad, régimen de telecomunicaciones de la Resolución CRC 5050/2016 y los Decretos 799/2025 y 1446/2026 sobre reparto). El revisor de usabilidad produjo 22 cambios de flujo y lenguaje (quién presenta el documento, respuestas sin valores por defecto que afirmen hechos, peticiones que siguen al trámite elegido, buscador con más de 500 sinónimos cotidianos, avisos de plazos, privacidad en computadores públicos).
 
 ## 5. Decisiones de diseño
 

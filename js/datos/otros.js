@@ -42,7 +42,7 @@ AJ.casos = AJ.casos || [];
       return h;
     },
     normas: ['cp86', 'd2591_27', 'd2591_52', 'd2591_23', 'cp228'],
-    fundamentos: d => ['La Corte Constitucional (sentencias T-171 de 2009, SU-034 de 2018 y T-280 de 2021, entre otras) ha precisado que el incidente de desacato tiene por finalidad lograr el cumplimiento efectivo de la orden de tutela, que el juez conserva la competencia hasta que el derecho esté restablecido, y que la sanción procede cuando se acredita la responsabilidad subjetiva del obligado (dolo o culpa), sin que la entidad pueda excusarse en trámites internos o razones presupuestales.'],
+    fundamentos: d => ['La Corte Constitucional (sentencias T-171 de 2009, SU-034 de 2018 y T-029 de 2025, entre otras) ha precisado que el incidente de desacato tiene por finalidad lograr el cumplimiento efectivo de la orden de tutela, que el juez conserva la competencia hasta que el derecho esté restablecido, que debe verificarse a quién iba dirigida la orden, su alcance y su plazo, y que la sanción procede cuando se acredita la responsabilidad subjetiva del obligado (dolo o culpa), sin que la entidad pueda excusarse en trámites internos o razones presupuestales.'],
     peticiones: [
       { v: 'abrir', inicial: true, fijo: true, t: 'Que abra el incidente de desacato', legal: d => `ABRIR incidente de desacato contra el representante legal de ${R.entidad(d)} y contra el funcionario directamente responsable del cumplimiento, por el incumplimiento de la sentencia del ${R.fechaLarga(d.fechaFallo)}.` },
       { v: 'requerir', inicial: true, t: 'Que requiera a la entidad para que cumpla de inmediato', legal: d => `REQUERIR a ${R.entidad(d)} y a su superior jerárquico para que cumplan de inmediato la orden de tutela, conforme al artículo 27 del Decreto 2591 de 1991.` },
@@ -137,7 +137,7 @@ AJ.casos = AJ.casos || [];
       { v: 'suspender', t: 'Que no ejecuten la decisión mientras resuelven', legal: 'ABSTENERSE de ejecutar la decisión recurrida mientras se resuelven los recursos, en virtud del efecto suspensivo previsto en el artículo 79 de la Ley 1437 de 2011.' }
     ],
     anexos: [ { v: 'resolucion', t: 'Copia de la resolución y de la notificación' }, { v: 'pruebas', t: 'Documentos que prueban tus argumentos' }, { v: 'cedula', t: 'Copia de la cédula' } ],
-    guia: { plazo: { dias: 10, tipo: 'habiles' }, nota: 'Plazo: 10 días hábiles desde la notificación. Radícalo ante la misma entidad y pide constancia. La entidad tiene hasta 2 meses para resolver (artículo 86 CPACA); si no responde, se entiende negado (silencio negativo) y puedes demandar.', siNoResponden: 'Si confirman la decisión, queda agotada la vía administrativa: puedes demandar ante la jurisdicción contencioso administrativa (4 meses) con ayuda de un consultorio jurídico, o presentar tutela si hay violación evidente del debido proceso y perjuicio irremediable.' }
+    guia: { plazo: { dias: 10, tipo: 'habiles' }, nota: 'Plazo: 10 días hábiles desde la notificación. Radícalo ante la misma entidad y pide constancia. La entidad tiene hasta 2 meses para resolver (artículo 86 del CPACA); si no responde, se entiende negado (silencio negativo) y puedes demandar. Contra las resoluciones de Colpensiones proceden reposición y apelación ante el superior. La demanda de nulidad y restablecimiento del derecho caduca 4 meses después de que te notifiquen la decisión de los recursos (artículo 164 del CPACA).', siNoResponden: 'Si confirman la decisión, queda agotada la vía administrativa: puedes demandar ante la jurisdicción contencioso administrativa (4 meses) con ayuda de un consultorio jurídico, o presentar tutela si hay violación evidente del debido proceso y perjuicio irremediable.' }
   },
 
   /* ---------------- RECURSO SERVICIOS PÚBLICOS ---------------- */
@@ -148,6 +148,7 @@ AJ.casos = AJ.casos || [];
     palabras: ['recurso', 'servicios públicos', 'superservicios', 'apelación', 'reposición', 'factura', 'reclamo negado', '5 días', 'EPM', 'energía', 'agua'],
     destinatario: { categoria: 'spd', ejemploNombre: 'Ej.: Electrificadora del Caribe (Afinia)', cargo: 'Oficina de Peticiones, Quejas y Recursos' },
     campos: [
+      { id: 'servicio', tipo: 'select', etiqueta: '¿De qué servicio se trata?', requerido: true, opciones: [ { v: 'energia', t: 'Energía eléctrica' }, { v: 'acueducto', t: 'Acueducto y alcantarillado' }, { v: 'gas', t: 'Gas natural' }, { v: 'aseo', t: 'Aseo' }, { v: 'internet', t: 'Internet, telefonía o televisión (el recurso va a la SIC, plazo 10 días hábiles)' } ], valorInicial: 'energia', ancho: 'completa' },
       { id: 'cuenta', tipo: 'texto', etiqueta: 'Número de cuenta o contrato', requerido: true, ancho: 'media' },
       { id: 'direccionServicio', tipo: 'texto', etiqueta: 'Dirección del inmueble', requerido: true, ancho: 'media' },
       { id: 'respuesta', tipo: 'texto', etiqueta: 'Número y fecha de la respuesta o decisión de la empresa', requerido: true, ancho: 'completa' },
@@ -163,20 +164,20 @@ AJ.casos = AJ.casos || [];
       const h = [];
       h.push(`${a.Nom} es usuari${a.o} del servicio prestado por ${R.entidad(d)} en ${d.direccionServicio}, cuenta ${d.cuenta}, y presentó reclamación${d.facturas ? ` sobre ${d.facturas}` : ''}.`);
       h.push(`Mediante ${d.respuesta}, conocida el ${R.fechaLarga(d.fechaNotif)}, la empresa decidió: ${R.oracion(d.queDecidio)}`);
-      h.push('Este recurso se presenta dentro de los cinco (5) días siguientes al conocimiento de la decisión, conforme al artículo 154 de la Ley 142 de 1994.');
-      if (d.valorNoReclamado) h.push(`Se acredita el pago de las sumas no reclamadas (${R.moneda(d.valorNoReclamado) || d.valorNoReclamado}), conforme al artículo 155 de la Ley 142 de 1994.`);
+      h.push(d.servicio === 'internet' ? 'Este recurso se presenta dentro de los diez (10) días hábiles siguientes a la notificación de la decisión, conforme al Régimen de Protección de los Derechos de los Usuarios de Servicios de Comunicaciones (Resolución CRC 5050 de 2016).' : 'Este recurso se presenta dentro de los cinco (5) días siguientes al conocimiento de la decisión, conforme al artículo 154 de la Ley 142 de 1994.');
+      if (d.valorNoReclamado) h.push(`Se acredita el pago de las sumas no reclamadas (${R.moneda(d.valorNoReclamado) || d.valorNoReclamado})${d.servicio === 'internet' ? '' : ', conforme al artículo 155 de la Ley 142 de 1994'}.`);
       return h;
     },
-    normas: ['cp365', 'l142_152', 'l142_154', 'l142_158', 'l142_146', 'cp29'],
+    normas: d => d.servicio === 'internet' ? ['cp365', 'tic', 'l1480_23', 'cp29'] : ['cp365', 'l142_152', 'l142_154', 'l142_158', 'l142_146', 'cp29'],
     fundamentos: d => R.relatoAHechos(d.argumentos).map((x, i) => `Motivo de inconformidad ${i + 1}: ${x}`),
     peticiones: [
-      { v: 'reponer', inicial: true, fijo: true, t: 'Que revoquen la decisión y corrijan la factura', legal: d => `REPONER la decisión recurrida y, en su lugar, acceder a la reclamación: reliquidar la facturación conforme al consumo real o promedio histórico${d.facturas ? ` de ${d.facturas}` : ''}, y dejar sin efecto los cobros, suspensiones o intereses derivados.` },
-      { v: 'apelar', inicial: true, fijo: true, t: 'En subsidio, que envíen la apelación a la Superservicios', legal: 'En subsidio, CONCEDER el recurso de apelación y remitir el expediente completo a la Superintendencia de Servicios Públicos Domiciliarios para que resuelva en segunda instancia.' },
+      { v: 'reponer', inicial: true, fijo: true, t: 'Que revoquen la decisión y corrijan la factura', legal: d => `REPONER la decisión recurrida y, en su lugar, acceder a la reclamación: reliquidar la facturación conforme ${d.servicio === 'internet' ? 'a los servicios efectivamente contratados y prestados' : 'al consumo real o promedio histórico'}${d.facturas ? ` de ${d.facturas}` : ''}, y dejar sin efecto los cobros, suspensiones o intereses derivados.` },
+      { v: 'apelar', inicial: true, fijo: true, t: 'En subsidio, que envíen la apelación a la superintendencia', legal: d => d.servicio === 'internet' ? 'En subsidio, CONCEDER el recurso de apelación y remitir el expediente completo a la Superintendencia de Industria y Comercio para que resuelva en segunda instancia.' : 'En subsidio, CONCEDER el recurso de apelación y remitir el expediente completo a la Superintendencia de Servicios Públicos Domiciliarios para que resuelva en segunda instancia.' },
       { v: 'no_suspender', inicial: true, t: 'Que no corten el servicio mientras se decide', legal: 'ABSTENERSE de suspender el servicio o de exigir el pago de las sumas reclamadas mientras se resuelven los recursos.' },
       { v: 'copias', t: 'Que me entreguen copia del expediente de la reclamación', legal: 'Entregar copia íntegra del expediente de la reclamación, incluidas las actas de revisión, lecturas y conceptos técnicos.' }
     ],
     anexos: [ { v: 'respuesta', t: 'Copia de la respuesta de la empresa' }, { v: 'facturas', t: 'Facturas reclamadas e historial de consumos' }, { v: 'pago', t: 'Comprobante de pago de lo no reclamado' }, { v: 'fotos', t: 'Fotos del medidor u otras pruebas' } ],
-    guia: { plazo: { dias: 5, tipo: 'habiles' }, nota: 'Plazo: 5 días hábiles desde que conociste la respuesta. Si la empresa no resuelve el recurso en 15 días hábiles, se entiende resuelto a tu favor (silencio positivo).', siNoResponden: 'La Superservicios decide la apelación. Contra su decisión, demanda contenciosa. Si hay personas vulnerables sin servicio, tutela.' }
+    guia: { plazo: { dias: 5, tipo: 'habiles' }, nota: 'Plazo: 5 días hábiles desde que conociste la respuesta (10 días hábiles si es internet, telefonía o televisión, cuya apelación va a la Superintendencia de Industria y Comercio). Si la empresa no resuelve el recurso en 15 días hábiles, se entiende resuelto a tu favor (silencio positivo).', siNoResponden: 'La superintendencia decide la apelación. Contra su decisión, demanda contenciosa. Si hay personas vulnerables sin servicio, tutela.' }
   },
 
   /* ---------------- QUEJA SUPERSALUD ---------------- */
@@ -267,6 +268,7 @@ AJ.casos = AJ.casos || [];
     peticiones: [
       { v: 'principal', inicial: true, fijo: true, t: 'Lo que pides (reparación, cambio, devolución o cumplimiento)', legal: d => `Hacer efectiva la garantía legal mediante ${R.opcionTexto(cd('queja_consumidor', 'queQuiere'), d.queQuiere)}, dentro de los quince (15) días hábiles siguientes a la recepción de esta reclamación.` },
       { v: 'responder', inicial: true, t: 'Que respondan por escrito en 15 días hábiles', legal: 'Responder por escrito esta reclamación dentro de los quince (15) días hábiles siguientes, conforme al Decreto 735 de 2013, indicando la decisión y sus razones.' },
+      { v: 'reversion', inicial: d => d.canal === 'internet' && ['no_llego', 'defecto', 'publicidad'].includes(d.problema), t: 'Que reversen el pago (compras por internet con tarjeta o PSE)', legal: 'Reversar el pago conforme al artículo 51 de la Ley 1480 de 2011 y al Decreto 587 de 2016; con este mismo fin presento la queja ante el emisor del instrumento de pago (banco o pasarela) dentro de los cinco (5) días hábiles siguientes a la fecha en que debió entregarse el producto o en que conocí el defecto.' },
       { v: 'transporte', t: 'Que asuman el transporte y los costos de revisión', legal: 'Asumir los costos de transporte, diagnóstico y revisión técnica del producto, que no pueden trasladarse al consumidor durante la garantía.' },
       { v: 'informe', t: 'Que me entreguen el informe técnico', legal: 'Entregar copia del informe técnico que sustente cualquier negativa de garantía.' }
     ],
@@ -310,7 +312,7 @@ AJ.casos = AJ.casos || [];
     fundamentos: d => {
       const f = [];
       if ((d.motivo || []).includes('seguro')) f.push('Conforme al artículo 1080 del Código de Comercio, la aseguradora debe pagar el siniestro dentro del mes siguiente a la fecha en que el asegurado acredite su ocurrencia y cuantía; la objeción debe ser seria, fundada y oportuna, y la mora genera intereses moratorios.');
-      if ((d.motivo || []).includes('fraude')) f.push('La Corte Suprema de Justicia (Sentencia SC-5157 de 2019) y la Superintendencia Financiera han señalado que las entidades financieras asumen los riesgos de las operaciones fraudulentas realizadas con sus productos cuando no demuestran la culpa del cliente ni la idoneidad de sus sistemas de seguridad.');
+      if ((d.motivo || []).includes('fraude')) f.push('La Sala de Casación Civil de la Corte Suprema de Justicia (sentencias SC18614-2016 del 19 de diciembre de 2016 y SC5176-2020 del 18 de diciembre de 2020) y la Superintendencia Financiera han señalado que las entidades financieras asumen, como riesgo propio de su actividad, las operaciones fraudulentas realizadas a través de sus productos y canales, salvo que demuestren la culpa del cliente o una causa extraña. La Ley Estatutaria 2573 de 2026 obliga además a suspender cobros, intereses y reportes mientras se verifica una suplantación de identidad denunciada.');
       return f;
     },
     peticiones: [
@@ -348,6 +350,7 @@ AJ.casos = AJ.casos || [];
       return h;
     },
     normas: ['cp15', 'l1266_6', 'l1266_8', 'l1266_12', 'l1266_13', 'l1266_16', 'l2157'],
+    fundamentos: d => d.motivo === 'no_mia' ? ['La Ley Estatutaria 2573 de 2026 (revisada por la Corte Constitucional en la Sentencia C-413 de 2025) protege a las víctimas de suplantación de identidad: una vez informada la suplantación, la entidad debe suspender el cobro, los intereses y el reporte negativo mientras se verifica, y la víctima debe presentar la denuncia ante la Fiscalía dentro de los veinte (20) días hábiles siguientes.'] : [],
     peticiones: [
       { v: 'eliminar', inicial: true, t: 'Que eliminen o corrijan el dato en 15 días hábiles', legal: 'Eliminar o corregir el dato negativo reportado y actualizar la información en todas las centrales de riesgo, dentro de los quince (15) días hábiles siguientes.' },
       { v: 'leyenda', inicial: true, t: 'Que mientras tanto pongan la leyenda "reclamo en trámite"', legal: 'Incluir de inmediato en el registro la leyenda "reclamo en trámite" mientras se resuelve, conforme al numeral II del artículo 16 de la Ley 1266 de 2008.' },
@@ -355,7 +358,7 @@ AJ.casos = AJ.casos || [];
       { v: 'certificar', t: 'Que certifiquen la eliminación', legal: 'Expedir certificación de la eliminación o corrección del dato una vez realizada.' },
       { v: 'responder', inicial: true, t: 'Que respondan por escrito', legal: 'Responder por escrito este reclamo dentro del término legal, en la dirección y el correo indicados.' }
     ],
-    anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'historial', t: 'Historial de crédito (gratis una vez al mes en la página de la central)' }, { v: 'pago', t: 'Paz y salvo o comprobante de pago' }, { v: 'denuncia', t: 'Denuncia por suplantación (si aplica)' } ],
+    anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'historial', t: 'Historial de crédito (gratis una vez al mes en la página de la central)' }, { v: 'pago', t: 'Paz y salvo o comprobante de pago', si: d => d.motivo === 'pague' || d.motivo === 'caduco' }, { v: 'denuncia', t: 'Denuncia ante la Fiscalía por suplantación (indispensable si la deuda no es tuya)', si: d => d.motivo === 'no_mia', inicial: d => d.motivo === 'no_mia' } ],
     guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Envíalo a la fuente (quien reportó) Y a la central (Datacrédito: www.datacredito.com.co; TransUnion: www.transunion.co). Guarda los radicados.', siNoResponden: 'Pasados 15 días hábiles (o 23 si avisaron prórroga) sin solución: "Tutela por hábeas data". También queja ante la Superintendencia de Industria y Comercio.' }
   },
 
@@ -391,7 +394,7 @@ AJ.casos = AJ.casos || [];
       return h;
     },
     normas: ['cp15', 'l1581_8', 'l1581_15', 'sic_hd'],
-    fundamentos: d => ['Conforme a los artículos 4, 9 y 10 de la Ley 1581 de 2012 y al Decreto 1377 de 2013, el tratamiento de datos requiere autorización previa, expresa e informada del titular, debe limitarse a la finalidad autorizada y cesar cuando el titular revoca la autorización o solicita la supresión. Las comunicaciones de cobranza a terceros y los contactos fuera de los horarios razonables vulneran además los derechos a la intimidad y al buen nombre.'],
+    fundamentos: d => ['Conforme a los artículos 4, 9 y 10 de la Ley 1581 de 2012 y al Decreto 1377 de 2013, el tratamiento de datos requiere autorización previa, expresa e informada del titular, debe limitarse a la finalidad autorizada y cesar cuando el titular revoca la autorización o solicita la supresión. La Ley 2300 de 2023 limita la cobranza a los días lunes a viernes entre las 7:00 a. m. y las 7:00 p. m. y los sábados entre las 8:00 a. m. y las 3:00 p. m., prohíbe los contactos en domingos y festivos, más de un contacto a la semana (y de uno al día), los canales no autorizados por el deudor y las comunicaciones a familiares, compañeros de trabajo o terceros, reglas que aplican también a la cobranza de obligaciones civiles y comerciales.'],
     peticiones: [
       { v: 'todo', inicial: true, fijo: true, t: 'Lo que marcaste arriba', legal: d => (d.tramite || []).map(v => R.capital(R.opcionTexto(cd('hd_supresion', 'tramite'), v)) + ', dentro de los quince (15) días hábiles siguientes.') },
       { v: 'confirmar', inicial: true, t: 'Que confirmen por escrito que lo hicieron', legal: 'Confirmar por escrito, en el correo indicado, la supresión de los datos y el cese de las comunicaciones.' },
@@ -421,16 +424,18 @@ AJ.casos = AJ.casos || [];
     ],
     asunto: d => `Solicitud de audiencia de conciliación – ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)}`,
     hechos: d => {
-      const a = R.actor(d);
+      const g = d.genero || 'n';
+      const yo = R.terminacion(g, 'El suscrito', 'La suscrita');
+      const rol = R.terminacion(g, 'padre', 'madre');
       const h = [];
-      h.push(`${a.Nom} tiene a su cargo el cuidado de: ${R.relatoAHechos(d.menores).join(' ')}`);
-      h.push(`El padre/madre de los menores es ${d.obligado}, quien puede ser citado en ${d.obligadoDireccion}${d.obligadoIngresos ? ` y cuya ocupación e ingresos son: ${d.obligadoIngresos}` : ''}.`);
+      h.push(`${yo}, en calidad de ${rol} y representante legal, tiene a su cargo el cuidado personal y la manutención de: ${R.relatoAHechos(d.menores).join(' ')}`);
+      h.push(`El otro progenitor de los menores es ${d.obligado}, quien puede ser citado en ${d.obligadoDireccion}${d.obligadoIngresos ? ` y cuya ocupación e ingresos son: ${d.obligadoIngresos}` : ''}.`);
       h.push(`Los gastos mensuales de los menores son: ${R.oracion(d.gastos)}`);
       h.push(`Actualmente el obligado aporta: ${d.cuotaActual || 'nada'}. Se solicita ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} en una suma mensual de ${R.moneda(d.cuotaPedida) || d.cuotaPedida}, más el cincuenta por ciento (50 %) de los gastos de salud, educación y vestuario no cubiertos, y la cuota adicional de diciembre.`);
       return h;
     },
     normas: ['cp44', 'cp42', 'l1098_24', 'l1098_111'],
-    fundamentos: d => ['Conforme al artículo 129 de la Ley 1098 de 2006, si el obligado no comparece a la conciliación o no hay acuerdo, el Comisario o Defensor de Familia fijará provisionalmente la cuota y dará apertura al proceso judicial, pudiendo decretar embargos hasta del 50 % del salario. La inasistencia alimentaria es además un delito (artículo 233 del Código Penal).'],
+    fundamentos: d => ['Conforme al numeral 2 del artículo 111 de la Ley 1098 de 2006, si el obligado, debidamente citado, no comparece a la conciliación o no hay acuerdo, el Comisario o Defensor de Familia fijará provisionalmente la cuota; el juez de familia puede decretar embargos hasta del cincuenta por ciento (50 %) del salario y las demás medidas para garantizar el pago (artículo 129). La inasistencia alimentaria es además un delito (artículo 233 del Código Penal).'],
     peticiones: [
       { v: 'citar', inicial: true, fijo: true, t: 'Que citen al obligado a audiencia de conciliación', legal: d => `Citar a ${d.obligado} a audiencia de conciliación para ${R.opcionTexto(cd('fam_alimentos', 'tramite'), d.tramite)} a favor de los menores relacionados.` },
       { v: 'fijar', inicial: true, t: 'Que fijen la cuota pedida (y provisionalmente si no asiste)', legal: d => `Fijar la cuota alimentaria mensual en ${R.moneda(d.cuotaPedida) || d.cuotaPedida}, más el 50 % de los gastos extraordinarios de salud, educación y vestuario y una cuota adicional en diciembre, y fijarla provisionalmente en caso de inasistencia o falta de acuerdo.` },
@@ -479,16 +484,16 @@ AJ.casos = AJ.casos || [];
       return h;
     },
     normas: ['cp42', 'cp43', 'cp44', 'cp11', 'l294_4', 'l294_9'],
-    fundamentos: d => ['La Ley 1257 de 2008 (artículos 7, 8 y 16 a 18) reconoce el derecho de las mujeres a una vida libre de violencias, a recibir atención integral, a no ser confrontadas con el agresor y a que se adopten medidas de protección y de atención (alojamiento, alimentación, transporte) cuando sea necesario. La Ley 2126 de 2021 fortalece las Comisarías de Familia y les impone actuar con enfoque de género y debida diligencia. La violencia intrafamiliar es además delito (artículo 229 del Código Penal, modificado por la Ley 2197 de 2022), investigable de oficio.'],
+    fundamentos: d => ['La Ley 1257 de 2008 (artículos 7, 8 y 16 a 18) reconoce el derecho de las mujeres a una vida libre de violencias, a recibir atención integral, a no ser confrontadas con el agresor y a que se adopten medidas de protección y de atención (alojamiento, alimentación, transporte) cuando sea necesario. La Ley 2126 de 2021 fortalece las Comisarías de Familia y les impone actuar con enfoque de género y debida diligencia. La violencia intrafamiliar es además delito (artículo 229 del Código Penal, modificado por la Ley 1959 de 2019), investigable de oficio.'],
     peticiones: [
-      { v: 'avocar', inicial: true, fijo: true, t: 'Que admitan la solicitud y dicten medidas provisionales de inmediato', legal: 'Avocar conocimiento de inmediato y dictar las medidas de protección provisionales que la urgencia de la situación exige, conforme al artículo 11 de la Ley 575 de 2000.' },
+      { v: 'avocar', inicial: true, fijo: true, t: 'Que admitan la solicitud y dicten medidas provisionales de inmediato', legal: 'Avocar conocimiento de inmediato y dictar, dentro de las cuatro (4) horas hábiles siguientes, las medidas de protección provisionales que la urgencia de la situación exige, conforme al artículo 11 de la Ley 294 de 1996, modificado por el artículo 6 de la Ley 575 de 2000.' },
       { v: 'medidas', inicial: true, fijo: true, t: 'Las medidas que marcaste', legal: d => (d.medidas || []).map(v => R.capital(R.opcionTexto(cd('fam_proteccion', 'medidas'), v)) + '.') },
       { v: 'definitiva', inicial: true, t: 'Que dicten la medida definitiva con la advertencia de sanción al agresor', legal: 'Dictar medida de protección definitiva, advirtiendo al agresor que su incumplimiento acarrea multa y arresto conforme al artículo 7 de la Ley 294 de 1996.' },
       { v: 'fiscalia', t: 'Que remitan a la Fiscalía para la investigación penal', legal: 'Remitir copia de la actuación a la Fiscalía General de la Nación para la investigación del delito de violencia intrafamiliar.' },
       { v: 'atencion', t: 'Que ordenen atención médica y psicológica para la víctima y los niños', legal: 'Ordenar a la EPS o a la Secretaría de Salud brindar atención médica y psicológica inmediata a la víctima y a los niños, conforme al artículo 19 de la Ley 1257 de 2008.' }
     ],
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'medicina', t: 'Dictamen de Medicina Legal o constancias médicas (pide la valoración en la Comisaría o la Fiscalía)' }, { v: 'pruebas', t: 'Fotos, audios, mensajes, denuncias anteriores' }, { v: 'testigos', t: 'Nombres y teléfonos de testigos' }, { v: 'registros', t: 'Registros civiles de los hijos' } ],
-    guia: { plazo: { dias: 4, tipo: 'habiles' }, nota: 'La Comisaría debe avocar conocimiento de inmediato, puede dictar medidas provisionales el mismo día y debe celebrar la audiencia dentro de los 5 a 10 días siguientes. Si estás en peligro ahora, llama al 123 o al 155 y acude a la Fiscalía o a una URI.', siNoResponden: 'Si el agresor incumple la medida: informa de inmediato a la Comisaría (incidente de incumplimiento: multa y arresto) y a la Policía. Si la Comisaría no actúa, tutela por los derechos a la vida y la integridad.' }
+    guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'La Comisaría debe avocar conocimiento de inmediato, puede dictar medidas provisionales dentro de las 4 horas hábiles siguientes (artículo 11 de la Ley 294 de 1996) y debe celebrar la audiencia entre los 5 y los 10 días siguientes (artículo 12). Si estás en peligro ahora, llama al 123 o al 155 y acude a la Fiscalía o a una URI.', siNoResponden: 'Si el agresor incumple la medida: informa de inmediato a la Comisaría (incidente de incumplimiento: multa y arresto, artículo 7 de la Ley 294 de 1996) y a la Policía. Si la Comisaría no actúa, tutela por los derechos a la vida y la integridad.' }
   }
   );
 })();

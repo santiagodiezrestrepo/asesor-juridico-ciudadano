@@ -44,10 +44,10 @@ AJ.casos = AJ.casos || [];
       return h;
     },
     normas: ['cp2', 'cp23', 'cp209', 'l1755_13', 'l1755_31', 'l190_38'],
-    fundamentos: d => ['De acuerdo con los artículos 2, 69 y 70 de la Ley 1952 de 2019 (Código General Disciplinario), cualquier persona puede presentar queja contra un servidor público, y la oficina de control interno disciplinario de la entidad, la Personería o la Procuraduría deben iniciar la indagación o investigación correspondiente e informar al quejoso las decisiones de fondo.'],
+    fundamentos: d => ['De acuerdo con los artículos 2, 86 y 129 de la Ley 1952 de 2019 (Código General Disciplinario, modificado por la Ley 2094 de 2021), cualquier persona puede presentar queja contra un servidor público; la oficina de control interno disciplinario de la entidad, la Personería o la Procuraduría deben iniciar la indagación o investigación correspondiente, y al quejoso se le comunican la decisión de archivo y el fallo absolutorio.'],
     peticiones: [
       { v: 'investigar', inicial: true, t: 'Que investiguen disciplinariamente la conducta', legal: 'Iniciar la indagación o investigación disciplinaria contra el servidor público por los hechos descritos y adoptar las sanciones que correspondan.' },
-      { v: 'informar', inicial: true, t: 'Que me informen el radicado y las decisiones', legal: 'Informarme el número de radicado asignado a la queja y comunicarme las decisiones de fondo que se adopten, conforme al artículo 70 de la Ley 1952 de 2019.' },
+      { v: 'informar', inicial: true, t: 'Que me informen el radicado y las decisiones', legal: 'Informarme el número de radicado asignado a la queja y comunicarme las decisiones de fondo que se adopten, conforme al artículo 129 de la Ley 1952 de 2019.' },
       { v: 'tramite', t: 'Que ordenen atender el trámite que me negaron', legal: 'Ordenar que se me atienda y se dé trámite inmediato a la solicitud o servicio que me fue negado.' },
       { v: 'garantias', t: 'Que garanticen que no habrá represalias', legal: 'Garantizar que no se adoptarán represalias en mi contra por la presentación de esta queja.' }
     ],
@@ -78,7 +78,7 @@ AJ.casos = AJ.casos || [];
       { id: 'situacion', tipo: 'textarea', etiqueta: '¿Cuál es tu situación actual? (vivienda, alimentación, salud, trabajo)', requerido: true, filas: 3 },
       C.relato({ requerido: false, etiqueta: '¿Algo más que debamos contar? (opcional)' })
     ],
-    asunto: d => `Derecho de petición – ${R.opcionTexto(cd('pet_victimas', 'tramite'), d.tramite)}${d.codigo ? ` (${d.codigo})` : ''}`,
+    asunto: d => `Derecho de petición – ${R.capital(R.opcionTexto(cd('pet_victimas', 'tramite'), d.tramite))}${d.codigo ? ` (${d.codigo})` : ''}`,
     hechos: d => {
       const a = R.actor(d);
       const h = [];
@@ -123,7 +123,7 @@ AJ.casos = AJ.casos || [];
       { id: 'afectacion', tipo: 'textarea', etiqueta: '¿Qué no puedes hacer por falta del documento? (trabajar, afiliarte a salud, matricular a tus hijos, abrir cuenta)', requerido: true, filas: 3 },
       C.relato({ requerido: false, etiqueta: '¿Algo más que debamos contar? (opcional)' })
     ],
-    asunto: d => `Derecho de petición – ${R.opcionTexto(cd('pet_migracion', 'tramite'), d.tramite)}${d.radicado ? ` (${d.radicado})` : ''}`,
+    asunto: d => `Derecho de petición – ${R.capital(R.opcionTexto(cd('pet_migracion', 'tramite'), d.tramite))}${d.radicado ? ` (${d.radicado})` : ''}`,
     hechos: d => {
       const a = R.actor(d);
       const h = [];
@@ -175,7 +175,7 @@ AJ.casos = AJ.casos || [];
     normas: ['cp23', 'cp29', 'l1755_13', 'l1755_14', 'cp228'],
     fundamentos: d => {
       const f = ['El artículo 228 de la Constitución Política dispone que los términos procesales se observarán con diligencia y su incumplimiento será sancionado, y el artículo 7 de la Ley 270 de 1996 (Estatutaria de la Administración de Justicia) consagra el principio de eficiencia. El derecho de petición ante autoridades judiciales procede respecto de actuaciones administrativas y de la información sobre el estado de los procesos, y el acceso al expediente por las partes está garantizado por el artículo 123 del Código General del Proceso.'];
-      if ((d.tramite || []).includes('archivo') || (d.tramite || []).includes('estado')) f.push('Conforme a los artículos 11 y 136 de la Ley 906 de 2004, las víctimas tienen derecho a recibir información sobre el estado de la investigación, a ser oídas y a que se les comunique la decisión de archivo, la cual pueden solicitar que se revise.');
+      if (['victima', 'denunciado'].includes(d.calidad) || /FISCAL/i.test(R.entidad(d))) f.push('Conforme a los artículos 11 y 136 de la Ley 906 de 2004, las víctimas tienen derecho a recibir información sobre el estado de la investigación, a ser oídas y a que se les comunique la decisión de archivo, la cual pueden solicitar que se revise.');
       return f;
     },
     peticiones: [
@@ -213,12 +213,12 @@ AJ.casos = AJ.casos || [];
     hechos: d => {
       const a = R.actor(d);
       const h = [];
-      h.push(`${a.Nom} es ${R.opcionTexto(cd('pet_icbf', 'relacion'), d.relacion)} de ${d.menor || 'el menor'}${d.radicado ? `, respecto de quien cursa la actuación No. ${d.radicado}` : ''} en ${R.entidad(d)}.`);
+      h.push(`${a.Nom} es ${R.generizar(R.opcionTexto(cd('pet_icbf', 'relacion'), d.relacion), a.g)} de ${d.menor || 'el menor'}${d.radicado ? `, respecto de quien cursa la actuación No. ${d.radicado}` : ''} en ${R.entidad(d)}.`);
       h.push(`Requiere ${R.opcionTexto(cd('pet_icbf', 'tramite'), d.tramite)}.`);
       return h;
     },
-    normas: ['cp44', 'cp42', 'cp23', 'l1755_14', 'l1755_20', 'l1098_28'],
-    fundamentos: d => ['Conforme a los artículos 22, 23, 52, 96 a 103 de la Ley 1098 de 2006, los niños tienen derecho a tener una familia y a no ser separados de ella, y los procesos de restablecimiento de derechos deben garantizar la participación de la familia, decidirse en los términos legales (cuatro meses, prorrogables por dos) y notificarse a los interesados, quienes pueden recurrir las decisiones. El interés superior del menor y la prevalencia de sus derechos (artículo 44 de la Constitución) obligan a las autoridades a actuar con celeridad.'],
+    normas: ['cp44', 'cp42', 'cp23', 'l1755_14', 'l1755_20'],
+    fundamentos: d => ['Conforme a los artículos 22, 23, 52 y 96 a 103 de la Ley 1098 de 2006 (modificados por la Ley 1878 de 2018), los niños tienen derecho a tener una familia y a no ser separados de ella, y los procesos administrativos de restablecimiento de derechos deben garantizar la participación de la familia, resolverse dentro de los seis (6) meses siguientes al conocimiento de la presunta amenaza o vulneración (término improrrogable cuyo vencimiento hace perder la competencia a la autoridad administrativa, que debe remitir el expediente al juez de familia, artículo 100) y notificarse a los interesados, quienes pueden recurrir las decisiones. El interés superior del menor y la prevalencia de sus derechos (artículo 44 de la Constitución) obligan a las autoridades a actuar con celeridad.'],
     peticiones: [
       { v: 'informar', inicial: true, t: 'Que me informen el estado del proceso y las decisiones', legal: 'Informar por escrito el estado del proceso, las medidas adoptadas, sus fundamentos y las actuaciones pendientes, y notificarme en adelante las decisiones.' },
       { v: 'cita', t: 'Que me citen a audiencia o conciliación', legal: 'Citar a audiencia o diligencia de conciliación en la fecha más próxima posible, informándome el día, la hora y los documentos que debo aportar.' },
@@ -233,6 +233,7 @@ AJ.casos = AJ.casos || [];
   /* ---------------- ARRENDADOR / PARTICULAR ---------------- */
   {
     id: 'pet_arrendador', tipo: 'peticion', categoria: 'particular',
+    tituloDoc: 'RECLAMACIÓN Y REQUERIMIENTO',
     titulo: 'Reclamación al arrendador o arrendatario (depósito, reparaciones, servicios cortados, entrega del inmueble)',
     resumen: 'Pedir por escrito a un arrendador que repare daños, devuelva un depósito, reconecte servicios o deje de hostigarte; o al inquilino que pague o entregue.',
     palabras: ['arriendo', 'arrendador', 'arrendatario', 'inquilino', 'casa', 'apartamento', 'depósito', 'reparaciones', 'humedad', 'servicios', 'desalojo', 'contrato de arrendamiento', 'canon', 'devolución'],
@@ -259,14 +260,14 @@ AJ.casos = AJ.casos || [];
       const a = R.actor(d);
       const h = [];
       h.push(`${a.Nom} es ${R.opcionTexto(cd('pet_arrendador', 'rol'), d.rol).replace('{o}', a.o).replace('{a}', a.g === 'f' ? 'a' : '')} del inmueble ubicado en ${d.inmueble || '[dirección]'}${d.fechaInicio ? `, en virtud de contrato de arrendamiento vigente desde ${R.fechaLarga(d.fechaInicio)}` : ''}${d.canon ? `, con un canon mensual de ${R.moneda(d.canon) || d.canon}` : ''}.`);
-      h.push(`Se presenta ${R.lista((d.problema || []).map(v => R.opcionTexto(cd('pet_arrendador', 'problema'), v)))}${d.valor ? `, con un valor en discusión de ${R.moneda(d.valor) || d.valor}` : ''}.`);
+      h.push(`Se presenta ${R.lista((d.problema || []).map(v => R.opcionTexto(cd('pet_arrendador', 'problema'), v)))}${R.moneda(d.valor) ? `, con un valor en discusión de ${R.moneda(d.valor)}` : ''}.`);
       return h;
     },
     normas: ['cp51', 'cp83', 'l820', 'cp23', 'l1755_32'],
     fundamentos: d => {
-      const f = ['Conforme al artículo 2 de la Ley 820 de 2003 y a los artículos 1973 y siguientes del Código Civil, el contrato de arrendamiento obliga a las partes a cumplir de buena fe: el arrendador debe entregar y mantener el inmueble en estado de servir, y el arrendatario debe pagar el precio y cuidar la cosa.'];
+      const f = ['Conforme al artículo 2 de la Ley 820 de 2003 y a los artículos 1973 y siguientes del Código Civil, el contrato de arrendamiento obliga a las partes a cumplir de buena fe: el arrendador debe entregar y mantener el inmueble en estado de servir, y el arrendatario debe pagar el precio y cuidar la cosa. Este escrito constituye además requerimiento para la constitución en mora (artículo 1608 del Código Civil) y prueba de la reclamación previa; de persistir el incumplimiento se acudirá a la conciliación extrajudicial (Ley 2220 de 2022) y a las acciones judiciales y policivas que correspondan.'];
       if ((d.problema || []).includes('aumento')) f.push('El artículo 20 de la Ley 820 de 2003 limita el incremento anual del canon de vivienda urbana a un porcentaje que no puede superar el 100 % del incremento del índice de precios al consumidor (IPC) del año anterior, y solo cada doce meses.');
-      if ((d.problema || []).includes('servicios') || (d.problema || []).includes('hostigamiento')) f.push('El artículo 33 de la Ley 820 de 2003 y el Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016, artículos 77 y siguientes) prohíben las vías de hecho para obtener la restitución del inmueble; el arrendador debe acudir al juez civil mediante proceso de restitución, y la perturbación de la tenencia puede denunciarse ante el inspector de policía.');
+      if ((d.problema || []).includes('servicios') || (d.problema || []).includes('hostigamiento')) f.push('El Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016, artículos 77 y siguientes) y el Código General del Proceso (artículo 384) establecen que el arrendador solo puede obtener la restitución del inmueble mediante proceso judicial; las vías de hecho (corte de servicios, cambio de guardas, ingreso sin autorización) constituyen perturbación de la tenencia, sancionable por el inspector de policía, y pueden configurar el delito de constreñimiento ilegal.');
       return f;
     },
     peticiones: [
@@ -278,7 +279,7 @@ AJ.casos = AJ.casos || [];
       { v: 'acta', t: 'Que firmemos un acta de entrega con inventario', legal: 'Acordar fecha para la entrega del inmueble con acta de inventario y estado, y expedir el paz y salvo correspondiente.' }
     ],
     anexos: [ { v: 'contrato', t: 'Copia del contrato de arrendamiento' }, { v: 'pagos', t: 'Recibos de pago del arriendo y depósito' }, { v: 'fotos', t: 'Fotos de los daños o de los servicios cortados' }, { v: 'chats', t: 'Mensajes o correos cruzados' } ],
-    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Como es un particular, el plazo de 15 días aplica si hay subordinación o indefensión (lo habitual en arriendo). Este escrito sirve como requerimiento previo y prueba.', siNoResponden: 'Conciliación en una Casa de Justicia o centro de conciliación (gratis en consultorios jurídicos); querella ante la Inspección de Policía si hay vías de hecho; demanda ante el juez civil. Si cortaron servicios y hay niños o personas enfermas, puede proceder la tutela.' }
+    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Como es un particular, el plazo de 15 días aplica si hay subordinación o indefensión (lo habitual en arriendo). Este escrito sirve como requerimiento previo y prueba.', siNoResponden: 'Conciliación en una Casa de Justicia o centro de conciliación (Ley 2220 de 2022; gratis en consultorios jurídicos); querella ante la Inspección de Policía si hay vías de hecho; demanda ante el juez civil. Si cortaron servicios y hay niños o personas enfermas, puede proceder la tutela.' }
   },
 
   /* ---------------- PROSPERIDAD SOCIAL: SUBSIDIOS ---------------- */

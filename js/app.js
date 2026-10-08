@@ -242,8 +242,21 @@ window.AJ = window.AJ || {};
     return (caso.peticiones || []).filter(o => o.fijo || (typeof o.inicial === 'function' ? !!o.inicial(d || {}) : !!o.inicial)).map(o => o.v);
   }
 
+  function camposContrato(caso) {
+    const rolCampo = { id: 'miRol', tipo: 'radio', etiqueta: '¿Cuál es tu papel en este documento?', opciones: caso.rolCampo.opciones, requerido: true, valorInicial: 'a' };
+    return [
+      { id: 'quien', titulo: 'Tus datos', ayuda: 'Tú eres una de las partes. Escribe tus datos como aparecen en la cédula: así quedarán en el documento y en la firma.', campos: AJ.campos.solicitante({ contrato: true }) },
+      { id: 'rol', titulo: 'Tu papel y la fecha', ayuda: 'Según tu papel, el documento pondrá tus datos y los de la otra persona en el lugar correcto.', campos: [rolCampo, { id: 'fechaFirma', tipo: 'fecha', etiqueta: 'Fecha en que se firma', valorInicial: hoyISO(), ancho: 'media' }] },
+      { id: 'contraparte', titulo: 'Datos de la otra parte', ayuda: 'La persona o empresa con la que firmas. Pide su cédula (o el certificado de Cámara de Comercio si es empresa) para copiar bien los datos.', campos: AJ.campos.contraparte('la otra parte') },
+      { id: 'situacion', titulo: 'Detalles del acuerdo', ayuda: 'Responde con tus palabras; el documento los convierte en cláusulas con el lenguaje y las normas correctas.', campos: caso.campos },
+      { id: 'opcionales', titulo: 'Cláusulas adicionales (opcional)', ayuda: 'Marca solo las que las dos partes hayan acordado. Puedes escribir otras con tus palabras.', campos: [ { id: 'opcionales', tipo: 'checks', etiqueta: 'Cláusulas que quieres incluir', opciones: caso.opcionales || [] }, { id: 'clausulaOtra', tipo: 'textarea', etiqueta: '¿Algo más que hayan acordado? (una cláusula por línea)', ejemplo: 'Ej.: El arrendatario puede usar el parqueadero número 12.', filas: 2 } ] },
+      { id: 'testigos', titulo: 'Testigos (opcional)', ayuda: 'Dos personas que vean firmar ayudan como prueba; no son obligatorias.', campos: AJ.campos.testigos() }
+    ];
+  }
+
   function camposDelCaso(caso) {
     const tipo = AJ.tipos[caso.tipo];
+    if (tipo.contrato) return camposContrato(caso);
     const permiteAnonimo = tipo.permiteAnonimo && ANONIMO_OK.has(caso.id);
     const soloPropio = caso.tipo === 'familia';
     const secciones = [
@@ -416,8 +429,15 @@ window.AJ = window.AJ || {};
     if (caso.id === 'rec_spd' && d.fechaNotif) { const f = AJ.festivos.parseISO(d.fechaNotif); if (f && AJ.festivos.diasHabilesEntre(f, hoy) > 5) advertencias.push('Ya pasaron más de 5 días hábiles desde que conociste la respuesta: la empresa puede rechazar el recurso por tardío. Puedes presentar una nueva reclamación sobre las facturas siguientes.'); }
     if (caso.id === 'tut_habeas_data' && d.reclamo === 'no') advertencias.push('Antes de la tutela por hábeas data debes presentar el reclamo a la entidad y esperar 15 días hábiles.');
 
+    const esContrato = !!tipo.contrato;
     const primera = (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v) && !o.fijo) || (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v));
-    const simple = `Este documento le pide a <strong>${esc(d.entidadNombre || 'la entidad')}</strong> ${primera ? esc(primera.t.replace(/^Que /, 'que ').replace(/^Mis /, 'lo que escribiste: ')) : 'lo que escribiste en el formulario'}.${caso.guia && caso.guia.plazo ? ` ${caso.tipo === 'tutela' ? 'El juez tiene hasta 10 días para decidir' : `Tienen ${esc(plazoCorto(caso))} para responder`}.` : ''} Tú solo tienes que firmarlo con tu nombre y entregarlo (abajo te decimos dónde).`;
+    let simple;
+    if (esContrato) {
+      const P = R.partesContrato(caso, d);
+      simple = `Este documento deja por escrito el acuerdo entre <strong>${esc(P.A.nombreFirma)}</strong> (${esc(P.A.rol.toLowerCase())}) y <strong>${esc(P.B.nombreFirma)}</strong> (${esc(P.B.rol.toLowerCase())}). ${caso.firmas ? 'Léelo completo y revisa que diga exactamente lo acordado antes de firmar.' : 'Las dos partes deben leerlo completo y firmarlo, y cada una se queda con una copia.'}`;
+    } else {
+      simple = `Este documento le pide a <strong>${esc(d.entidadNombre || 'la entidad')}</strong> ${primera ? esc(primera.t.replace(/^Que /, 'que ').replace(/^Mis /, 'lo que escribiste: ')) : 'lo que escribiste en el formulario'}.${caso.guia && caso.guia.plazo ? ` ${caso.tipo === 'tutela' ? 'El juez tiene hasta 10 días para decidir' : `Tienen ${esc(plazoCorto(caso))} para responder`}.` : ''} Tú solo tienes que firmarlo con tu nombre y entregarlo (abajo te decimos dónde).`;
+    }
 
     main.innerHTML = `
       <section class="seccion doc-cab">
@@ -438,7 +458,7 @@ window.AJ = window.AJ || {};
       <div class="layout-doc">
         <div>
           <div class="hoja hoja-final" id="hoja">${estado.generado.html}</div>
-          <p class="ayuda doc-pie-ayuda">${esJudicialCaso(caso) ? '"E. S. D." significa "En su despacho" (fórmula de cortesía al juez). "(REPARTO)" significa que el sistema escoge el juzgado. ' : ''}"${d.genero === 'm' ? 'El suscrito' : d.genero === 'f' ? 'La suscrita' : 'El(la) suscrito(a)'}" es la persona que firma. Las normas citadas son las que obligan a la entidad; no tienes que entenderlas todas.</p>
+          <p class="ayuda doc-pie-ayuda">${esContrato ? 'Las "cláusulas" son los puntos del acuerdo, numerados. Si algo no corresponde a lo que pactaron, vuelve a editar antes de firmar. El recuadro "Huella" es opcional: se usa cuando una de las partes no sabe firmar o para mayor seguridad.' : `${esJudicialCaso(caso) ? '"E. S. D." significa "En su despacho" (fórmula de cortesía al juez). "(REPARTO)" significa que el sistema escoge el juzgado. ' : ''}"${d.genero === 'm' ? 'El suscrito' : d.genero === 'f' ? 'La suscrita' : 'El(la) suscrito(a)'}" es la persona que firma. Las normas citadas son las que obligan a la entidad; no tienes que entenderlas todas.`}</p>
         </div>
         <aside class="guia-lateral">
           <h2>${icono('estrella')} ¿Qué sigue?</h2>
@@ -472,12 +492,14 @@ window.AJ = window.AJ || {};
         </aside>
       </div>`;
 
+    if (esContrato) $('.guia-lateral').innerHTML = guiaContrato(caso, d);
     const pintarPlazo = () => {
+      if (!$('#fecha-radicacion')) return;
       const r = calcularPlazo(caso, $('#fecha-radicacion').value);
       if (!r) { $('#plazo-resultado').innerHTML = ''; return; }
       $('#plazo-resultado').innerHTML = `<p><strong>${esc(r.texto)}</strong> → vence el <strong>${esc(R.fechaLarga(r.vence))}</strong>.</p>${r.festivos.length ? `<p class="ayuda">No se cuentan sábados, domingos ni festivos: ${esc(r.festivos.join('; '))}.</p>` : ''}${caso.tipo === 'tutela' ? '<p class="ayuda">El juez tiene máximo 10 días para fallar y la entidad 48 horas para cumplir la orden (salvo que el fallo diga otra cosa).</p>' : ''}`;
     };
-    $('#fecha-radicacion').addEventListener('change', pintarPlazo); pintarPlazo();
+    if ($('#fecha-radicacion')) { $('#fecha-radicacion').addEventListener('change', pintarPlazo); pintarPlazo(); }
 
     $('#b-imprimir').addEventListener('click', () => window.print());
     if (navigator.share) {
@@ -508,6 +530,19 @@ window.AJ = window.AJ || {};
 
   function esJudicialCaso(caso) { return ['tutela', 'desacato', 'impugnacion'].includes(caso.tipo); }
 
+  function guiaContrato(caso, d) {
+    const g = caso.guia || {};
+    return `<h2>${icono('estrella')} ¿Qué sigue?</h2>
+      <div class="guia-bloque"><h3>1. Revisa y firma</h3><ul>
+        <li>Léelo completo con la otra parte. Si algo no es lo acordado, vuelve a editar.</li>
+        <li>Imprime <strong>dos copias</strong> (una para cada parte) y fírmenlas al final, en las líneas de firma. La huella es opcional.</li>
+        <li>Si hay testigos, que firmen en el mismo momento.</li>
+        <li>Guarda tu copia firmada y los comprobantes de pago.</li></ul></div>
+      <div class="guia-bloque"><h3>2. Qué hacer después</h3><ul>${(g.pasos || []).map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+      ${g.nota ? `<div class="guia-bloque"><h3>3. Ten en cuenta</h3><p>${esc(g.nota)}</p></div>` : ''}
+      <div class="guia-bloque"><h3>Si la otra parte incumple</h3><p>Primero reclama por escrito (en esta plataforma: "Reclamación al arrendador o arrendatario", "Petición al empleador" o "Reclamación directa a un vendedor", según el caso). Si no hay solución, acude a conciliación en una Casa de Justicia o centro de conciliación y, con el contrato firmado, a un consultorio jurídico universitario para la demanda.</p></div>`;
+  }
+
   function dondeRadicar(caso, d, cat) {
     const E = esc(d.entidadNombre || 'la entidad');
     const ciudad = esc(d.ciudad || d.entidadCiudad || 'tu municipio');
@@ -530,7 +565,7 @@ window.AJ = window.AJ || {};
   }
 
   function enlacesSiguientes(caso) {
-    const mapa = { peticion: ['tut_peticion'], queja: ['tut_salud_servicio', 'tut_peticion'], habeas: ['tut_habeas_data'], tutela: ['desacato', 'impugnacion'], desacato: [], impugnacion: [], recurso: ['tut_debido_proceso'], familia: ['tut_general'] };
+    const mapa = { peticion: ['tut_peticion'], queja: ['tut_salud_servicio', 'tut_peticion'], habeas: ['tut_habeas_data'], tutela: ['desacato', 'impugnacion'], desacato: [], impugnacion: [], recurso: ['tut_debido_proceso'], familia: ['tut_general'], contrato: [] };
     const ids = (mapa[caso.tipo] || []).filter(id => id !== caso.id);
     if (!ids.length) return '';
     return `<ul class="enlaces">${ids.map(id => { const c = AJ.casos.find(x => x.id === id); return c ? `<li><a href="#caso/${c.id}">${icono('flecha')} ${esc(c.titulo)}</a></li>` : ''; }).join('')}</ul>`;
@@ -672,7 +707,7 @@ window.AJ = window.AJ || {};
             <p class="eyebrow">Una iniciativa de La Sueñomotora</p>
             <h1>Acerca de esta plataforma</h1>
             <p class="acerca-lead">La Sueñomotora es una fundación creada hace catorce años por Santiago Diez Restrepo y Juan Gonzalo Lalinde para llevar libros y computadores a las zonas más apartadas de Colombia: veredas, corregimientos y pueblos con dificultades de comunicación y marcados por el conflicto armado. En ese camino ha entregado más de mil bibliotecas en los lugares más lejanos del país.</p>
-            <p>En cada viaje hemos visto cómo las personas de estas comunidades son atropelladas en sus derechos: por otras personas, por empresas, por grupos armados, por instituciones del Estado y por la propia fuerza pública. Y hemos visto que muchas veces no se defienden porque nadie les ha dicho que pueden hacerlo, ni cómo.</p>
+            <p>En cada viaje hemos visto cómo las personas de estas comunidades son atropelladas en sus derechos: por otras personas, grupos o entidades.</p>
             <p>Asesor Jurídico Ciudadano nace de esa experiencia. Es una herramienta para que la sociedad civil, desde los niños hasta los mayores, cualquiera que sepa usar un computador y tenga conexión a internet, pueda defender sus derechos y los de su familia, sus conocidos y su comunidad, con documentos claros, bien fundamentados en la ley y listos para presentar.</p>
           </div>
         </div>
@@ -711,6 +746,7 @@ window.AJ = window.AJ || {};
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    AJ.casos = AJ.casos.filter(c => !c.retirado); // casos conservados en el código pero no ofrecidos al público
     construirDatalist();
     $('#total-casos').textContent = AJ.casos.length;
     const tema = $('#tema');

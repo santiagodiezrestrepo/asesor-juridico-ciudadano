@@ -36,6 +36,10 @@ AJ.campos = {
     ];
     if (!opts.soloPropio) modos.push({ v: 'representante', t: 'Yo, por otra persona que NO puede hacerlo sola (un hijo menor de edad, un familiar hospitalizado o muy enfermo, una persona mayor que no puede valerse)' });
     if (opts.permiteAnonimo && !opts.soloPropio) modos.push({ v: 'anonimo', t: 'De forma anónima, sin dar mi nombre (solo para quejas y asuntos de interés general)' });
+    if (opts.contrato) {
+      // En un contrato quien llena el formulario es una de las partes: solo sus datos de identificación
+      return this.solicitante({ soloPropio: true }).filter(c => ['nombre', 'genero', 'tipoDoc', 'numDoc', 'expedidaEn', 'ciudad', 'direccion', 'telefono', 'correo'].includes(c.id)).map(c => c.id === 'correo' ? { ...c, ayuda: '' } : c);
+    }
     return [
       { id: 'modo', tipo: 'radio', etiqueta: '¿Quién presenta este documento?', ayuda: 'Si alguien te está ayudando a escribir (un nieto, un vecino, un funcionario), igual elige "Yo mismo(a)" y escribe los datos de la persona afectada: ella es quien firma. Elige "por otra persona" solo si esa persona no puede presentarlo ni firmarlo.', opciones: modos, requerido: true, valorInicial: 'propio' },
       { id: 'infoRepresentante', tipo: 'info', mostrarSi: { campo: 'modo', valor: 'representante' }, texto: 'Con esta opción el documento dirá que la persona afectada no puede actuar por sí misma y lo firmas tú (como "agente oficioso" o como su representante). Si solo la estás ayudando a escribir, vuelve a "Yo mismo(a)" y pon los datos de ella.' },
@@ -105,6 +109,35 @@ AJ.campos = {
       { id: 'respuestaPrevia', tipo: 'select', etiqueta: '¿Qué pasó con esa solicitud?', opciones: [
         { v: 'nada', t: 'No me han respondido nada' }, { v: 'parcial', t: 'Me respondieron algo que no resuelve lo que pedí' }, { v: 'negaron', t: 'Me la negaron' }, { v: 'prometieron', t: 'Me prometieron algo pero no cumplieron' }
       ], valorInicial: 'nada', mostrarSi: { campo: 'yaPedi', valor: 'si' }, ancho: 'media' }
+    ];
+  },
+
+  /* Datos de la otra parte de un contrato (persona o empresa) */
+  contraparte(rol) {
+    rol = rol || 'la otra parte';
+    return [
+      { id: 'cpTipo', tipo: 'radio', etiqueta: `¿${rol.charAt(0).toUpperCase() + rol.slice(1)} es una persona o una empresa?`, opciones: [ { v: 'persona', t: 'Una persona' }, { v: 'empresa', t: 'Una empresa o negocio con NIT' } ], valorInicial: 'persona', requerido: true },
+      { id: 'cpEmpresa', tipo: 'texto', etiqueta: 'Nombre de la empresa (razón social)', ejemplo: 'Ej.: Inversiones El Roble S.A.S.', requerido: true, mostrarSi: { campo: 'cpTipo', valor: 'empresa' }, ancho: 'media' },
+      { id: 'cpNit', tipo: 'texto', etiqueta: 'NIT de la empresa', ejemplo: 'Ej.: 900.123.456-7', mostrarSi: { campo: 'cpTipo', valor: 'empresa' }, ancho: 'media' },
+      { id: 'cpNombre', tipo: 'texto', etiqueta: 'Nombre completo (si es empresa, el de quien la representa y firma)', ejemplo: 'Ej.: Carlos Andrés Mora Pérez', requerido: true, ancho: 'media' },
+      { id: 'cpGenero', tipo: 'select', etiqueta: '¿Es mujer u hombre?', opciones: [ { v: 'f', t: 'Mujer' }, { v: 'm', t: 'Hombre' }, { v: 'n', t: 'Prefiero no decirlo' } ], valorInicial: 'n', ancho: 'media' },
+      { id: 'cpTipoDoc', tipo: 'select', etiqueta: 'Tipo de documento', opciones: this.tiposDocumento, valorInicial: 'CC', ancho: 'media' },
+      { id: 'cpNumDoc', tipo: 'texto', etiqueta: 'Número del documento', requerido: true, ancho: 'media' },
+      { id: 'cpExpedidaEn', tipo: 'texto', etiqueta: 'Ciudad donde sacó la cédula', ancho: 'media' },
+      { id: 'cpCiudad', tipo: 'texto', etiqueta: 'Ciudad donde vive (o domicilio de la empresa)', requerido: true, ancho: 'media' },
+      { id: 'cpDireccion', tipo: 'texto', etiqueta: 'Dirección', ancho: 'media' },
+      { id: 'cpTelefono', tipo: 'texto', etiqueta: 'Teléfono', ancho: 'media' },
+      { id: 'cpCorreo', tipo: 'texto', etiqueta: 'Correo electrónico', ancho: 'media' }
+    ];
+  },
+
+  testigos() {
+    return [
+      { id: 'infoTestigos', tipo: 'info', texto: 'Los testigos no son obligatorios, pero ayudan a probar que las dos partes firmaron. Si no vas a tener testigos, deja estos campos vacíos.' },
+      { id: 'testigo1Nombre', tipo: 'texto', etiqueta: 'Nombre del primer testigo (opcional)', ancho: 'media' },
+      { id: 'testigo1Doc', tipo: 'texto', etiqueta: 'Cédula del primer testigo', ancho: 'media' },
+      { id: 'testigo2Nombre', tipo: 'texto', etiqueta: 'Nombre del segundo testigo (opcional)', ancho: 'media' },
+      { id: 'testigo2Doc', tipo: 'texto', etiqueta: 'Cédula del segundo testigo', ancho: 'media' }
     ];
   }
 };
@@ -185,7 +218,7 @@ AJ.red = {
 
   // Resuelve "o(a)", "(a)" según el género conocido: "hijo(a)" → "hija" / "hijo"
   generizar(texto, gen) {
-    texto = texto || '';
+    texto = (texto || '').replace(/madre\/padre/g, gen === 'f' ? 'madre' : gen === 'm' ? 'padre' : 'madre o padre');
     if (gen === 'm') return texto.replace(/\(a\)/g, '');
     if (gen === 'f') return texto.replace(/o\(a\)/g, 'a').replace(/\(a\)/g, 'a');
     return texto;
@@ -234,7 +267,7 @@ AJ.red = {
     opts = opts || {};
     const t = this.terminacion.bind(this);
     if (this.esAnonimo(d)) {
-      return `Quien suscribe, ciudadano(a) que por razones personales se reserva su identidad conforme lo permite el ordenamiento jurídico para las peticiones de interés general, quejas y denuncias (artículo 38 de la Ley 190 de 1995 y artículo 69 de la Ley 1952 de 2019), residente en ${d.ciudad || 'esta ciudad'},`;
+      return `Quien suscribe, ciudadano(a) que por razones personales se reserva su identidad conforme lo permite el ordenamiento jurídico para las peticiones de interés general, quejas y denuncias (artículo 38 de la Ley 190 de 1995 y artículo 86 de la Ley 1952 de 2019), residente en ${d.ciudad || 'esta ciudad'},`;
     }
     const g = d.genero || 'n';
     const nombre = this.mayus(d.nombre) || '[NOMBRE COMPLETO]';
@@ -294,7 +327,7 @@ AJ.red = {
     const cat = AJ.entidades.categoria(d.categoria);
     const ciudad = d.ciudad || d.entidadCiudad || '[CIUDAD]';
     if (cat.juez === 'circuito') return `JUEZ DEL CIRCUITO DE ${this.mayus(ciudad)} (REPARTO)`;
-    if (cat.juez === 'tribunal') return `MAGISTRADO DEL TRIBUNAL SUPERIOR DEL DISTRITO JUDICIAL DE ${this.mayus(ciudad)} (REPARTO)`;
+    if (cat.juez === 'tribunal') return `JUEZ O MAGISTRADO SUPERIOR FUNCIONAL DEL DESPACHO ACCIONADO – ${this.mayus(ciudad)} (REPARTO)`;
     return `JUEZ MUNICIPAL DE ${this.mayus(ciudad)} (REPARTO)`;
   },
 
@@ -307,11 +340,69 @@ AJ.red = {
       eps: `${E} es una entidad particular encargada de la prestación del servicio público de salud, por lo que la tutela procede en su contra conforme al numeral 2 del artículo 42 del Decreto 2591 de 1991.`,
       spd: `${E} es una empresa prestadora de servicios públicos domiciliarios, por lo que la tutela procede en su contra conforme al numeral 3 del artículo 42 del Decreto 2591 de 1991.`,
       educacion: `${E} está encargada de la prestación del servicio público de educación, por lo que la tutela procede en su contra conforme al numeral 1 del artículo 42 del Decreto 2591 de 1991.`,
-      financiera: `${E} es una organización privada frente a la cual la parte accionante se encuentra en situación de indefensión, y además administra o reporta información personal, de modo que la tutela procede conforme a los numerales 4 y 6 del artículo 42 del Decreto 2591 de 1991.`,
+      financiera: `${E}: organización(es) privada(s) frente a la(s) cual(es) la parte accionante se encuentra en situación de indefensión y que administra(n) o reporta(n) información personal, de modo que la tutela procede conforme a los numerales 4 y 6 del artículo 42 del Decreto 2591 de 1991.`,
       pensiones: `${E} es una entidad particular que administra el servicio público de seguridad social en pensiones, frente a la cual la parte accionante se encuentra en situación de indefensión, por lo que la tutela procede conforme al artículo 42 del Decreto 2591 de 1991.`,
       empleador: `${E} es un particular frente al cual la parte accionante se encuentra en situación de subordinación derivada de la relación laboral o contractual, por lo que la tutela procede conforme al numeral 4 del artículo 42 del Decreto 2591 de 1991.`,
       particular: `La parte accionante se encuentra en situación de indefensión o subordinación frente a ${E}, pues no cuenta con medios materiales ni jurídicos eficaces para resistir la vulneración, por lo que la tutela procede conforme al numeral 4 del artículo 42 del Decreto 2591 de 1991.`
     };
     return base[d.categoria] || base.particular;
+  },
+
+  /* ---------- Contratos ---------- */
+  // Número en letras (español, hasta billones): 1250000 → "un millón doscientos cincuenta mil"
+  enLetras(n) {
+    n = Math.floor(Number(String(n == null ? '' : n).replace(/[^\d]/g, '')) || 0);
+    if (n === 0) return 'cero';
+    const U = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+    const D = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+    const C = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+    const cientos = x => {
+      if (!x) return ''; if (x === 100) return 'cien';
+      const c = Math.floor(x / 100), r = x % 100; let s = c ? C[c] : '';
+      if (r) { const t = r < 30 ? U[r] : D[Math.floor(r / 10)] + (r % 10 ? ' y ' + U[r % 10] : ''); s += (s ? ' ' : '') + t; }
+      return s;
+    };
+    const miles = x => { const m = Math.floor(x / 1000), r = x % 1000; return [m ? (m === 1 ? 'mil' : cientos(m) + ' mil') : '', r ? cientos(r) : ''].filter(Boolean).join(' '); };
+    const bill = Math.floor(n / 1e12), mill = Math.floor((n % 1e12) / 1e6), resto = n % 1e6;
+    const partes = [];
+    if (bill) partes.push(bill === 1 ? 'un billón' : miles(bill) + ' billones');
+    if (mill) partes.push(mill === 1 ? 'un millón' : miles(mill) + ' millones');
+    if (resto) partes.push(miles(resto));
+    return partes.join(' ');
+  },
+
+  // "UN MILLÓN DOSCIENTOS MIL PESOS MONEDA LEGAL COLOMBIANA ($1.200.000)"
+  pesos(v) {
+    const n = Number(String(v == null ? '' : v).replace(/[^\d]/g, ''));
+    if (!n) return '[VALOR]';
+    return `${this.enLetras(n).toUpperCase()} PESOS MONEDA LEGAL COLOMBIANA (${this.moneda(n)})`;
+  },
+
+  numeroLetras(v) {
+    const n = Number(String(v == null ? '' : v).replace(/[^\d]/g, ''));
+    return n ? `${this.enLetras(n)} (${n})` : '[número]';
+  },
+
+  // Identificación de una parte del contrato (persona natural o empresa)
+  identParte(p) {
+    const t = this.terminacion.bind(this);
+    const g = p.genero || 'n';
+    const nombre = this.mayus(p.nombre) || '[NOMBRE COMPLETO]';
+    const doc = `${this.tipoDocLegal(p.tipoDoc)} No. ${p.numDoc || '[NÚMERO]'}${p.expedidaEn ? ` expedida en ${p.expedidaEn}` : ''}`;
+    if (p.esEmpresa) {
+      return `${this.mayus(p.empresa) || '[EMPRESA]'}${p.nit ? `, identificada con NIT ${p.nit}` : ''}, con domicilio en ${p.ciudad || '[ciudad]'}${p.direccion ? ` (${p.direccion})` : ''}, representada legalmente por ${nombre}, mayor de edad, identificad${t(g, 'o', 'a')} con ${doc}`;
+    }
+    return `${nombre}, mayor de edad, identificad${t(g, 'o', 'a')} con ${doc}, domiciliad${t(g, 'o', 'a')} en ${p.ciudad || '[ciudad]'}${p.direccion ? `, con dirección ${p.direccion}` : ''}`;
+  },
+
+  // Construye las dos partes del contrato según el papel que eligió quien llena el formulario
+  partesContrato(caso, d) {
+    const yo = { nombre: d.nombre, genero: d.genero, tipoDoc: d.tipoDoc, numDoc: d.numDoc, expedidaEn: d.expedidaEn, ciudad: d.ciudad, direccion: d.direccion, telefono: d.telefono, correo: d.correo, esEmpresa: false };
+    const otro = { nombre: d.cpNombre, genero: d.cpGenero, tipoDoc: d.cpTipoDoc, numDoc: d.cpNumDoc, expedidaEn: d.cpExpedidaEn, ciudad: d.cpCiudad, direccion: d.cpDireccion, telefono: d.cpTelefono, correo: d.cpCorreo, esEmpresa: d.cpTipo === 'empresa', empresa: d.cpEmpresa, nit: d.cpNit };
+    const miRol = d.miRol === 'b' ? 'b' : 'a';
+    const roles = typeof caso.roles === 'function' ? caso.roles(d) : caso.roles;
+    const pa = miRol === 'a' ? yo : otro, pb = miRol === 'a' ? otro : yo;
+    const arma = (p, rol) => ({ ...p, rol, ident: this.identParte(p), nombreFirma: p.esEmpresa ? `${this.mayus(p.empresa)}` : this.mayus(p.nombre) || '[NOMBRE]', firma: [p.esEmpresa ? `${this.mayus(p.empresa)}${p.nit ? ` – NIT ${p.nit}` : ''}` : (this.mayus(p.nombre) || '[NOMBRE]'), p.esEmpresa ? `Representante legal: ${this.mayus(p.nombre) || '[NOMBRE]'}` : '', `${this.tipoDocLegal(p.tipoDoc).replace(/^./, c => c.toUpperCase())} No. ${p.numDoc || '[número]'}`, p.direccion ? `Dirección: ${p.direccion}${p.ciudad ? `, ${p.ciudad}` : ''}` : (p.ciudad ? `Ciudad: ${p.ciudad}` : ''), p.telefono ? `Teléfono: ${p.telefono}` : '', p.correo ? `Correo: ${p.correo}` : ''].filter(Boolean) });
+    return { A: arma(pa, roles.a), B: arma(pb, roles.b), yo: miRol };
   }
 };

@@ -19,7 +19,7 @@ AJ.casos = AJ.casos || [];
     destinatario: { categoria: 'municipio', ejemploNombre: 'Ej.: Alcaldía Municipal de La Ceja', cargo: 'Secretaría de Planeación', ejemploCargo: 'Ej.: Secretario(a) de Planeación' },
     campos: [
       { id: 'tramite', tipo: 'select', etiqueta: '¿Sobre qué necesitas que Planeación actúe o te informe?', requerido: true, opciones: [
-        { v: 'licencia', t: 'Una licencia de construcción, ampliación o reforma', legal: 'la solicitud de licencia urbanística' },
+        { v: 'licencia', t: 'Una licencia de construcción, ampliación o reforma', legal: 'la licencia urbanística' },
         { v: 'uso_suelo', t: 'El uso del suelo permitido en un predio (certificado o concepto)', legal: 'el concepto o certificado de uso del suelo' },
         { v: 'estrato', t: 'El estrato de mi vivienda (certificado o revisión)', legal: 'la certificación o revisión de la estratificación socioeconómica' },
         { v: 'nomenclatura', t: 'La nomenclatura o dirección oficial de un predio', legal: 'la asignación o certificación de nomenclatura' },
@@ -54,7 +54,7 @@ AJ.casos = AJ.casos || [];
       return f;
     },
     peticiones: [
-      { v: 'resolver', inicial: true, t: 'Que resuelvan de fondo mi solicitud dentro del plazo legal', legal: d => `Resolver de fondo, de manera clara, completa y congruente, ${R.opcionTexto(camposDe('pet_municipio_planeacion', 'tramite'), d.tramite)} descrita en los hechos, dentro del término legal de quince (15) días hábiles.` },
+      { v: 'resolver', inicial: true, t: 'Que resuelvan de fondo mi solicitud dentro del plazo legal', legal: d => d.tramite === 'licencia' ? 'Resolver de fondo la solicitud de licencia urbanística dentro del término de cuarenta y cinco (45) días hábiles previsto en el artículo 99 de la Ley 388 de 1997 y, si dicho término ya venció sin pronunciamiento, reconocer el silencio administrativo positivo previsto en el numeral 3 del mismo artículo, expidiendo el acto que lo declare.' : `Resolver de fondo, de manera clara, completa y congruente, lo relativo a ${R.opcionTexto(camposDe('pet_municipio_planeacion', 'tramite'), d.tramite)} descrita en los hechos, dentro del término legal de quince (15) días hábiles.` },
       { v: 'estado', t: 'Que me informen en qué estado está el trámite y qué falta', legal: 'Informar el estado actual del trámite, el funcionario responsable, los requisitos o documentos que eventualmente falten y la fecha estimada de decisión.' },
       { v: 'copias', t: 'Que me entreguen copia de los documentos, conceptos o normas que apliquen', legal: 'Expedir y entregar copia de los documentos, conceptos técnicos, actos administrativos y normas urbanísticas aplicables al predio o al asunto descrito.' },
       { v: 'visita', t: 'Que hagan una visita técnica al lugar', legal: 'Ordenar y practicar una visita técnica al predio o lugar descrito, con participación del peticionario, y comunicar sus resultados por escrito.' },
@@ -263,6 +263,7 @@ AJ.casos = AJ.casos || [];
   /* ---------------- MUNICIPIO: INSPECCIÓN DE POLICÍA ---------------- */
   {
     id: 'pet_municipio_policia', tipo: 'peticion', categoria: 'municipio',
+    tituloDoc: 'QUERELLA POLICIVA (artículo 223 de la Ley 1801 de 2016)', saludoDoc: 'Respetado(a) señor(a) Inspector(a) de Policía:',
     titulo: 'Querella ante la Inspección de Policía (ruido, vecinos, perturbación, invasión)',
     resumen: 'Pedir al inspector de policía que intervenga por ruido excesivo, mascotas, basuras, construcciones que afectan tu casa, invasión de un predio o conflictos de convivencia.',
     palabras: ['ruido', 'vecino', 'inspección de policía', 'querella', 'perturbación', 'invasión', 'convivencia', 'mascota', 'perro', 'humedad', 'muro', 'fiesta', 'bar', 'código de policía'],
@@ -291,7 +292,7 @@ AJ.casos = AJ.casos || [];
       if (d.hablaron === 'si') h.push('Se intentó una solución directa con el responsable y se acudió a la Policía Nacional (cuadrante), sin que la situación se haya corregido de manera definitiva.');
       return h;
     },
-    normas: ['cp2', 'cp23', 'l1801', 'l1755_14', 'cp11'],
+    normas: ['cp2', 'cp23', 'l1801', 'l1755_14'],
     fundamentos: d => {
       const f = ['De acuerdo con el artículo 206 de la Ley 1801 de 2016, los inspectores de policía conocen de los comportamientos contrarios a la convivencia en materia de tranquilidad, relaciones respetuosas, protección de bienes inmuebles, actividad económica y urbanismo, mediante el proceso verbal abreviado del artículo 223, que puede iniciarse a petición de cualquier persona afectada.'];
       if (d.tipo === 'ruido') f.push('El artículo 33 de la Ley 1801 de 2016 califica como comportamiento contrario a la tranquilidad "sonidos o ruidos en actividades, fiestas, reuniones o eventos similares que afecten la convivencia del vecindario", y la Resolución 627 de 2006 del Ministerio de Ambiente fija los niveles máximos de ruido permitidos en zonas residenciales (65 decibeles en el día y 55 en la noche).');
@@ -361,7 +362,7 @@ AJ.casos = AJ.casos || [];
       return f;
     },
     peticiones: [
-      { v: 'autorizar', inicial: true, t: 'Que autoricen y me presten el servicio de inmediato, con fecha, hora y lugar', legal: d => `Autorizar y garantizar la prestación efectiva de ${R.opcionTexto(camposDe('pet_eps_servicio', 'tipoServicio'), d.tipoServicio)} "${d.servicio || '[servicio]'}" ordenado por el médico tratante, informando por escrito la fecha, hora e IPS donde se prestará, en un plazo que no supere los cinco (5) días hábiles dada la urgencia descrita.` },
+      { v: 'autorizar', inicial: true, t: 'Que autoricen y me presten el servicio de inmediato, con fecha, hora y lugar', legal: d => `Autorizar y garantizar la prestación efectiva de ${R.opcionTexto(camposDe('pet_eps_servicio', 'tipoServicio'), d.tipoServicio)} "${d.servicio || '[servicio]'}" que ordenó el médico tratante, informando por escrito la fecha, hora e IPS donde se prestará, en un plazo que no supere los cinco (5) días hábiles dada la urgencia descrita.` },
       { v: 'razones', inicial: true, t: 'Si lo niegan, que me digan por escrito la razón y la norma', legal: 'En caso de negativa, informar por escrito, de manera clara y motivada, las razones y las normas en que se funda, indicando los recursos y mecanismos que proceden.' },
       { v: 'integral', t: 'Que me garanticen el tratamiento completo que ordene el médico', legal: 'Garantizar la atención integral de la enfermedad diagnosticada, suministrando sin dilaciones los demás servicios, medicamentos, insumos y controles que ordene el médico tratante, conforme al artículo 8 de la Ley 1751 de 2015.' },
       { v: 'transporte', t: 'Que cubran transporte y alojamiento si el servicio es en otra ciudad', legal: 'Cubrir los gastos de transporte, alojamiento y alimentación del paciente y de un acompañante cuando el servicio deba prestarse en un municipio distinto al de residencia, dada la carencia de recursos económicos.' },
@@ -394,7 +395,7 @@ AJ.casos = AJ.casos || [];
     hechos: d => {
       const a = R.actor(d);
       const h = [];
-      h.push(`${a.Nom} ${d.fallecido === 'si' ? 'es familiar de una persona que' : ''} ha recibido atención en salud en ${R.entidad(d)}${d.periodo ? `, durante el período ${d.periodo}` : ''}.`);
+      h.push(`${a.Nom} ${d.fallecido === 'si' ? 'es familiar de una persona que ' : ''}ha recibido atención en salud en ${R.entidad(d)}${d.periodo ? `, durante el período ${d.periodo}` : ''}.`);
       h.push(`Requiere ${R.lista((d.documentos || []).map(v => R.opcionTexto(camposDe('pet_eps_historia', 'documentos'), v)))} para ${R.opcionTexto(camposDe('pet_eps_historia', 'paraQue'), d.paraQue)}.`);
       if (d.fallecido === 'si') h.push('El titular de la historia clínica falleció, y quien suscribe acredita el parentesco con los documentos anexos, conforme a la jurisprudencia constitucional que reconoce a los familiares cercanos el derecho a acceder a la historia clínica del fallecido (entre otras, Sentencia T-158A de 2008).');
       return h;
@@ -405,7 +406,7 @@ AJ.casos = AJ.casos || [];
       { v: 'gratis', inicial: true, t: 'Que no me cobren por la primera copia', legal: 'Abstenerse de cobrar por la expedición de la primera copia, por tratarse del ejercicio de un derecho fundamental sobre información propia del paciente, o informar previamente el costo de reproducción cuando legalmente proceda.' },
       { v: 'certificar', t: 'Que certifiquen si hay documentos faltantes', legal: 'Certificar si existen documentos faltantes o ilegibles en la historia clínica e indicar las razones.' }
     ],
-    anexos: [ { v: 'cedula', t: 'Copia de la cédula del paciente' }, { v: 'defuncion', t: 'Registro civil de defunción (si aplica)' }, { v: 'parentesco', t: 'Registro civil que pruebe el parentesco (si aplica)' }, { v: 'autorizacion', t: 'Autorización firmada por el paciente (si pides la de otra persona)' } ],
+    anexos: [ { v: 'cedula', t: 'Copia de la cédula del paciente' }, { v: 'defuncion', t: 'Registro civil de defunción (si el paciente falleció)', si: d => d.fallecido === 'si' }, { v: 'parentesco', t: 'Registro civil que pruebe el parentesco (si el paciente falleció o pides la de un familiar)', si: d => d.fallecido === 'si' || R.esRepresentante(d) }, { v: 'autorizacion', t: 'Autorización firmada por el paciente (si pides la de otra persona)', si: d => R.esRepresentante(d) } ],
     guia: { plazo: { dias: 10, tipo: 'habiles' }, nota: 'Si en 10 días hábiles no responden, la ley entiende que la petición fue aceptada y deben entregar las copias en los 3 días siguientes (artículo 14 de la Ley 1755 de 2015).', siNoResponden: 'Sin respuesta en 10 días hábiles: tutela por violación del derecho de petición y del hábeas data. Puedes también quejarte ante la Supersalud.' }
   }
   );

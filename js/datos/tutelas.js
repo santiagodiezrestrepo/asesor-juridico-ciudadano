@@ -82,19 +82,19 @@ AJ.casos = AJ.casos || [];
       return f;
     },
     procedencia: d => [
-      'Subsidiariedad: aunque la Superintendencia Nacional de Salud tiene funciones jurisdiccionales (artículo 41 de la Ley 1122 de 2007), la Corte Constitucional ha reiterado (entre otras, sentencias T-052 de 2018, T-178 de 2019 y SU-508 de 2020) que ese mecanismo no es idóneo ni eficaz cuando está comprometida la vida, la integridad o la dignidad del paciente, o cuando se trata de sujetos de especial protección, de modo que la tutela procede de manera directa.',
+      'Subsidiariedad: aunque la Superintendencia Nacional de Salud tiene funciones jurisdiccionales (artículo 41 de la Ley 1122 de 2007, modificado por el artículo 6 de la Ley 1949 de 2019), la Corte Constitucional ha reiterado (sentencias T-425 de 2017, T-224 de 2020 y SU-508 de 2020) que ese mecanismo no puede presumirse idóneo ni eficaz, y que la tutela procede de manera directa cuando está comprometida la vida, la integridad o la dignidad del paciente, cuando se trata de sujetos de especial protección constitucional o cuando la urgencia hace indispensable la intervención del juez constitucional.',
       'Inmediatez: la vulneración es actual y continúa, pues el servicio sigue sin prestarse y el daño a la salud se agrava con cada día de demora.'
     ],
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja los derechos vulnerados', legal: d => `TUTELAR los derechos fundamentales a la salud, a la vida digna y a la seguridad social de ${R.actor(d).nom}, vulnerados por ${R.entidad(d)}.` },
-      { v: 'ordenar', inicial: true, t: 'Que ordene a la EPS autorizar y prestar el servicio en 48 horas', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes a la notificación del fallo, autorice y garantice la prestación efectiva de ${R.opcionTexto(cd('tut_salud_servicio', 'tipoServicio'), d.tipoServicio)} "${d.servicio || '[servicio]'}", ordenado por el médico tratante, en una IPS de la red con la oportunidad que la condición del paciente exige.` },
+      { v: 'ordenar', inicial: true, t: 'Que ordene a la EPS autorizar y prestar el servicio en 48 horas', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes a la notificación del fallo, autorice y garantice la prestación efectiva de ${R.opcionTexto(cd('tut_salud_servicio', 'tipoServicio'), d.tipoServicio)} "${d.servicio || '[servicio]'}", que ordenó el médico tratante, en una IPS de la red con la oportunidad que la condición del paciente exige.` },
       { v: 'integral', inicial: true, t: 'Que ordene el tratamiento integral de la enfermedad', legal: d => `ORDENAR a ${R.entidad(d)} que garantice el tratamiento integral de ${d.diagnostico || 'la enfermedad diagnosticada'}, suministrando sin dilaciones ni trámites administrativos adicionales todos los servicios, medicamentos, insumos, controles y procedimientos que ordene el médico tratante en relación con dicha patología.` },
       { v: 'transporte', t: 'Que cubra transporte, alojamiento y un acompañante', legal: d => `ORDENAR a ${R.entidad(d)} que asuma los gastos de transporte, alojamiento y alimentación del paciente y de un acompañante cuando los servicios deban prestarse fuera de su municipio de residencia.` },
       { v: 'cuidador', t: 'Que garantice cuidador o atención domiciliaria', legal: d => `ORDENAR a ${R.entidad(d)} que valore la necesidad de atención domiciliaria y de un cuidador, y los suministre si el médico tratante los considera necesarios.` },
       { v: 'desacato', inicial: true, t: 'Que advierta a la EPS sobre el desacato si no cumple', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato previsto en el artículo 52 del Decreto 2591 de 1991.` }
     ],
     medida: d => `Solicito respetuosamente que, con fundamento en el artículo 7 del Decreto 2591 de 1991, se decrete como MEDIDA PROVISIONAL, desde la admisión de la tutela, que ${R.entidad(d)} autorice y preste de inmediato ${R.opcionTexto(cd('tut_salud_servicio', 'tipoServicio'), d.tipoServicio)} "${d.servicio || '[servicio]'}", pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.riesgo)}`,
-    anexos: [ { v: 'cedula', t: 'Copia de la cédula del paciente (y del agente oficioso)' }, { v: 'orden', t: 'Copia de la orden médica o fórmula' }, { v: 'historia', t: 'Historia clínica o epicrisis' }, { v: 'negativa', t: 'Respuesta o negativa de la EPS (si existe)' }, { v: 'peticion', t: 'Copia del derecho de petición o queja previa' }, { v: 'sisben', t: 'Certificado del Sisbén o prueba de falta de recursos' }, { v: 'fotos', t: 'Fotos o certificados que muestren la condición del paciente' } ],
+    anexos: [ { v: 'cedula', t: 'Copia de la cédula del paciente (y de quien presenta la tutela, si es otra persona)' }, { v: 'orden', t: 'Copia de la orden médica o fórmula' }, { v: 'historia', t: 'Historia clínica o epicrisis' }, { v: 'negativa', t: 'Respuesta o negativa de la EPS (si existe)' }, { v: 'peticion', t: 'Copia del derecho de petición o queja previa' }, { v: 'sisben', t: 'Certificado del Sisbén o prueba de falta de recursos' }, { v: 'fotos', t: 'Fotos o certificados que muestren la condición del paciente' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'El juez debe fallar en máximo 10 días. Preséntala por Tutela en Línea o en la Oficina de Reparto del municipio. No necesitas abogado.', siNoResponden: 'Si el juez concede la tutela y la EPS no cumple en 48 horas, presenta el "Incidente de desacato". Si la niega, tienes 3 días para impugnar.' }
   },
 
@@ -125,8 +125,7 @@ AJ.casos = AJ.casos || [];
       const h = [];
       h.push(`${a.Nom} está afiliad${a.o} a ${R.entidad(d)} y padece ${d.diagnostico || '[diagnóstico]'}.`);
       h.push(`Estado actual: ${R.oracion(d.estado)}`);
-      h.push('La EPS ha incumplido de manera reiterada las órdenes del médico tratante, obligando a la familia a reclamar servicio por servicio:');
-      h.push(...R.relatoAHechos(d.servicios));
+      h.push(`La EPS ha incumplido de manera reiterada las órdenes del médico tratante, obligando a la familia a reclamar servicio por servicio: ${R.relatoAHechos(d.servicios).join(' ')}`);
       if ((d.necesidades || []).length) h.push(`El paciente requiere, además, ${R.lista(d.necesidades.map(v => R.opcionTexto(cd('tut_salud_integral', 'necesidades'), v)))}.`);
       h.push(`Situación económica: ${R.oracion(d.recursos)}`);
       return h;
@@ -183,11 +182,12 @@ AJ.casos = AJ.casos || [];
       const f = AJ.festivos.parseISO(d.fechaPeticion);
       const venc = f ? AJ.festivos.sumarDiasHabiles(f, op.dias) : null;
       const h = [];
-      h.push(`${R.capital(R.elDia(d.fechaPeticion))}, ${a.nom} presentó ante ${R.entidad(d)} ${R.opcionTexto(cd('tut_peticion', 'tipoPeticion'), d.tipoPeticion)} ${R.opcionTexto(cd('tut_peticion', 'medio'), d.medio)}${d.radicado ? `, radicada bajo el número ${d.radicado}` : ''}.`);
+      const quien = a.tercero ? `${R.mayus(d.nombre)}, en nombre de ${a.nom},` : a.nom;
+      h.push(`${R.capital(R.elDia(d.fechaPeticion))}, ${quien} presentó ante ${R.entidad(d)} ${R.opcionTexto(cd('tut_peticion', 'tipoPeticion'), d.tipoPeticion)} ${R.opcionTexto(cd('tut_peticion', 'medio'), d.medio)}${d.radicado ? `, radicada bajo el número ${d.radicado}` : ''}.`);
       h.push(`En dicha petición solicitó: ${R.oracion(d.objeto)}`);
       const vencido = venc && venc < R.hoy();
       if (venc) h.push(`El término legal de ${R.dias(op.dias, 'habiles')} para resolverla ${vencido ? 'venció' : 'vence'} el ${R.fechaLarga(venc)}${vencido ? `, es decir, hace ${AJ.festivos.diasHabilesEntre(venc, R.hoy())} días hábiles` : ''}.`);
-      h.push(`A la fecha, ${a.nom} ${R.opcionTexto(cd('tut_peticion', 'respuesta'), d.respuesta)}.`);
+      h.push(`A la fecha, ${quien} ${R.opcionTexto(cd('tut_peticion', 'respuesta'), d.respuesta)}.`);
       h.push(`La respuesta es necesaria porque: ${R.oracion(d.importancia)}`);
       return h;
     },
@@ -251,7 +251,7 @@ AJ.casos = AJ.casos || [];
     ],
     normas: ['cp86', 'cp25', 'cp53', 'cst_57', 'cst_134', 'su995', 'd2591_42', 'cp1'],
     procedencia: d => [
-      'Subsidiariedad: aunque existe la acción ordinaria laboral, la Corte Constitucional (SU-995 de 1999, T-211 de 2011 y T-063 de 2018, entre otras) ha establecido que la tutela procede para el pago de salarios cuando su retención afecta el mínimo vital del trabajador y su familia, pues el proceso ordinario no es eficaz frente a la urgencia de atender las necesidades básicas. La afectación del mínimo vital se presume cuando el trabajador afirma que el salario es su única fuente de ingresos y el empleador no desvirtúa esa afirmación.',
+      'Subsidiariedad: aunque existe la acción ordinaria laboral, la Corte Constitucional (SU-995 de 1999 y T-016 de 2015, entre otras) ha establecido que la tutela procede para el pago de salarios cuando su retención afecta el mínimo vital del trabajador y su familia, pues el proceso ordinario no es eficaz frente a la urgencia de atender las necesidades básicas. La afectación del mínimo vital se presume cuando el salario es la única fuente de ingresos del trabajador, cuando el incumplimiento se prolonga por más de dos meses o cuando la remuneración equivale al salario mínimo, y el empleador no desvirtúa esa situación.',
       'Inmediatez: el incumplimiento es actual y sus efectos sobre la subsistencia del hogar se agravan cada día.'
     ],
     peticiones: [
@@ -301,8 +301,8 @@ AJ.casos = AJ.casos || [];
     ],
     normas: ['cp86', 'cp48', 'cp53', 'l100_206', 'l1562', 'su995', 'd2591_42'],
     procedencia: d => [
-      'Subsidiariedad: la Corte Constitucional (sentencias T-140 de 2016, T-401 de 2017 y T-144 de 2023, entre otras) ha reiterado que la tutela procede para ordenar el pago de incapacidades cuando el trabajador enfermo carece de otros ingresos, pues el subsidio por incapacidad sustituye el salario y su no pago afecta el mínimo vital; en estos casos la jurisdicción ordinaria no es un medio eficaz.',
-      'La Corte también ha señalado que las controversias entre EPS, AFP y empleador sobre quién debe pagar no pueden trasladarse al trabajador: el juez ordena el pago a la entidad que corresponda según la etapa de la incapacidad.'
+      'Subsidiariedad: la Corte Constitucional (sentencias T-140 de 2016, T-401 de 2017, T-246 de 2018 y T-514 de 2020, entre otras) ha reiterado que la tutela procede para ordenar el pago de incapacidades cuando el trabajador enfermo carece de otros ingresos, pues el subsidio por incapacidad sustituye el salario y su no pago afecta el mínimo vital; en estos casos la jurisdicción ordinaria no es un medio eficaz.',
+      'La Corte también ha señalado que las controversias entre EPS, AFP y empleador sobre quién debe pagar no pueden trasladarse al trabajador: el juez ordena el pago a la entidad que corresponda según la etapa de la incapacidad (EPS del día 3 al 180; administradora de pensiones del 181 al 540, incluso cuando el concepto de rehabilitación es desfavorable, conforme a la Sentencia C-270 de 2023; EPS a partir del día 541, artículo 67 de la Ley 1753 de 2015).'
     ],
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja los derechos', legal: d => `TUTELAR los derechos fundamentales al mínimo vital, a la seguridad social y a la salud de ${R.actor(d).nom}.` },
@@ -360,7 +360,7 @@ AJ.casos = AJ.casos || [];
     ],
     normas: ['cp86', 'cp48', 'cp46', 'cp23', 'l100_33', 'l717', 'l700_4', 'l1755_14', 't377', 'l1850'],
     procedencia: d => [
-      'Subsidiariedad: la Corte Constitucional ha señalado (sentencias T-1013 de 2003, T-257 de 2005 y SU-005 de 2018, entre otras) que la mora de la administradora en resolver la solicitud pensional vulnera directamente el derecho de petición y, cuando el solicitante es adulto mayor, inválido o carece de ingresos, también la seguridad social y el mínimo vital, sin que la jurisdicción ordinaria sea un medio eficaz dada la urgencia y la edad del afectado.',
+      'Subsidiariedad: la Corte Constitucional ha señalado (sentencias SU-975 de 2003, T-1013 de 2003, T-257 de 2005 y, para la pensión de sobrevivientes, SU-005 de 2018, entre otras) que la mora de la administradora en resolver la solicitud pensional vulnera directamente el derecho de petición y, cuando el solicitante es adulto mayor, inválido o carece de ingresos, también la seguridad social y el mínimo vital, sin que la jurisdicción ordinaria sea un medio eficaz dada la urgencia y la edad del afectado.',
       'Inmediatez: la omisión persiste y el daño se agrava con el paso del tiempo, dada la condición de la parte accionante.'
     ],
     peticiones: [
@@ -371,7 +371,7 @@ AJ.casos = AJ.casos || [];
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'solicitud', t: 'Copia de la solicitud de pensión radicada (con fecha)' }, { v: 'historia', t: 'Historia laboral' }, { v: 'resolucion', t: 'Resolución de reconocimiento (si existe)' }, { v: 'peticion', t: 'Derecho de petición previo y respuesta' }, { v: 'medicos', t: 'Historia clínica o dictamen de invalidez' }, { v: 'economia', t: 'Pruebas de la situación económica' } ],
-    guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'Colpensiones es entidad nacional: la tutela se reparte a un juez del circuito. Los fondos privados (Porvenir, Protección, Colfondos, Skandia) van a juez municipal.', siNoResponden: 'Incidente de desacato si no cumplen el fallo. Si niegan la pensión mediante resolución, tienes 10 días hábiles para recurso de reposición y apelación.' }
+    guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'Colpensiones es entidad nacional: la tutela se reparte a un juez del circuito. Los fondos privados (Porvenir, Protección, Colfondos, Skandia) van a juez municipal. La reforma pensional (Ley 2381 de 2024) no está en vigor: la Corte la suspendió y su aplicación quedó diferida, de modo que hoy rigen la Ley 100 de 1993 y los plazos citados en esta tutela.', siNoResponden: 'Incidente de desacato si no cumplen el fallo. Si niegan la pensión mediante resolución, tienes 10 días hábiles para recurso de reposición y apelación.' }
   },
 
   /* ---------------- TUTELA ESTABILIDAD LABORAL REFORZADA ---------------- */
@@ -383,7 +383,9 @@ AJ.casos = AJ.casos || [];
     destinatario: { categoria: 'empleador', ejemploNombre: 'Ej.: Comercializadora Los Andes S.A.S.' },
     campos: [
       { id: 'situacionLaboral', tipo: 'select', etiqueta: '¿Cuál es tu situación?', requerido: true, opciones: [
-        { v: 'embarazo', t: 'Estaba embarazada o en licencia de maternidad o lactancia', legal: 'se encontraba en estado de embarazo, en licencia de maternidad o en período de lactancia (fuero de maternidad)' },
+        { v: 'embarazo', t: 'Estaba embarazada', legal: 'se encontraba en estado de embarazo (fuero de maternidad)' },
+        { v: 'licencia', t: 'Estaba en licencia de maternidad', legal: 'se encontraba en licencia de maternidad (fuero de maternidad)' },
+        { v: 'lactancia', t: 'Estaba en período de lactancia (hasta 6 meses después del parto)', legal: 'se encontraba en período de lactancia (fuero de maternidad)' },
         { v: 'enfermedad', t: 'Estaba incapacitado(a) o con una enfermedad que afecta mi trabajo', legal: 'se encontraba en una condición de salud que le impedía o dificultaba sustancialmente el desempeño de sus labores (estabilidad ocupacional reforzada)' },
         { v: 'discapacidad', t: 'Tengo una discapacidad o pérdida de capacidad laboral', legal: 'tiene una condición de discapacidad o pérdida de capacidad laboral calificada' },
         { v: 'prepension', t: 'Me faltan menos de 3 años para pensionarme', legal: 'se encuentra en condición de prepensionado, a menos de tres años de cumplir los requisitos de pensión' },
@@ -419,9 +421,9 @@ AJ.casos = AJ.casos || [];
       { v: 'ninos', t: 'Derechos del que está por nacer o del recién nacido', legal: 'derechos del niño que está por nacer o recién nacido (artículos 43 y 44 de la Constitución)' }
     ],
     normas: ['cp86', 'cp13', 'cp25', 'cp43', 'cp53', 'cst_239', 'l361_26', 'su070', 'su049', 'd2591_42'],
-    fundamentos: d => d.situacionLaboral === 'prepension' ? ['La Corte Constitucional ha reconocido la estabilidad laboral reforzada de los prepensionados (sentencias SU-003 de 2018 y T-357 de 2016, entre otras): quienes se encuentran a menos de tres años de cumplir los requisitos para pensionarse no pueden ser desvinculados sin que se garantice su acceso a la pensión, so pena de vulnerar su mínimo vital y su seguridad social.'] : [],
+    fundamentos: d => d.situacionLaboral === 'prepension' ? ['La Corte Constitucional ha reconocido la estabilidad laboral reforzada de los prepensionados (sentencias SU-003 de 2018 y T-357 de 2016): quienes se encuentran a tres (3) años o menos de cumplir los requisitos de edad y semanas para pensionarse y necesitan seguir cotizando no pueden ser desvinculados sin que se garantice su acceso a la pensión, so pena de vulnerar su mínimo vital y su seguridad social.'] : [],
     procedencia: d => [
-      'Subsidiariedad: aunque existe la acción ordinaria laboral, la Corte Constitucional ha establecido (SU-070 de 2013, SU-049 de 2017 y SU-075 de 2018) que la tutela procede para proteger la estabilidad laboral reforzada cuando el accionante es sujeto de especial protección (mujer embarazada, persona con afectación de salud o discapacidad) y el despido afecta su mínimo vital, su salud o la continuidad de su tratamiento, pues el proceso ordinario no es eficaz frente a esa urgencia.',
+      'Subsidiariedad: aunque existe la acción ordinaria laboral, la Corte Constitucional ha establecido (SU-070 de 2013, SU-049 de 2017 y SU-075 de 2018) que la tutela procede para proteger la estabilidad laboral reforzada cuando el accionante es sujeto de especial protección (mujer embarazada, persona con afectación de salud o discapacidad) y el despido afecta su mínimo vital, su salud o la continuidad de su tratamiento, pues el proceso ordinario no es eficaz frente a esa urgencia; conforme a la SU-075 de 2018, cuando el empleador conocía el estado de embarazo o existe duda razonable al respecto, opera plenamente el fuero de maternidad.',
       `Inmediatez: la terminación ocurrió ${R.elDia(d.fechaDespido)}, y sus efectos sobre la salud y la subsistencia de la parte accionante son actuales.`
     ],
     peticiones: [
@@ -429,7 +431,7 @@ AJ.casos = AJ.casos || [];
       { v: 'ineficacia', inicial: true, t: 'Que declare que el despido no tiene efectos', legal: d => `DECLARAR la ineficacia de la terminación del vínculo efectuada por ${R.entidad(d)} ${R.elDia(d.fechaDespido)}, por haberse producido sin la autorización del Ministerio del Trabajo.` },
       { v: 'reintegro', inicial: true, t: 'Que ordene reintegrarme a un cargo igual o mejor', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes a la notificación del fallo, reintegre a la parte accionante al cargo que desempeñaba o a uno de igual o superior categoría, compatible con su estado de salud, sin solución de continuidad.` },
       { v: 'salarios', inicial: true, t: 'Que ordene pagar los salarios y la seguridad social dejados de pagar', legal: d => `ORDENAR a ${R.entidad(d)} pagar los salarios, prestaciones y aportes a seguridad social causados desde la fecha del despido hasta el reintegro efectivo.` },
-      { v: 'indemnizacion', t: 'Que ordene la indemnización de ley (60 días embarazo / 180 días discapacidad)', legal: d => `ORDENAR a ${R.entidad(d)} pagar la indemnización prevista en ${d.situacionLaboral === 'embarazo' ? 'el artículo 239 del Código Sustantivo del Trabajo (sesenta días de salario)' : 'el artículo 26 de la Ley 361 de 1997 (ciento ochenta días de salario)'}.` },
+      { v: 'indemnizacion', t: 'Que ordene la indemnización de ley (60 días embarazo / 180 días discapacidad)', legal: d => `ORDENAR a ${R.entidad(d)} pagar la indemnización prevista en ${['embarazo', 'licencia', 'lactancia'].includes(d.situacionLaboral) ? 'el artículo 239 del Código Sustantivo del Trabajo (sesenta días de salario)' : 'el artículo 26 de la Ley 361 de 1997 (ciento ochenta días de salario)'}.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
     medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} mantener la afiliación a salud de la parte accionante y pagar los aportes correspondientes mientras se decide la tutela, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.afectacion)}`,

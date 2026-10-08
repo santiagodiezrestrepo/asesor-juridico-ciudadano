@@ -36,6 +36,8 @@ y entra a `http://localhost:8791`.
 | `js/datos/peticiones*.js` | 23 casos de derecho de petición |
 | `js/datos/tutelas*.js` | 15 casos de acción de tutela |
 | `js/datos/otros.js` | Desacato, impugnación, recursos, quejas, hábeas data y familia (11 casos) |
+| `js/datos/contratos.js` | Contratos y documentos privados al estilo de las hojas Minerva: arriendo de vivienda, venta de vehículo y de bienes, servicio doméstico, pagaré, poder, acuerdo de pago y recibo (8 activos; 4 más conservados con la marca `retirado`) |
+| `js/datos/sinonimos.js` | Palabras y frases cotidianas por caso para el buscador |
 | `docs/ANALISIS.md` | Análisis del problema, cifras, marco jurídico y decisiones de diseño |
 
 ## Cómo agregar o modificar un caso
@@ -72,6 +74,10 @@ node --check js/app.js
 ```
 
 (Repetir para cada archivo. El script completo usado en el desarrollo está descrito en `docs/ANALISIS.md`.)
+
+## Revisión y alcance
+
+La plataforma fue sometida a dos revisiones independientes (una jurídica, con verificación de cada sentencia citada en la relatoría de la Corte Constitucional, y una de usabilidad con perfiles de personas sin conocimientos legales), y sus hallazgos se incorporaron al código. Por decisión de La Sueñomotora, la plataforma se concentra en los documentos que la ley permite presentar sin abogado y que protegen a la población vulnerable; los contratos propios del trabajo habitual de los abogados en negocios entre particulares (promesa de compraventa de inmueble, arrendamiento comercial, contrato de trabajo general, prestación de servicios) están en el código pero retirados del catálogo.
 
 ## Aviso
 

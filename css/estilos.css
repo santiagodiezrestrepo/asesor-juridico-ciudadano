@@ -211,6 +211,9 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .doc-ol li, .doc-ul li { margin-bottom: .45em; text-align: justify; }
 .doc-firma { margin-top: 3em; }
 .doc-linea { width: 240px; border-top: 1px solid var(--hoja-fg); margin-bottom: 6px; }
+.doc-firmas { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px 32px; margin-top: 1em; }
+.doc-firmas .doc-firma { margin-top: 2.5em; }
+.doc-huella { display: inline-block; border: 1px solid var(--hoja-fg); padding: 18px 22px; margin-top: 8px; font-size: .8em; color: #555; }
 
 .layout-doc { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start; }
 @media (min-width: 1000px) { .layout-doc { grid-template-columns: minmax(0, 8fr) minmax(300px, 4fr); } }
@@ -255,11 +258,11 @@ details summary { cursor: pointer; font-weight: 600; margin: 10px 0; }
 /* ---------- Acerca de ---------- */
 .acerca-cab { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: start; }
 @media (min-width: 820px) { .acerca-cab { grid-template-columns: 260px minmax(0, 1fr); } }
-/* El logo de La Sueñomotora siempre va sobre blanco, en ambos temas, para respetar sus colores */
-.acerca-logo { margin: 0; background: #ffffff; border: 1px solid var(--borde); border-radius: var(--radio); padding: 22px; display: grid; place-items: center; box-shadow: var(--sombra); }
+/* El logo de La Sueñomotora se muestra con su fondo transparente, sin recuadro */
+.acerca-logo { margin: 0; padding: 8px 0; display: grid; place-items: center; }
 .acerca-logo img { width: auto; height: auto; max-width: 100%; max-height: 220px; display: block; }
 .pie-marca { display: inline-flex; align-items: center; gap: 10px; }
-.pie-marca img { height: 34px; width: auto; background: #ffffff; border-radius: 6px; padding: 3px 8px; }
+.pie-marca img { height: 34px; width: auto; }
 .acerca-texto { max-width: 70ch; min-width: 0; }
 .acerca-lead { font-size: 1.15rem; }
 .acerca-texto p { line-height: 1.6; }

@@ -28,7 +28,7 @@ AJ.entidades = {
     { id: 'educacion', nombre: 'Colegio, universidad o instituto', icono: 'educacion', orden: 'particular', naturaleza: 'mixta', juez: 'municipal',
       descripcion: 'Colegios públicos y privados, universidades, SENA, ICETEX, secretarías de educación.' },
     { id: 'judicial', nombre: 'Juzgado, Fiscalía o autoridad judicial', icono: 'balanza', orden: 'nacional', naturaleza: 'publica', juez: 'tribunal',
-      descripcion: 'Juzgados, tribunales, Fiscalía General, Procuraduría, Contraloría.' },
+      descripcion: 'Juzgados, tribunales, Fiscalía. La tutela se reparte al superior funcional del despacho accionado (contra un juzgado municipal: juez del circuito; contra un juzgado del circuito: Tribunal Superior).' },
     { id: 'particular', nombre: 'Una persona, un almacén o un negocio (arrendador, vecino, tienda, vendedor)', icono: 'persona', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
       descripcion: 'Arrendadores, vecinos, almacenes, prestadores de servicios, aseguradoras.' }
   ],
