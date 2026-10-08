@@ -88,9 +88,18 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .pie-in { max-width: 1180px; margin: 0 auto; padding: 20px 16px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
 
 /* ---------- Hero ---------- */
-.hero { padding: 40px 0 10px; max-width: 860px; }
+.hero { padding: 40px 0 10px; max-width: 1040px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: center; }
+@media (min-width: 760px) { .hero-grid { grid-template-columns: minmax(0, 1fr) 200px; gap: 36px; } }
 .hero h1 { font-size: clamp(2rem, 1.4rem + 3vw, 3.4rem); letter-spacing: -.02em; }
 .hero-texto { font-size: 1.15rem; color: var(--fg-suave); max-width: 66ch; }
+.hero-arte { margin: 0; display: grid; justify-items: center; gap: 6px; }
+.hero-arte svg { width: 150px; max-width: 100%; height: auto; }
+@media (min-width: 760px) { .hero-arte svg { width: 200px; } }
+.hero-arte .mapa { fill: var(--acento-suave); stroke: var(--acento); stroke-width: 2; stroke-linejoin: round; }
+.hero-arte .gente { stroke: var(--acento-fuerte); }
+.hero-arte .cabeza { fill: var(--acento-fuerte); stroke: none; }
+.hero-arte figcaption { font-size: .8rem; color: var(--fg-suave); text-align: center; text-transform: uppercase; letter-spacing: .06em; }
 .buscador { display: flex; align-items: center; gap: 10px; background: var(--superficie); border: 2px solid var(--borde); border-radius: 14px; padding: 8px 8px 8px 16px; box-shadow: var(--sombra); margin-top: 22px; }
 .buscador:focus-within { border-color: var(--acento); }
 .buscador .ico { color: var(--fg-suave); }
@@ -273,6 +282,16 @@ details summary { cursor: pointer; font-weight: 600; margin: 10px 0; }
 .principio p { color: var(--fg-suave); font-size: .95rem; margin: 0; }
 .lista-ayudar { padding-left: 20px; max-width: 800px; display: grid; gap: 10px; }
 
+/* ---------- Aviso legal ---------- */
+.legal details { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); padding: 4px 18px; margin-bottom: 10px; max-width: 900px; }
+.legal summary { font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; padding: 10px 0; cursor: pointer; }
+.legal details p { font-size: .98rem; line-height: 1.6; }
+.pie-legal { font-size: .85rem; max-width: 60ch; }
+.pie-legal a { font-weight: 600; }
+.barra-legal { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: min(100% - 24px, 960px); z-index: 40; background: var(--superficie); color: var(--fg); border: 1px solid var(--borde); border-bottom: 0; border-radius: var(--radio) var(--radio) 0 0; box-shadow: var(--sombra); padding: 12px 16px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.barra-legal p { margin: 0; flex: 1 1 320px; font-size: .95rem; }
+.barra-legal .btn { flex: none; }
+
 /* ---------- Aviso flotante ---------- */
 .aviso { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--fg); color: var(--bg); padding: 12px 18px; border-radius: 10px; opacity: 0; pointer-events: none; transition: .25s; z-index: 50; max-width: calc(100% - 32px); font-weight: 600; }
 .aviso.visible { opacity: 1; transform: translate(-50%, 0); }
@@ -285,7 +304,7 @@ details summary { cursor: pointer; font-weight: 600; margin: 10px 0; }
 @media print {
   @page { size: letter; margin: 2.5cm 3cm; }
   body { background: #fff; color: #000; font-size: 12pt; }
-  .cabecera, .pie, .doc-cab, .guia-lateral, .aviso, .nav, .acciones { display: none !important; }
+  .cabecera, .pie, .doc-cab, .guia-lateral, .aviso, .nav, .acciones, .barra-legal, .doc-pie-ayuda { display: none !important; }
   main { max-width: none; padding: 0; margin: 0; }
   .layout-doc { display: block; }
   .hoja, .hoja-final { box-shadow: none; border-radius: 0; padding: 0; max-width: none; font-size: 12pt; color: #000; background: #fff; }

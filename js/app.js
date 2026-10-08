@@ -117,7 +117,7 @@ window.AJ = window.AJ || {};
       case 'documento': vistaDocumento(main); break;
       case 'mis-documentos': vistaMisDocumentos(main); break;
       case 'guia': vistaGuia(main, arg); break;
-      case 'acerca': vistaAcerca(main); break;
+      case 'acerca': vistaAcerca(main, arg); break;
       default: vistaInicio(main);
     }
   }
@@ -144,9 +144,30 @@ window.AJ = window.AJ || {};
     const populares = ['tut_salud_servicio', 'tut_peticion', 'pet_eps_servicio', 'pet_municipio_planeacion', 'pet_pension', 'pet_spd', 'tut_estabilidad', 'hd_reclamo'].map(id => AJ.casos.find(c => c.id === id)).filter(Boolean);
     main.innerHTML = `
       <section class="hero">
-        <p class="eyebrow">Gratis · Sin abogado · Tus datos no salen de tu dispositivo</p>
-        <h1>Defiende tus derechos con un documento legal bien hecho</h1>
-        <p class="hero-texto">Escoge tu situación, responde preguntas en lenguaje sencillo y obtén un derecho de petición, una tutela o el documento que necesites, con el lenguaje jurídico y las normas correctas. Listo para imprimir o enviar.</p>
+        <div class="hero-grid">
+          <div class="hero-bloque">
+            <p class="eyebrow">Gratis · Sin abogado · Tus datos no salen de tu dispositivo</p>
+            <h1>Defiende tus derechos con un documento legal bien hecho</h1>
+            <p class="hero-texto">Escoge tu situación, responde preguntas en lenguaje sencillo y obtén un derecho de petición, una tutela o el documento que necesites, con el lenguaje jurídico y las normas correctas. Listo para imprimir o enviar.</p>
+          </div>
+          <figure class="hero-arte" aria-hidden="false">
+            <svg viewBox="0 0 140 190" role="img" aria-label="Silueta de Colombia con ciudadanos levantando la mano">
+              <path class="mapa" d="M80 2 L75 4 L67 12 L53 15 L46 18 L38 24 L35 33 L26 44 L24 50 L18 43 L13 60 L16 78 L22 96 L2 119 L2 123 L18 134 L28 135 L41 140 L100 185 L106 150 L101 126 L131 119 L122 107 L128 92 L126 70 L106 72 L91 60 L77 62 L72 52 L73 46 L63 38 L66 29 L74 16 L85 9 Z"/>
+              <g class="gente" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <circle class="cabeza" cx="68" cy="68" r="8"/>
+                <path stroke-width="5" d="M68 78v30M68 108l-9 18M68 108l9 18M68 84l-15 11M68 84l17-16"/>
+                <circle class="cabeza" cx="87" cy="66" r="4"/>
+                <circle class="cabeza" cx="44" cy="90" r="6"/>
+                <path stroke-width="4.5" d="M44 97v22M44 119l-6 12M44 119l6 12M44 102l-11-12M44 102l11 6"/>
+                <circle class="cabeza" cx="32" cy="76" r="3.4"/>
+                <circle class="cabeza" cx="94" cy="96" r="6"/>
+                <path stroke-width="4.5" d="M94 103v22M94 125l-6 12M94 125l6 12M94 108l12-12M94 108l-11 7"/>
+                <circle class="cabeza" cx="107" cy="83" r="3.4"/>
+              </g>
+            </svg>
+            <figcaption>La ciudadanía con las herramientas para defenderse</figcaption>
+          </figure>
+        </div>
         <form class="buscador" id="buscador-inicio" role="search">
           ${icono('buscar')}
           <input type="search" id="q-inicio" placeholder="Escribe tu problema: &quot;la EPS no me da el medicamento&quot;, &quot;me reportaron en Datacrédito&quot;, &quot;no me pagan&quot;…" aria-label="Describe tu problema">
@@ -696,7 +717,70 @@ window.AJ = window.AJ || {};
   }
 
   /* ---------- Vista: acerca de ---------- */
-  function vistaAcerca(main) {
+  const FECHA_AVISO = '8 de octubre de 2026';
+  function avisoLegalHTML() {
+    return `
+      <section class="seccion legal" id="legal">
+        <div class="seccion-cab"><h2>Aviso legal, términos de uso y privacidad</h2><p>Al usar esta plataforma aceptas estas condiciones. Léelas: están escritas para que cualquier persona las entienda. Última actualización: ${FECHA_AVISO}.</p></div>
+
+        <details open id="legal-naturaleza"><summary>1. Qué es y qué no es esta plataforma</summary>
+          <p>Asesor Jurídico Ciudadano es una herramienta gratuita de <strong>información y orientación general</strong>, creada por la Fundación La Sueñomotora con fines educativos y de interés público. Genera borradores de documentos a partir de las respuestas que cada persona escribe, con base en normas y decisiones judiciales de Colombia.</p>
+          <p>La plataforma <strong>no presta asesoría jurídica</strong>, no es una firma de abogados, no ejerce la representación de nadie y no sustituye el consejo de un abogado o abogada, de la Personería, de la Defensoría del Pueblo o de un consultorio jurídico. Ningún contenido debe entenderse como una opinión legal sobre un caso concreto.</p>
+          <p>El uso de la plataforma <strong>no crea una relación abogado-cliente</strong> ni ningún vínculo contractual o profesional entre la persona usuaria y La Sueñomotora, sus fundadores, directivos, voluntarios, revisores o colaboradores.</p>
+        </details>
+
+        <details id="legal-verificacion"><summary>2. Exactitud, actualización y verificación</summary>
+          <p>Los textos, normas, plazos y sentencias se revisan con cuidado, pero las leyes cambian, la jurisprudencia evoluciona y cada caso tiene particularidades que un formulario no puede captar. Por eso la información se ofrece <strong>sin garantía de exactitud, vigencia, completitud ni idoneidad</strong> para un propósito determinado.</p>
+          <p>Antes de firmar o presentar un documento, la persona usuaria debe <strong>leerlo completo, verificar que corresponda a su situación y, si tiene dudas, consultarlo</strong> con la Personería de su municipio, la Defensoría del Pueblo, un consultorio jurídico universitario o un abogado de confianza. Esas entidades atienden sin costo.</p>
+          <p>La Sueñomotora no garantiza que una entidad responda, que un juez conceda una tutela ni ningún otro resultado: las decisiones dependen exclusivamente de las autoridades, de las pruebas y de las circunstancias de cada caso.</p>
+        </details>
+
+        <details id="legal-usuario"><summary>3. Responsabilidad de la persona usuaria</summary>
+          <p>Quien usa la plataforma es la única responsable de la <strong>veracidad</strong> de los datos y hechos que escribe, del contenido final del documento, de la decisión de firmarlo y presentarlo, y de las consecuencias que de ello se deriven. Los documentos se generan automáticamente con lo que la persona escribe; La Sueñomotora no los revisa, no los conoce y no interviene en ningún trámite.</p>
+          <p>Está prohibido usar la plataforma para presentar información falsa, declarar hechos que no son ciertos (incluido el juramento de no haber presentado otra tutela por los mismos hechos), suplantar a otra persona, presentar tutelas temerarias, acosar o perjudicar a terceros, o para cualquier fin contrario a la ley. Esas conductas pueden tener consecuencias disciplinarias, civiles o penales para quien las comete, y en ningún caso son atribuibles a La Sueñomotora.</p>
+          <p>La persona usuaria se compromete a usar la herramienta para la defensa legítima de sus derechos, de los de su familia o de los de su comunidad, y a mantener indemnes a La Sueñomotora y a las personas vinculadas a ella frente a cualquier reclamación de terceros derivada de su uso.</p>
+        </details>
+
+        <details id="legal-responsabilidad"><summary>4. Limitación de responsabilidad</summary>
+          <p>La plataforma se ofrece <strong>"tal como está"</strong> y "según disponibilidad", sin garantías de ningún tipo, expresas o implícitas. En la máxima medida permitida por la ley colombiana, la Fundación La Sueñomotora, sus fundadores <strong>Santiago Diez Restrepo y Juan Gonzalo Lalinde</strong>, sus directivos, empleados, voluntarios, revisores, colaboradores y las personas o entidades que la alojan o la difunden <strong>no responden</strong> por ningún daño, perjuicio, pérdida, costo, sanción, decisión desfavorable o lucro cesante, directo o indirecto, que se derive del uso o de la imposibilidad de uso de la plataforma, de errores, omisiones o desactualización de sus contenidos, de los documentos generados o de las decisiones que la persona usuaria tome con base en ellos.</p>
+          <p>La plataforma puede estar temporalmente fuera de servicio, presentar fallas o cambiar sin aviso; La Sueñomotora no garantiza su disponibilidad continua ni conserva copias de lo que las personas escriben.</p>
+          <p>Nada de lo aquí dispuesto limita responsabilidades que la ley colombiana no permita excluir.</p>
+        </details>
+
+        <details id="legal-privacidad"><summary>5. Privacidad y datos personales</summary>
+          <p>La plataforma está diseñada para <strong>no recolectar, almacenar ni transmitir</strong> datos personales: todo lo que escribes se procesa dentro de tu propio navegador y no se envía a La Sueñomotora ni a ningún servidor. No usamos cookies propias, cuentas, registros ni herramientas de seguimiento. En consecuencia, La Sueñomotora no actúa como responsable ni encargada del tratamiento de los datos que escribes (Ley 1581 de 2012), porque nunca los recibe.</p>
+          <p>Si eliges "Recordar mis datos" o "Guardar aquí", la información queda únicamente en la memoria de tu navegador (almacenamiento local), bajo tu control. Cualquier persona que use ese mismo computador y navegador podría verla: en computadores públicos, imprime o descarga tu documento y luego bórralo con el botón "Borrar todos mis datos de este computador".</p>
+          <p>Terceros necesarios para mostrar la página pueden registrar datos técnicos como la dirección IP o el tipo de navegador, conforme a sus propias políticas: el servicio de alojamiento (GitHub Pages) y el servicio de tipografías (Google Fonts). La Sueñomotora no tiene acceso a esos registros ni los controla.</p>
+          <p>Los documentos que generes contienen tus datos personales y, a veces, los de otras personas: eres responsable de usarlos solo para el trámite que corresponde y de no compartirlos innecesariamente.</p>
+        </details>
+
+        <details id="legal-propiedad"><summary>6. Propiedad intelectual y uso permitido</summary>
+          <p>Los textos, la estructura de los documentos, las guías, el diseño y el código de la plataforma son obra de la Fundación La Sueñomotora. El nombre "La Sueñomotora", el nombre "Asesor Jurídico Ciudadano" y su logotipo están protegidos y no pueden usarse sin autorización escrita.</p>
+          <p>Se autoriza el uso <strong>gratuito, personal y comunitario</strong> de la plataforma y de los documentos que genera. Está prohibido cobrar a terceros por los documentos generados, presentarlos como asesoría profesional propia, copiar la plataforma para fines comerciales o eliminar las referencias a La Sueñomotora. Las normas y sentencias citadas son de dominio público. El código fuente está disponible en el repositorio del proyecto para que cualquiera lo revise, proponga mejoras o lo adapte con fines no comerciales, conservando la atribución a La Sueñomotora.</p>
+        </details>
+
+        <details id="legal-independencia"><summary>7. Independencia frente a entidades y canales oficiales</summary>
+          <p>La Sueñomotora es una fundación privada sin ánimo de lucro, <strong>sin vínculo con la Rama Judicial, la Defensoría del Pueblo, las personerías, las superintendencias, las EPS, los bancos ni ninguna de las entidades mencionadas</strong>. Sus nombres aparecen únicamente como referencia para ayudar a dirigir los documentos. La plataforma no radica ni presenta nada ante ninguna entidad: eso lo hace cada persona por los canales oficiales que la guía indica.</p>
+          <p>Esta plataforma <strong>no es un canal de emergencia</strong>. Si tu vida o tu integridad están en peligro, llama al 123 (emergencias), al 155 (violencia contra la mujer) o al 141 (niños, niñas y adolescentes).</p>
+        </details>
+
+        <details id="legal-enlaces"><summary>8. Enlaces a otros sitios</summary>
+          <p>La plataforma enlaza a sitios de entidades públicas y de terceros (Tutela en Línea, superintendencias, Datacrédito, etc.) para facilitar los trámites. La Sueñomotora no controla esos sitios ni responde por su contenido, disponibilidad, seguridad o políticas de privacidad.</p>
+        </details>
+
+        <details id="legal-menores"><summary>9. Menores de edad</summary>
+          <p>Los menores de edad pueden usar la plataforma, preferiblemente con el acompañamiento de un adulto de confianza. La ley colombiana les permite presentar derechos de petición y tutelas a su nombre. La plataforma no recolecta información de ninguna persona, incluidos los menores.</p>
+        </details>
+
+        <details id="legal-ley"><summary>10. Cambios, ley aplicable y solución de diferencias</summary>
+          <p>La Sueñomotora puede modificar estas condiciones y el contenido de la plataforma en cualquier momento; la versión vigente es la publicada en esta página, con su fecha de actualización. Si alguna cláusula resulta inválida, las demás conservan su efecto.</p>
+          <p>Estas condiciones se rigen por las leyes de la República de Colombia. Cualquier diferencia relacionada con la plataforma se intentará resolver primero de manera directa y, de no lograrse, mediante conciliación; en último caso, serán competentes los jueces de la República de Colombia.</p>
+          <p>Para preguntas, correcciones o reclamaciones sobre la plataforma, escribe a La Sueñomotora a través del <a href="https://github.com/santiagodiezrestrepo/asesor-juridico-ciudadano" target="_blank" rel="noopener">repositorio del proyecto</a> o por los canales de contacto de la fundación.</p>
+        </details>
+      </section>`;
+  }
+
+  function vistaAcerca(main, arg) {
     main.innerHTML = `
       <section class="seccion acerca">
         <div class="acerca-cab">
@@ -734,8 +818,19 @@ window.AJ = window.AJ || {};
 
       <section class="seccion nota-legal">
         <h2>Aviso</h2>
-        <p>Esta plataforma orienta y redacta documentos con base en la normativa vigente, pero no sustituye la valoración de un abogado en casos complejos ni constituye representación legal. Para acompañamiento gratuito acude a la Personería de tu municipio, a la Defensoría del Pueblo o a un consultorio jurídico universitario. Consulta la <a href="#guia/directorio">lista de entidades que ayudan sin costo</a>.</p>
-      </section>`;
+        <p>Esta plataforma orienta y redacta borradores con base en la normativa vigente, pero no presta asesoría jurídica, no sustituye la valoración de un abogado ni constituye representación legal. Para acompañamiento gratuito acude a la Personería de tu municipio, a la Defensoría del Pueblo o a un consultorio jurídico universitario. Consulta la <a href="#guia/directorio">lista de entidades que ayudan sin costo</a> y el <a href="#acerca/legal">aviso legal completo</a>.</p>
+      </section>
+      ${avisoLegalHTML()}`;
+    if (arg) { const el = document.getElementById(arg); if (el) { if (el.tagName === 'DETAILS') el.open = true; setTimeout(() => el.scrollIntoView({ behavior: 'auto', block: 'start' }), 80); } }
+  }
+
+  /* Franja de aceptación de condiciones (se muestra hasta que la persona la cierra) */
+  function barraLegal() {
+    const barra = $('#barra-legal');
+    if (!barra) return;
+    if (almacen.leer('aj_aviso', '')) return;
+    barra.hidden = false;
+    $('#b-aceptar-aviso').addEventListener('click', () => { almacen.guardar('aj_aviso', FECHA_AVISO); barra.hidden = true; });
   }
 
   /* ---------- Arranque ---------- */
@@ -748,6 +843,7 @@ window.AJ = window.AJ || {};
   document.addEventListener('DOMContentLoaded', () => {
     AJ.casos = AJ.casos.filter(c => !c.retirado); // casos conservados en el código pero no ofrecidos al público
     construirDatalist();
+    barraLegal();
     $('#total-casos').textContent = AJ.casos.length;
     const tema = $('#tema');
     if (tema) {
