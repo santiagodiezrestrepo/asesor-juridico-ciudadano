@@ -1,0 +1,10 @@
+# Configuración local de la sesión de Claude
+.claude/
+
+# Archivos temporales y del sistema
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log
+*.tmp
+~$*
