@@ -32,24 +32,26 @@ AJ.campos = {
   solicitante(opts) {
     opts = opts || {};
     const modos = [
-      { v: 'propio', t: 'Yo mismo(a), en mi propio nombre' },
-      { v: 'representante', t: 'Yo, en nombre de otra persona (mi hijo(a), un familiar enfermo, una persona mayor)' }
+      { v: 'propio', t: 'Yo mismo(a): el documento sale a mi nombre y yo lo firmo' }
     ];
-    if (opts.permiteAnonimo) modos.push({ v: 'anonimo', t: 'De forma anónima (sin dar mi nombre)' });
+    if (!opts.soloPropio) modos.push({ v: 'representante', t: 'Yo, por otra persona que NO puede hacerlo sola (un hijo menor de edad, un familiar hospitalizado o muy enfermo, una persona mayor que no puede valerse)' });
+    if (opts.permiteAnonimo && !opts.soloPropio) modos.push({ v: 'anonimo', t: 'De forma anónima, sin dar mi nombre (solo para quejas y asuntos de interés general)' });
     return [
-      { id: 'modo', tipo: 'radio', etiqueta: '¿Quién presenta este documento?', opciones: modos, requerido: true, valorInicial: 'propio' },
-      { id: 'infoAnonimo', tipo: 'info', mostrarSi: { campo: 'modo', valor: 'anonimo' }, texto: 'Puedes presentar derechos de petición, quejas y denuncias sin identificarte. Ten en cuenta: la entidad puede exigir identificación para responder sobre asuntos personales tuyos (tu historia clínica, tu pensión); el anonimato funciona mejor para quejas y temas de interés general. Indica un correo electrónico (puede ser uno creado solo para esto) para recibir la respuesta.' },
-      { id: 'nombre', tipo: 'texto', etiqueta: 'Tu nombre completo', ejemplo: 'Ej.: María Fernanda López Ruiz', requerido: true, ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
-      { id: 'genero', tipo: 'select', etiqueta: '¿Cómo quieres que te mencione el documento?', opciones: [
-        { v: 'f', t: 'En femenino (la suscrita, identificada)' }, { v: 'm', t: 'En masculino (el suscrito, identificado)' }, { v: 'n', t: 'Neutro (el(la) suscrito(a))' }
+      { id: 'modo', tipo: 'radio', etiqueta: '¿Quién presenta este documento?', ayuda: 'Si alguien te está ayudando a escribir (un nieto, un vecino, un funcionario), igual elige "Yo mismo(a)" y escribe los datos de la persona afectada: ella es quien firma. Elige "por otra persona" solo si esa persona no puede presentarlo ni firmarlo.', opciones: modos, requerido: true, valorInicial: 'propio' },
+      { id: 'infoRepresentante', tipo: 'info', mostrarSi: { campo: 'modo', valor: 'representante' }, texto: 'Con esta opción el documento dirá que la persona afectada no puede actuar por sí misma y lo firmas tú (como "agente oficioso" o como su representante). Si solo la estás ayudando a escribir, vuelve a "Yo mismo(a)" y pon los datos de ella.' },
+      { id: 'infoAnonimo', tipo: 'info', mostrarSi: { campo: 'modo', valor: 'anonimo' }, texto: 'Puedes presentar quejas, denuncias y peticiones de interés general sin identificarte, y deben tramitarlas si aportas pruebas. Para citas, medicamentos, pensión, Sisbén o cualquier asunto tuyo, la entidad necesita saber quién eres: no uses anónimo. Indica un correo (puede ser uno creado solo para esto) para recibir la respuesta.' },
+      { id: 'nombre', tipo: 'texto', etiqueta: 'Nombre completo de quien presenta y firma', ejemplo: 'Ej.: María Fernanda López Ruiz', requerido: true, ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
+      { id: 'genero', tipo: 'select', etiqueta: '¿Quien firma es mujer u hombre? (para que el documento diga "la señora" o "el señor")', opciones: [
+        { v: 'f', t: 'Mujer' }, { v: 'm', t: 'Hombre' }, { v: 'n', t: 'Prefiero no decirlo' }
       ], valorInicial: 'n', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
       { id: 'tipoDoc', tipo: 'select', etiqueta: 'Tipo de documento de identidad', opciones: this.tiposDocumento, valorInicial: 'CC', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
+      { id: 'infoMenor', tipo: 'info', mostrarSi: { campo: 'tipoDoc', valor: 'TI' }, texto: 'Eres menor de edad: la ley te permite presentar derechos de petición y tutelas a tu nombre. Si prefieres, pide a tu mamá, papá o acudiente que lo firme con sus datos.' },
       { id: 'numDoc', tipo: 'texto', etiqueta: 'Número del documento', ejemplo: 'Ej.: 1.020.345.678', requerido: true, ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
-      { id: 'expedidaEn', tipo: 'texto', etiqueta: 'Lugar donde fue expedido', ejemplo: 'Ej.: Medellín', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
-      { id: 'ciudad', tipo: 'texto', etiqueta: 'Ciudad o municipio donde vives', ejemplo: 'Ej.: Envigado, Antioquia', requerido: true, ancho: 'media' },
-      { id: 'direccion', tipo: 'texto', etiqueta: 'Dirección para recibir correspondencia', ejemplo: 'Ej.: Calle 10 # 5-20, barrio El Centro', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
+      { id: 'expedidaEn', tipo: 'texto', etiqueta: 'Ciudad donde sacaste la cédula (en la cédula dice "expedida en")', ejemplo: 'Ej.: Medellín', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
+      { id: 'ciudad', tipo: 'texto', etiqueta: 'Ciudad o municipio donde vive quien presenta', ejemplo: 'Ej.: Envigado, Antioquia', requerido: true, ancho: 'media' },
+      { id: 'direccion', tipo: 'texto', etiqueta: 'Dirección para recibir cartas', ejemplo: 'Ej.: Calle 10 # 5-20, barrio El Centro', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
       { id: 'telefono', tipo: 'texto', etiqueta: 'Teléfono o celular', ejemplo: 'Ej.: 300 123 4567', ocultarSi: { campo: 'modo', valor: 'anonimo' }, ancho: 'media' },
-      { id: 'correo', tipo: 'texto', etiqueta: 'Correo electrónico para notificaciones', ejemplo: 'Ej.: nombre@correo.com', ayuda: 'Hoy casi todas las entidades y juzgados notifican por correo. Revisa esta cuenta con frecuencia.', ancho: 'media' },
+      { id: 'correo', tipo: 'texto', etiqueta: 'Correo electrónico para recibir la respuesta', ejemplo: 'Ej.: nombre@correo.com', ayuda: 'Las entidades y los juzgados responden casi siempre por correo. Si no tienes, puedes poner el de un hijo, nieto o persona de confianza (di de quién es en el relato) o crear uno gratis. Para una tutela es casi indispensable: sin correo, el juzgado notifica por carta y tarda más.', ancho: 'media' },
       { id: 'condicion', tipo: 'checks', etiqueta: '¿Alguna de estas situaciones aplica a la persona afectada? (marca las que correspondan)', ayuda: 'La ley exige a las entidades atención prioritaria a estas personas. Esto fortalece el documento.', opciones: this.condiciones },
       // Datos de la persona representada
       { id: 'afectadoNombre', tipo: 'texto', etiqueta: 'Nombre completo de la persona afectada (a quien representas)', requerido: true, mostrarSi: { campo: 'modo', valor: 'representante' }, ancho: 'media' },
@@ -76,10 +78,10 @@ AJ.campos = {
   destinatario(sug) {
     sug = sug || {};
     return [
-      { id: 'categoria', tipo: 'select', etiqueta: '¿Qué tipo de entidad es?', ayuda: 'Define las normas que aplican y, si llegas a la tutela, el juez al que se reparte.', opciones: AJ.entidades.categorias.map(c => ({ v: c.id, t: c.nombre })), valorInicial: sug.categoria || 'municipio', requerido: true, ancho: 'media' },
+      { id: 'categoria', tipo: 'select', etiqueta: '¿Qué tipo de entidad es?', ayuda: 'Sirve para citar las normas correctas y para saber a qué juez va una tutela. Si escribes el nombre de la entidad abajo, lo detectamos solo.', opciones: AJ.entidades.categorias.map(c => ({ v: c.id, t: c.nombre })), valorInicial: sug.categoria || 'municipio', requerido: true, ancho: 'media' },
       { id: 'entidadNombre', tipo: 'texto', etiqueta: 'Nombre de la entidad, empresa o persona a quien va dirigido', ejemplo: sug.ejemploNombre || 'Ej.: Alcaldía Municipal de Rionegro', lista: 'entidades', requerido: true, valorInicial: sug.nombre || '', ancho: 'media' },
-      { id: 'entidadCargo', tipo: 'texto', etiqueta: 'Dependencia o cargo de quien debe responder (si lo sabes)', ejemplo: sug.ejemploCargo || 'Ej.: Secretaría de Planeación / Gerente / Representante legal', valorInicial: sug.cargo || '', ancho: 'media' },
-      { id: 'entidadCiudad', tipo: 'texto', etiqueta: 'Ciudad de la entidad', ejemplo: 'Ej.: Rionegro, Antioquia', ancho: 'media' },
+      { id: 'entidadCargo', tipo: 'texto', etiqueta: 'Oficina o cargo de quien debe responder (si lo sabes)', ejemplo: sug.ejemploCargo || 'Ej.: Secretaría de Planeación / Gerente / Representante legal', valorInicial: sug.cargo || '', ancho: 'media' },
+      { id: 'entidadCiudad', tipo: 'texto', etiqueta: 'Ciudad de la entidad', ejemplo: 'Ej.: Rionegro, Antioquia', ayuda: 'Solo para el encabezado de la carta. Una tutela se presenta en la ciudad donde vives tú.', ancho: 'media' },
       { id: 'entidadDireccion', tipo: 'texto', etiqueta: 'Dirección o correo de la entidad (si lo sabes)', ejemplo: 'Ej.: notificacionesjudiciales@entidad.gov.co', ancho: 'media' }
     ];
   },
@@ -94,7 +96,7 @@ AJ.campos = {
     return [
       { id: 'yaPedi', tipo: 'radio', etiqueta: opts.etiqueta || '¿Ya habías hecho esta solicitud antes (por escrito, correo, teléfono o página web)?', opciones: [ { v: 'no', t: 'No, es la primera vez' }, { v: 'si', t: 'Sí, ya la había pedido' } ], valorInicial: 'no', requerido: true },
       { id: 'fechaPrevia', tipo: 'fecha', etiqueta: '¿Cuándo la pediste?', mostrarSi: { campo: 'yaPedi', valor: 'si' }, ancho: 'media' },
-      { id: 'radicadoPrevio', tipo: 'texto', etiqueta: 'Número de radicado o referencia (si lo tienes)', ejemplo: 'Ej.: 2026-RAD-004512', mostrarSi: { campo: 'yaPedi', valor: 'si' }, ancho: 'media' },
+      { id: 'radicadoPrevio', tipo: 'texto', etiqueta: 'Número de radicado (el número o sello que te dieron al entregar la solicitud, si lo tienes)', ejemplo: 'Ej.: 2026-RAD-004512', mostrarSi: { campo: 'yaPedi', valor: 'si' }, ancho: 'media' },
       { id: 'medioPrevio', tipo: 'select', etiqueta: '¿Por qué medio la pediste?', opciones: [
         { v: 'escrito', t: 'Por escrito en ventanilla', legal: 'por escrito radicado en la ventanilla de la entidad' }, { v: 'correo', t: 'Por correo electrónico', legal: 'mediante correo electrónico' },
         { v: 'web', t: 'Por la página web o aplicación', legal: 'a través del canal virtual de la entidad' }, { v: 'telefono', t: 'Por teléfono o línea de atención', legal: 'por vía telefónica' },
@@ -236,13 +238,15 @@ AJ.red = {
     }
     const g = d.genero || 'n';
     const nombre = this.mayus(d.nombre) || '[NOMBRE COMPLETO]';
+    const edad = ['TI', 'RC'].includes(d.tipoDoc) ? 'menor de edad' : 'mayor de edad';
     const ident = `identificad${t(g, 'o', 'a')} con ${this.tipoDocLegal(d.tipoDoc)} No. ${d.numDoc || '[NÚMERO]'}${d.expedidaEn ? ` expedida en ${d.expedidaEn}` : ''}`;
     const dom = d.ciudad ? `, domiciliad${t(g, 'o', 'a')} en ${d.ciudad}` : '';
     let rep = 'actuando en nombre propio';
     if (this.esRepresentante(d)) {
       const a = this.actor(d);
       const razon = this.generizar(this.opcionTexto({ opciones: AJ.campos.solicitante({ permiteAnonimo: true }).find(c => c.id === 'afectadoRazon').opciones }, d.afectadoRazon, 'legal'), a.g);
-      const parentesco = this.generizar(this.opcionTexto({ opciones: AJ.campos.solicitante({ permiteAnonimo: true }).find(c => c.id === 'parentesco').opciones }, d.parentesco, 'legal'), g);
+      let parentesco = this.generizar(this.opcionTexto({ opciones: AJ.campos.solicitante({ permiteAnonimo: true }).find(c => c.id === 'parentesco').opciones }, d.parentesco, 'legal'), g);
+      if (parentesco === 'madre/padre') parentesco = t(g, 'padre', 'madre');
       const esMenor = d.afectadoRazon === 'menor';
       if (opts.tutela) {
         rep = esMenor
@@ -252,7 +256,7 @@ AJ.red = {
         rep = `actuando en nombre y representación de ${a.nom}${a.doc ? `, identificad${a.o} con ${a.doc}` : ''}, en mi calidad de ${parentesco}, por cuanto ${razon}`;
       }
     }
-    return `${nombre}, mayor de edad, ${ident}${dom}, ${rep},`;
+    return `${nombre}, ${edad}, ${ident}${dom}, ${rep},`;
   },
 
   /* Frase sobre especial protección constitucional según las condiciones marcadas */
@@ -273,7 +277,8 @@ AJ.red = {
     const a = this.actor(d);
     const medio = this.opcionTexto({ opciones: AJ.campos.previo().find(c => c.id === 'medioPrevio').opciones }, d.medioPrevio, 'legal');
     const h = [];
-    h.push(`${this.capital(a.nom)} ya había solicitado ${objeto || 'lo que aquí se pide'} a ${this.entidad(d)} ${this.elDia(d.fechaPrevia, 'con anterioridad')}, ${medio}${d.radicadoPrevio ? `, solicitud que quedó registrada bajo el radicado o referencia No. ${d.radicadoPrevio}` : ''}.`);
+    const quien = a.tercero ? `Quien presenta este escrito, en nombre de ${a.nom},` : this.capital(a.nom);
+    h.push(`${quien} ya había solicitado ${objeto || 'lo que aquí se pide'} a ${this.entidad(d)} ${this.elDia(d.fechaPrevia, 'con anterioridad')}, ${medio}${d.radicadoPrevio ? `, solicitud que quedó registrada bajo el radicado o referencia No. ${d.radicadoPrevio}` : ''}.`);
     const resp = {
       nada: 'A la fecha de presentación de este escrito no se ha recibido ninguna respuesta a esa solicitud, con lo cual se superó ampliamente el término legal para resolverla.',
       parcial: 'La respuesta recibida no resolvió de fondo lo solicitado: fue evasiva, parcial o se refirió a asuntos distintos de los pedidos, lo que equivale jurídicamente a la ausencia de respuesta.',
@@ -287,7 +292,7 @@ AJ.red = {
   /* Nombre del juez según la categoría de la entidad */
   juezTutela(d) {
     const cat = AJ.entidades.categoria(d.categoria);
-    const ciudad = d.entidadCiudad || d.ciudad || '[CIUDAD]';
+    const ciudad = d.ciudad || d.entidadCiudad || '[CIUDAD]';
     if (cat.juez === 'circuito') return `JUEZ DEL CIRCUITO DE ${this.mayus(ciudad)} (REPARTO)`;
     if (cat.juez === 'tribunal') return `MAGISTRADO DEL TRIBUNAL SUPERIOR DEL DISTRITO JUDICIAL DE ${this.mayus(ciudad)} (REPARTO)`;
     return `JUEZ MUNICIPAL DE ${this.mayus(ciudad)} (REPARTO)`;

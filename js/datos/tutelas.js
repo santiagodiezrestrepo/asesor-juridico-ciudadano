@@ -15,8 +15,8 @@ AJ.casos = AJ.casos || [];
   C.tutelaExtra = function () {
     return [
       { id: 'urgente', tipo: 'radio', etiqueta: '¿Necesitas que el juez ordene algo de inmediato, antes de decidir la tutela (medida provisional)?', ayuda: 'Se pide cuando esperar los 10 días del fallo causaría un daño grave: una cirugía urgente, un corte de agua con niños, un desalojo.', opciones: [ { v: 'no', t: 'No, puedo esperar el fallo (máximo 10 días)' }, { v: 'si', t: 'Sí, la situación es urgente' } ], valorInicial: 'no' },
-      { id: 'medidaTexto', tipo: 'textarea', etiqueta: '¿Qué debería ordenar el juez de inmediato y por qué no puede esperar?', ejemplo: 'Ej.: Que la EPS entregue el oxígeno hoy mismo, porque sin él mi padre no puede respirar.', mostrarSi: { campo: 'urgente', valor: 'si' }, filas: 3 },
-      { id: 'otraTutela', tipo: 'radio', etiqueta: '¿Has presentado antes otra tutela por estos mismos hechos?', opciones: [ { v: 'no', t: 'No, es la primera' }, { v: 'si', t: 'Sí' } ], valorInicial: 'no', requerido: true },
+      { id: 'medidaTexto', tipo: 'textarea', etiqueta: '¿Qué debe ordenar el juez de inmediato y qué pasaría si espera los 10 días?', ejemplo: 'Ej.: Que la EPS entregue el oxígeno hoy mismo, porque sin él mi padre no puede respirar.', mostrarSi: { campo: 'urgente', valor: 'si' }, filas: 3 },
+      { id: 'otraTutela', tipo: 'radio', etiqueta: '¿Has presentado antes otra tutela por estos mismos hechos?', ayuda: 'El documento incluye una declaración bajo juramento sobre esto; responde con la verdad.', opciones: [ { v: 'no', t: 'No, es la primera' }, { v: 'si', t: 'Sí' } ], requerido: true },
       { id: 'infoOtraTutela', tipo: 'info', mostrarSi: { campo: 'otraTutela', valor: 'si' }, texto: 'Atención: no se puede presentar dos veces la misma tutela (por los mismos hechos y derechos); el juez la rechazaría por "temeraria". Si ya ganaste la tutela y la entidad no cumple, lo que corresponde es un INCIDENTE DE DESACATO ante el mismo juez. Si la perdiste y hay hechos nuevos, descríbelos claramente en el relato.' }
     ];
   };
@@ -30,7 +30,7 @@ AJ.casos = AJ.casos || [];
     palabras: ['tutela', 'salud', 'EPS', 'medicamento', 'cirugía', 'cita', 'especialista', 'examen', 'procedimiento', 'autorización', 'negaron', 'demora', 'pañales', 'oxígeno', 'silla de ruedas', 'terapias', 'MIPRES', 'cáncer', 'urgente'],
     destinatario: { categoria: 'eps', ejemploNombre: 'Ej.: Nueva EPS', cargo: 'Representante legal' },
     campos: [
-      { id: 'regimen', tipo: 'select', etiqueta: '¿En qué régimen estás afiliado(a)?', opciones: [ { v: 'contributivo', t: 'Contributivo', legal: 'régimen contributivo' }, { v: 'subsidiado', t: 'Subsidiado (Sisbén)', legal: 'régimen subsidiado' }, { v: 'especial', t: 'Especial o de excepción', legal: 'régimen especial o de excepción' } ], valorInicial: 'contributivo', ancho: 'media' },
+      { id: 'regimen', tipo: 'select', etiqueta: '¿Cómo está el paciente en la EPS?', ayuda: 'Si no sabes, mira el carné o la app de la EPS. Si entró por el Sisbén y no paga: subsidiado. Si le descuentan del sueldo, paga o está como beneficiario de alguien que paga: contributivo.', opciones: [ { v: 'contributivo', t: 'Contributivo: le descuentan del sueldo, paga, o es beneficiario(a) de alguien que paga', legal: 'régimen contributivo' }, { v: 'subsidiado', t: 'Subsidiado: entró por el Sisbén y no paga', legal: 'régimen subsidiado' }, { v: 'especial', t: 'Especial: es o fue maestro(a) (Fomag), policía, militar o de Ecopetrol', legal: 'régimen especial o de excepción' } ], valorInicial: 'contributivo', ancho: 'completa' },
       { id: 'tipoServicio', tipo: 'select', etiqueta: '¿Qué te ordenaron y no te han garantizado?', requerido: true, opciones: [
         { v: 'medicamento', t: 'Un medicamento', legal: 'el medicamento' }, { v: 'cita', t: 'Una cita con especialista', legal: 'la consulta de medicina especializada' },
         { v: 'cirugia', t: 'Una cirugía o procedimiento', legal: 'el procedimiento quirúrgico' }, { v: 'examen', t: 'Un examen o imagen diagnóstica', legal: 'el examen o ayuda diagnóstica' },
@@ -38,9 +38,9 @@ AJ.casos = AJ.casos || [];
         { v: 'remision', t: 'Remisión a otra IPS o ciudad', legal: 'la remisión al prestador requerido' }, { v: 'hospitalizacion', t: 'Hospitalización, UCI o atención domiciliaria', legal: 'la atención hospitalaria o domiciliaria' }
       ], ancho: 'media' },
       { id: 'servicio', tipo: 'texto', etiqueta: 'Nombre exacto del servicio (cópialo de la orden médica)', requerido: true, ancho: 'completa' },
-      { id: 'diagnostico', tipo: 'texto', etiqueta: 'Diagnóstico o enfermedad', requerido: true, ancho: 'media' },
+      { id: 'diagnostico', tipo: 'texto', etiqueta: '¿Qué enfermedad tiene? (como lo dijo el médico o como aparece en la fórmula; si no sabes el nombre exacto, descríbela)', ejemplo: 'Ej.: diabetes / "le falló el riñón" / un tumor en el seno', requerido: true, ancho: 'media' },
       { id: 'fechaOrden', tipo: 'fecha', etiqueta: 'Fecha de la orden médica', ancho: 'media' },
-      { id: 'medico', tipo: 'texto', etiqueta: 'Médico e IPS que lo ordenó', ejemplo: 'Ej.: Dra. Ana Torres, oncóloga, Hospital Pablo Tobón Uribe', ancho: 'completa' },
+      { id: 'medico', tipo: 'texto', etiqueta: 'Médico y clínica u hospital (IPS) donde lo ordenaron', ejemplo: 'Ej.: Dra. Ana Torres, oncóloga, Hospital Pablo Tobón Uribe', ancho: 'completa' },
       { id: 'respuestaEps', tipo: 'select', etiqueta: '¿Qué ha hecho la EPS?', opciones: [
         { v: 'nada', t: 'Nada: "está en trámite", "no hay agenda", "no hay contrato"', legal: 'se ha limitado a responder que el servicio está en trámite, que no hay agenda o que no tiene contrato con un prestador' },
         { v: 'nego', t: 'Lo negó por escrito (no cubierto, falta trámite, "no pertinente")', legal: 'negó expresamente el servicio con argumentos administrativos o económicos' },
@@ -49,7 +49,7 @@ AJ.casos = AJ.casos || [];
         { v: 'lejos', t: 'Lo asignó en otra ciudad sin transporte', legal: 'asignó el servicio en otra ciudad sin garantizar el transporte y el alojamiento' }
       ], valorInicial: 'nada', ancho: 'completa' },
       { id: 'riesgo', tipo: 'textarea', etiqueta: '¿Qué le pasa al paciente por la demora? (dolor, deterioro, riesgo de muerte, pérdida de función)', requerido: true, filas: 3 },
-      { id: 'recursos', tipo: 'radio', etiqueta: '¿El paciente o su familia pueden pagar el servicio por su cuenta?', opciones: [ { v: 'no', t: 'No, no tenemos los recursos' }, { v: 'si', t: 'Sí, pero la EPS está obligada' } ], valorInicial: 'no' },
+      { id: 'recursos', tipo: 'radio', etiqueta: '¿El paciente o su familia pueden pagar el servicio por su cuenta?', opciones: [ { v: 'no', t: 'No, no tenemos los recursos' }, { v: 'si', t: 'Sí, pero la EPS está obligada' } ], requerido: true },
       ...C.previo({ etiqueta: '¿Reclamaste por escrito a la EPS o pusiste queja en la Supersalud?' }),
       C.relato({ requerido: false, etiqueta: '¿Algo más que el juez deba saber? (opcional)' })
     ],
@@ -164,7 +164,8 @@ AJ.casos = AJ.casos || [];
     campos: [
       { id: 'fechaPeticion', tipo: 'fecha', etiqueta: '¿Cuándo radicaste el derecho de petición?', requerido: true, ancho: 'media' },
       { id: 'radicado', tipo: 'texto', etiqueta: 'Número de radicado (si lo tienes)', ancho: 'media' },
-      { id: 'medio', tipo: 'select', etiqueta: '¿Cómo lo presentaste?', opciones: [ { v: 'escrito', t: 'Por escrito en ventanilla (tengo sello de recibido)', legal: 'por escrito, con constancia de recibido' }, { v: 'correo', t: 'Por correo electrónico (tengo el correo enviado)', legal: 'por correo electrónico, con constancia de envío' }, { v: 'web', t: 'Por la página web o app (tengo radicado)', legal: 'a través del canal virtual, con número de radicado' } ], valorInicial: 'escrito', ancho: 'media' },
+      { id: 'medio', tipo: 'select', etiqueta: '¿Cómo lo presentaste?', opciones: [ { v: 'escrito', t: 'Por escrito en ventanilla (tengo sello de recibido)', legal: 'por escrito, con constancia de recibido' }, { v: 'correo', t: 'Por correo electrónico (tengo el correo enviado)', legal: 'por correo electrónico, con constancia de envío' }, { v: 'web', t: 'Por la página web o app (tengo radicado)', legal: 'a través del canal virtual, con número de radicado' }, { v: 'sin_prueba', t: 'La entregué, pero no tengo sello ni radicado', legal: 'de manera personal en la entidad' } ], valorInicial: 'escrito', ancho: 'media' },
+      { id: 'infoSinPrueba', tipo: 'info', mostrarSi: { campo: 'medio', valor: 'sin_prueba' }, texto: 'Sin prueba de que entregaste la petición, el juez casi siempre niega la tutela. Vuelve a presentarla y pide sello con fecha en tu copia, o envíala por correo electrónico y guarda el envío. Si no responden en el plazo, entonces presenta esta tutela.' },
       { id: 'tipoPeticion', tipo: 'select', etiqueta: '¿Qué tipo de petición era?', opciones: [ { v: 'general', t: 'Petición general (15 días hábiles)', legal: 'una petición de interés particular', dias: 15 }, { v: 'documentos', t: 'Información o copias (10 días hábiles)', legal: 'una petición de información y documentos', dias: 10 }, { v: 'consulta', t: 'Consulta (30 días hábiles)', legal: 'una consulta', dias: 30 } ], valorInicial: 'general', ancho: 'media' },
       { id: 'objeto', tipo: 'textarea', etiqueta: '¿Qué pedías en esa petición?', requerido: true, filas: 3, ejemplo: 'Ej.: Que me informaran el estado de mi solicitud de pensión y corrigieran mi historia laboral.' },
       { id: 'respuesta', tipo: 'select', etiqueta: '¿Qué ha pasado desde entonces?', opciones: [
@@ -184,7 +185,8 @@ AJ.casos = AJ.casos || [];
       const h = [];
       h.push(`${R.capital(R.elDia(d.fechaPeticion))}, ${a.nom} presentó ante ${R.entidad(d)} ${R.opcionTexto(cd('tut_peticion', 'tipoPeticion'), d.tipoPeticion)} ${R.opcionTexto(cd('tut_peticion', 'medio'), d.medio)}${d.radicado ? `, radicada bajo el número ${d.radicado}` : ''}.`);
       h.push(`En dicha petición solicitó: ${R.oracion(d.objeto)}`);
-      if (venc) h.push(`El término legal de ${R.dias(op.dias, 'habiles')} para resolverla venció el ${R.fechaLarga(venc)}${venc < R.hoy() ? `, es decir, hace ${AJ.festivos.diasHabilesEntre(venc, R.hoy())} días hábiles` : ''}.`);
+      const vencido = venc && venc < R.hoy();
+      if (venc) h.push(`El término legal de ${R.dias(op.dias, 'habiles')} para resolverla ${vencido ? 'venció' : 'vence'} el ${R.fechaLarga(venc)}${vencido ? `, es decir, hace ${AJ.festivos.diasHabilesEntre(venc, R.hoy())} días hábiles` : ''}.`);
       h.push(`A la fecha, ${a.nom} ${R.opcionTexto(cd('tut_peticion', 'respuesta'), d.respuesta)}.`);
       h.push(`La respuesta es necesaria porque: ${R.oracion(d.importancia)}`);
       return h;
@@ -223,10 +225,10 @@ AJ.casos = AJ.casos || [];
       { id: 'salario', tipo: 'texto', etiqueta: 'Salario u honorarios mensuales', requerido: true, ancho: 'media' },
       { id: 'periodos', tipo: 'texto', etiqueta: 'Períodos sin pagar', ejemplo: 'Ej.: Julio, agosto y septiembre de 2026', requerido: true, ancho: 'media' },
       { id: 'valorDeuda', tipo: 'texto', etiqueta: 'Total adeudado (aproximado)', ancho: 'media' },
-      { id: 'activo', tipo: 'radio', etiqueta: '¿Sigues trabajando allí?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No, ya terminó' } ], valorInicial: 'si', ancho: 'media' },
+      { id: 'activo', tipo: 'radio', etiqueta: '¿Sigues trabajando allí?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No, ya terminó' } ], requerido: true, ancho: 'media' },
       { id: 'dependientes', tipo: 'texto', etiqueta: '¿Quiénes dependen de ese ingreso?', ejemplo: 'Ej.: Mis dos hijos menores y mi madre de 70 años', requerido: true, ancho: 'completa' },
       { id: 'afectacion', tipo: 'textarea', etiqueta: '¿Qué consecuencias ha tenido el no pago? (arriendo, comida, servicios, salud, deudas)', requerido: true, filas: 3 },
-      { id: 'otrosIngresos', tipo: 'radio', etiqueta: '¿Tienes otros ingresos?', opciones: [ { v: 'no', t: 'No, ese era mi único ingreso' }, { v: 'si', t: 'Sí, pero no alcanzan' } ], valorInicial: 'no' },
+      { id: 'otrosIngresos', tipo: 'radio', etiqueta: '¿Tienes otros ingresos?', opciones: [ { v: 'no', t: 'No, ese era mi único ingreso' }, { v: 'si', t: 'Sí, pero no alcanzan' } ], requerido: true },
       ...C.previo({ etiqueta: '¿Reclamaste por escrito al empleador?' }),
       C.relato({ requerido: false, etiqueta: '¿Algo más que el juez deba saber? (opcional)' })
     ],
@@ -258,7 +260,7 @@ AJ.casos = AJ.casos || [];
       { v: 'seguridad', t: 'Que ordene pagar la seguridad social atrasada', legal: d => `ORDENAR a ${R.entidad(d)} que se ponga al día en los aportes a salud, pensión y riesgos laborales del accionante.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} el pago inmediato de al menos un mes de la remuneración adeudada, pues: ${R.oracion(d.medidaTexto || d.afectacion)}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} el pago inmediato de al menos un mes de la remuneración adeudada, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.afectacion)}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'contrato', t: 'Contrato o prueba de la relación (carné, mensajes, testigos)' }, { v: 'pagos', t: 'Desprendibles o consignaciones de meses anteriores' }, { v: 'reclamo', t: 'Copia de la reclamación al empleador' }, { v: 'gastos', t: 'Recibos de arriendo, servicios, deudas (prueba del mínimo vital)' }, { v: 'registros', t: 'Registros civiles de los hijos' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'La tutela es excepcional: funciona mejor cuando pruebas que ese ingreso es el único y que hay personas a cargo. Para la liquidación completa necesitarás demanda laboral (consultorio jurídico).', siNoResponden: 'Si el juez niega la tutela por existir la vía ordinaria, acude a un consultorio jurídico universitario para la demanda laboral y presenta queja ante el Ministerio del Trabajo.' }
   },
@@ -308,7 +310,7 @@ AJ.casos = AJ.casos || [];
       { v: 'concepto', t: 'Que ordene emitir el concepto de rehabilitación y la calificación', legal: d => `ORDENAR a ${R.entidad(d)} emitir el concepto de rehabilitación y remitirlo a la administradora de pensiones, e iniciar el trámite de calificación de pérdida de capacidad laboral.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} pagar de inmediato las incapacidades adeudadas, pues: ${R.oracion(d.medidaTexto || d.afectacion)}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} pagar de inmediato las incapacidades adeudadas, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.afectacion)}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'incapacidades', t: 'Copia de todos los certificados de incapacidad' }, { v: 'historia', t: 'Historia clínica' }, { v: 'reclamo', t: 'Copia de la reclamación previa y la respuesta' }, { v: 'pagos', t: 'Soportes de incapacidades pagadas anteriormente' }, { v: 'gastos', t: 'Pruebas del mínimo vital (arriendo, hijos, deudas)' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, siNoResponden: 'Si no cumplen el fallo: "Incidente de desacato".' }
   },
@@ -364,8 +366,8 @@ AJ.casos = AJ.casos || [];
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja los derechos', legal: d => `TUTELAR los derechos fundamentales de petición, a la seguridad social y al mínimo vital de ${R.actor(d).nom}.` },
       { v: 'resolver', inicial: true, t: 'Que ordene resolver de fondo la solicitud en 48 horas (o en un plazo corto)', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes a la notificación del fallo, o en el plazo breve que el despacho señale, resuelva de fondo mediante acto administrativo motivado ${R.opcionTexto(cd('tut_pension', 'tramite'), d.tramite)} y lo notifique a la parte accionante.` },
-      { v: 'nomina', t: 'Que ordene incluir en nómina y pagar el retroactivo', legal: d => `ORDENAR a ${R.entidad(d)} que incluya a la parte accionante en la nómina de pensionados del período inmediatamente siguiente y pague las mesadas causadas y no pagadas (retroactivo).` },
-      { v: 'historia', t: 'Que ordene corregir la historia laboral', legal: d => `ORDENAR a ${R.entidad(d)} corregir y actualizar la historia laboral incluyendo los períodos cotizados que no aparecen, y volver a estudiar la solicitud pensional con la historia corregida.` },
+      { v: 'nomina', inicial: d => d.tramite === 'nomina', t: 'Que ordene incluir en nómina y pagar el retroactivo', legal: d => `ORDENAR a ${R.entidad(d)} que incluya a la parte accionante en la nómina de pensionados del período inmediatamente siguiente y pague las mesadas causadas y no pagadas (retroactivo).` },
+      { v: 'historia', inicial: d => d.tramite === 'historia', t: 'Que ordene corregir la historia laboral', legal: d => `ORDENAR a ${R.entidad(d)} corregir y actualizar la historia laboral incluyendo los períodos cotizados que no aparecen, y volver a estudiar la solicitud pensional con la historia corregida.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'solicitud', t: 'Copia de la solicitud de pensión radicada (con fecha)' }, { v: 'historia', t: 'Historia laboral' }, { v: 'resolucion', t: 'Resolución de reconocimiento (si existe)' }, { v: 'peticion', t: 'Derecho de petición previo y respuesta' }, { v: 'medicos', t: 'Historia clínica o dictamen de invalidez' }, { v: 'economia', t: 'Pruebas de la situación económica' } ],
@@ -392,8 +394,8 @@ AJ.casos = AJ.casos || [];
       { id: 'salario', tipo: 'texto', etiqueta: 'Salario', ancho: 'media' },
       { id: 'fechaInicio', tipo: 'fecha', etiqueta: 'Fecha de ingreso', ancho: 'media' },
       { id: 'fechaDespido', tipo: 'fecha', etiqueta: 'Fecha del despido o terminación', requerido: true, ancho: 'media' },
-      { id: 'sabia', tipo: 'radio', etiqueta: '¿El empleador conocía tu situación (embarazo, enfermedad) antes del despido?', opciones: [ { v: 'si', t: 'Sí, lo sabía (le avisé, tenía incapacidades, era evidente)' }, { v: 'no', t: 'No estoy seguro(a)' } ], valorInicial: 'si' },
-      { id: 'permiso', tipo: 'radio', etiqueta: '¿El empleador pidió permiso al Ministerio del Trabajo (inspector) para despedirte?', opciones: [ { v: 'no', t: 'No' }, { v: 'si', t: 'Sí' } ], valorInicial: 'no' },
+      { id: 'sabia', tipo: 'radio', etiqueta: '¿El empleador conocía tu situación (embarazo, enfermedad) antes del despido?', opciones: [ { v: 'si', t: 'Sí, lo sabía (le avisé, tenía incapacidades, era evidente)' }, { v: 'no', t: 'No estoy seguro(a)' } ], requerido: true },
+      { id: 'permiso', tipo: 'radio', etiqueta: '¿El empleador pidió permiso al Ministerio del Trabajo (inspector) para despedirte?', opciones: [ { v: 'no', t: 'No' }, { v: 'si', t: 'Sí' }, { v: 'nose', t: 'No lo sé' } ], requerido: true },
       { id: 'motivo', tipo: 'texto', etiqueta: '¿Qué razón te dieron para el despido?', ejemplo: 'Ej.: "Terminación del contrato por vencimiento del plazo" / ninguna', ancho: 'completa' },
       { id: 'afectacion', tipo: 'textarea', etiqueta: '¿Cómo te afecta el despido? (salud, ingresos, seguridad social, tratamiento)', requerido: true, filas: 3 },
       C.relato({ requerido: false, etiqueta: '¿Algo más que el juez deba saber? (opcional)' })
@@ -430,7 +432,7 @@ AJ.casos = AJ.casos || [];
       { v: 'indemnizacion', t: 'Que ordene la indemnización de ley (60 días embarazo / 180 días discapacidad)', legal: d => `ORDENAR a ${R.entidad(d)} pagar la indemnización prevista en ${d.situacionLaboral === 'embarazo' ? 'el artículo 239 del Código Sustantivo del Trabajo (sesenta días de salario)' : 'el artículo 26 de la Ley 361 de 1997 (ciento ochenta días de salario)'}.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} mantener la afiliación a salud de la parte accionante y pagar los aportes correspondientes mientras se decide la tutela, pues: ${R.oracion(d.medidaTexto || d.afectacion)}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} mantener la afiliación a salud de la parte accionante y pagar los aportes correspondientes mientras se decide la tutela, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.afectacion)}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'contrato', t: 'Contrato de trabajo y carta de despido o terminación' }, { v: 'medicos', t: 'Prueba del embarazo, incapacidades, historia clínica o certificado de discapacidad' }, { v: 'aviso', t: 'Prueba de que el empleador conocía la situación (correos, chats, incapacidades radicadas)' }, { v: 'pagos', t: 'Desprendibles de nómina' }, { v: 'afiliacion', t: 'Certificado de afiliación a EPS y estado actual' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'Presenta la tutela lo antes posible después del despido (idealmente antes de 6 meses). Si el juez concede el reintegro como medida transitoria, deberás iniciar la demanda laboral ordinaria en 4 meses.', siNoResponden: 'Incidente de desacato si no reintegran. En paralelo, queja ante el Ministerio del Trabajo.' }
   }

@@ -66,14 +66,14 @@ AJ.casos = AJ.casos || [];
     ],
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja el derecho a la educación', legal: d => `TUTELAR el derecho fundamental a la educación de ${d.estudiante || 'el estudiante'}.` },
-      { v: 'cupo', t: 'Que ordene asignar el cupo escolar de inmediato', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, asigne cupo escolar al estudiante en una institución oficial cercana a su residencia y garantice su matrícula.` },
-      { v: 'certificados', t: 'Que ordene entregar los certificados', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, expida y entregue los certificados de estudio y demás documentos requeridos, sin condicionarlos al pago de obligaciones económicas.` },
-      { v: 'reintegro', t: 'Que ordene reintegrar al estudiante y dejar sin efectos la sanción', legal: d => `ORDENAR a ${R.entidad(d)} dejar sin efectos la sanción impuesta y reintegrar de inmediato al estudiante, garantizando la recuperación de las actividades académicas perdidas.` },
-      { v: 'ajustes', t: 'Que ordene los apoyos para el estudiante con discapacidad', legal: d => `ORDENAR a ${R.entidad(d)} garantizar la matrícula y elaborar en diez (10) días el Plan Individual de Ajustes Razonables (PIAR), con los apoyos pedagógicos y personales que requiera.` },
-      { v: 'ruta', t: 'Que ordene activar la ruta contra el acoso escolar', legal: d => `ORDENAR a ${R.entidad(d)} activar de inmediato la Ruta de Atención Integral para la Convivencia Escolar, adoptar medidas de protección al estudiante y reportar al comité de convivencia.` },
+      { v: 'cupo', inicial: d => ['cupo', 'transporte'].includes(d.problema), t: 'Que ordene asignar el cupo escolar de inmediato', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, asigne cupo escolar al estudiante en una institución oficial cercana a su residencia y garantice su matrícula.` },
+      { v: 'certificados', inicial: d => ['certificados', 'pago'].includes(d.problema), t: 'Que ordene entregar los certificados', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, expida y entregue los certificados de estudio y demás documentos requeridos, sin condicionarlos al pago de obligaciones económicas.` },
+      { v: 'reintegro', inicial: d => ['expulsion', 'pago'].includes(d.problema), t: 'Que ordene reintegrar al estudiante y dejar sin efectos la sanción', legal: d => `ORDENAR a ${R.entidad(d)} dejar sin efectos la sanción impuesta y reintegrar de inmediato al estudiante, garantizando la recuperación de las actividades académicas perdidas.` },
+      { v: 'ajustes', inicial: d => d.problema === 'discapacidad', t: 'Que ordene los apoyos para el estudiante con discapacidad', legal: d => `ORDENAR a ${R.entidad(d)} garantizar la matrícula y elaborar en diez (10) días el Plan Individual de Ajustes Razonables (PIAR), con los apoyos pedagógicos y personales que requiera.` },
+      { v: 'ruta', inicial: d => d.problema === 'acoso', t: 'Que ordene activar la ruta contra el acoso escolar', legal: d => `ORDENAR a ${R.entidad(d)} activar de inmediato la Ruta de Atención Integral para la Convivencia Escolar, adoptar medidas de protección al estudiante y reportar al comité de convivencia.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} permitir de inmediato la asistencia del estudiante a clases mientras se decide la tutela, pues: ${R.oracion(d.medidaTexto || 'cada día sin estudiar causa un perjuicio irremediable al menor')}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} permitir de inmediato la asistencia del estudiante a clases mientras se decide la tutela, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || 'cada día sin estudiar causa un perjuicio irremediable al menor')}`,
     anexos: [ { v: 'cedula', t: 'Cédula del padre o madre y registro civil o tarjeta del estudiante' }, { v: 'boletines', t: 'Boletines, certificados o constancia del último grado' }, { v: 'negativa', t: 'Comunicación del colegio o de la Secretaría (negativa, sanción, cobro)' }, { v: 'peticion', t: 'Copia de la petición previa' }, { v: 'medicos', t: 'Certificado de discapacidad o diagnóstico (si aplica)' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'La presenta el padre, la madre o el acudiente en representación del menor (el documento ya lo indica).', siNoResponden: 'Incidente de desacato. También queja ante la Secretaría de Educación y, si hay maltrato, ICBF (línea 141).' }
   },
@@ -129,7 +129,7 @@ AJ.casos = AJ.casos || [];
       { v: 'devolver', t: 'Que devuelva lo descontado', legal: d => `ORDENAR a ${R.entidad(d)} devolver las sumas descontadas o cobradas con fundamento en la decisión viciada.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) la suspensión inmediata de la ejecución de la decisión (embargo, descuento o retiro), pues: ${R.oracion(d.medidaTexto || d.afectacion)}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) la suspensión inmediata de la ejecución de la decisión (embargo, descuento o retiro), pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.afectacion)}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'decision', t: 'Copia de la decisión (resolución, oficio, comparendo) si la tienes' }, { v: 'recursos', t: 'Copia de los recursos presentados con radicado' }, { v: 'descuentos', t: 'Desprendibles o extractos que muestren el embargo o descuento' }, { v: 'direccion', t: 'Prueba de tu dirección registrada (para demostrar que no te notificaron)' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'Antes de la tutela, lo normal es presentar recurso de reposición y apelación (10 días hábiles desde que conociste la decisión). Si ya pasó ese plazo porque nunca te notificaron, explícalo: el término corre desde la notificación en debida forma.', siNoResponden: 'Si el juez niega la tutela por existir la vía contenciosa, acude a un consultorio jurídico para la demanda de nulidad y restablecimiento del derecho (4 meses desde la notificación).' }
   },
@@ -155,7 +155,7 @@ AJ.casos = AJ.casos || [];
       { id: 'obligacion', tipo: 'texto', etiqueta: 'Obligación reportada (producto, número, valor)', ancho: 'completa' },
       { id: 'fechaMora', tipo: 'fecha', etiqueta: 'Fecha en que entró en mora (si la sabes)', ancho: 'media' },
       { id: 'fechaPago', tipo: 'fecha', etiqueta: 'Fecha de pago (si pagaste)', ancho: 'media' },
-      { id: 'reclamo', tipo: 'radio', etiqueta: '¿Ya presentaste el reclamo escrito a la entidad o a la central? (es obligatorio antes de la tutela)', requerido: true, opciones: [ { v: 'si', t: 'Sí, y no respondieron en 15 días hábiles o respondieron negando' }, { v: 'no', t: 'No todavía' } ], valorInicial: 'si' },
+      { id: 'reclamo', tipo: 'radio', etiqueta: '¿Ya presentaste el reclamo escrito a la entidad o a la central? (es obligatorio antes de la tutela)', requerido: true, opciones: [ { v: 'si', t: 'Sí, y no respondieron en 15 días hábiles o respondieron negando' }, { v: 'no', t: 'No todavía' } ] },
       { id: 'infoReclamo', tipo: 'info', mostrarSi: { campo: 'reclamo', valor: 'no' }, texto: 'La ley exige presentar primero el reclamo ante la entidad que reporta o la central de riesgo (artículo 16 de la Ley 1266 de 2008). Genera primero el "Reclamo de hábeas data" de esta plataforma, espera 15 días hábiles y luego vuelve a esta tutela.' },
       { id: 'fechaReclamo', tipo: 'fecha', etiqueta: 'Fecha del reclamo', mostrarSi: { campo: 'reclamo', valor: 'si' }, ancho: 'media' },
       { id: 'afectacion', tipo: 'textarea', etiqueta: '¿Qué consecuencias te ha traído el reporte? (crédito negado, empleo, vivienda)', requerido: true, filas: 2 },
@@ -219,7 +219,7 @@ AJ.casos = AJ.casos || [];
       { id: 'detalleHabitantes', tipo: 'texto', etiqueta: 'Detalle (edades, enfermedades)', ejemplo: 'Ej.: Mi madre de 82 años con EPOC usa oxígeno; dos niños de 4 y 7 años', ancho: 'completa' },
       { id: 'deuda', tipo: 'texto', etiqueta: 'Valor de la deuda (si hay)', ancho: 'media' },
       { id: 'economia', tipo: 'textarea', etiqueta: 'Situación económica del hogar (ingresos, Sisbén, empleo)', requerido: true, filas: 2 },
-      { id: 'acuerdo', tipo: 'radio', etiqueta: '¿Has intentado un acuerdo de pago con la empresa?', opciones: [ { v: 'si', t: 'Sí, pero no lo aceptaron o no puedo cumplir la cuota' }, { v: 'no', t: 'No' } ], valorInicial: 'si' },
+      { id: 'acuerdo', tipo: 'radio', etiqueta: '¿Has intentado un acuerdo de pago con la empresa?', opciones: [ { v: 'si', t: 'Sí, pero no lo aceptaron o no puedo cumplir la cuota' }, { v: 'no', t: 'No' } ], requerido: true },
       C.relato({ requerido: false, etiqueta: '¿Algo más que el juez deba saber? (opcional)' })
     ],
     asunto: d => `Acción de tutela – Vida digna, salud y mínimo vital – Suspensión del servicio de ${R.opcionTexto(cd('tut_servicios_publicos', 'servicio'), d.servicio, 't').toLowerCase()}`,
@@ -249,12 +249,12 @@ AJ.casos = AJ.casos || [];
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja los derechos', legal: d => `TUTELAR los derechos fundamentales a la vida digna, a la salud, al agua y al mínimo vital de ${R.actor(d).nom} y de su núcleo familiar.` },
       { v: 'reconectar', inicial: true, t: 'Que ordene reconectar el servicio en 48 horas', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes a la notificación del fallo, restablezca el servicio en la vivienda ubicada en ${d.direccionServicio}.` },
-      { v: 'minimo', t: 'Que garantice el mínimo vital de agua (50 litros por persona al día) mientras se paga', legal: d => `ORDENAR a ${R.entidad(d)} garantizar el suministro de un mínimo vital de agua de cincuenta (50) litros diarios por persona, sin interrupción, mientras subsista la situación de vulnerabilidad.` },
+      { v: 'minimo', inicial: d => d.servicio === 'agua' || d.servicio === 'varios', t: 'Que garantice el mínimo vital de agua (50 litros por persona al día) mientras se paga', legal: d => `ORDENAR a ${R.entidad(d)} garantizar el suministro de un mínimo vital de agua de cincuenta (50) litros diarios por persona, sin interrupción, mientras subsista la situación de vulnerabilidad.` },
       { v: 'acuerdo', inicial: true, t: 'Que ordene un acuerdo de pago acorde con mi capacidad', legal: d => `ORDENAR a ${R.entidad(d)} suscribir con la parte accionante un acuerdo de pago de la deuda en cuotas acordes con la capacidad económica del hogar, sin que ello condicione la reconexión.` },
       { v: 'abstener', t: 'Que no vuelvan a cortar mientras haya personas vulnerables', legal: d => `ORDENAR a ${R.entidad(d)} abstenerse de suspender nuevamente el servicio mientras habiten en la vivienda sujetos de especial protección y la parte accionante cumpla el acuerdo de pago.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} la reconexión inmediata del servicio, pues: ${R.oracion(d.medidaTexto || 'los habitantes de la vivienda no pueden esperar el fallo sin grave riesgo para su salud y su vida')}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} la reconexión inmediata del servicio, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || 'los habitantes de la vivienda no pueden esperar el fallo sin grave riesgo para su salud y su vida')}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'factura', t: 'Última factura y constancia del corte' }, { v: 'registros', t: 'Registros civiles de los niños o cédulas de los adultos mayores' }, { v: 'medicos', t: 'Historias clínicas o certificados de las personas enfermas' }, { v: 'sisben', t: 'Sisbén o prueba de la situación económica' }, { v: 'reclamo', t: 'Reclamo o solicitud de acuerdo de pago presentada' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, siNoResponden: 'Incidente de desacato si no reconectan en 48 horas.' }
   },
@@ -300,9 +300,9 @@ AJ.casos = AJ.casos || [];
     ],
     peticiones: [
       { v: 'tutelar', inicial: true, fijo: true, t: 'Que el juez proteja los derechos', legal: d => `TUTELAR los derechos fundamentales al mínimo vital, a la vida digna, de petición y los derechos como víctima de ${R.actor(d).nom} y de su núcleo familiar.` },
-      { v: 'ayuda', t: 'Que ordene entregar la ayuda humanitaria en 48 horas', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, entregue la atención humanitaria que corresponda al hogar y, si es necesario, realice la medición de carencias dentro de los diez (10) días siguientes.` },
-      { v: 'registro', t: 'Que ordene decidir la inclusión en el RUV', legal: d => `ORDENAR a ${R.entidad(d)} decidir de fondo, dentro de los diez (10) días siguientes, la solicitud de inclusión en el Registro Único de Víctimas y notificarla.` },
-      { v: 'indemnizacion', t: 'Que ordene informar el turno y la fecha de la indemnización', legal: d => `ORDENAR a ${R.entidad(d)} informar de manera clara, dentro de las cuarenta y ocho (48) horas siguientes, el estado de la indemnización administrativa, el método de priorización, el turno asignado y la fecha estimada de pago.` },
+      { v: 'ayuda', inicial: d => d.tramite === 'ayuda', t: 'Que ordene entregar la ayuda humanitaria en 48 horas', legal: d => `ORDENAR a ${R.entidad(d)} que, dentro de las cuarenta y ocho (48) horas siguientes, entregue la atención humanitaria que corresponda al hogar y, si es necesario, realice la medición de carencias dentro de los diez (10) días siguientes.` },
+      { v: 'registro', inicial: d => ['registro', 'recurso', 'novedad'].includes(d.tramite), t: 'Que ordene decidir la inclusión en el RUV', legal: d => `ORDENAR a ${R.entidad(d)} decidir de fondo, dentro de los diez (10) días siguientes, la solicitud de inclusión en el Registro Único de Víctimas y notificarla.` },
+      { v: 'indemnizacion', inicial: d => d.tramite === 'indemnizacion', t: 'Que ordene informar el turno y la fecha de la indemnización', legal: d => `ORDENAR a ${R.entidad(d)} informar de manera clara, dentro de las cuarenta y ocho (48) horas siguientes, el estado de la indemnización administrativa, el método de priorización, el turno asignado y la fecha estimada de pago.` },
       { v: 'responder', inicial: true, t: 'Que ordene responder de fondo la petición', legal: d => `ORDENAR a ${R.entidad(d)} responder de fondo, dentro de las cuarenta y ocho (48) horas siguientes, las solicitudes presentadas por la parte accionante.` },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: d => `ADVERTIR a ${R.entidad(d)} que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.` }
     ],
@@ -327,9 +327,9 @@ AJ.casos = AJ.casos || [];
         { v: 'otro', t: 'Otra razón', legal: 'las circunstancias que se describen en los hechos' }
       ], ancho: 'completa' },
       { id: 'amenazas', tipo: 'textarea', etiqueta: 'Describe las amenazas (fechas, medio, contenido, autores si se conocen)', requerido: true, filas: 4 },
-      { id: 'denuncia', tipo: 'radio', etiqueta: '¿Denunciaste ante la Fiscalía?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No todavía' } ], valorInicial: 'si', ancho: 'media' },
+      { id: 'denuncia', tipo: 'radio', etiqueta: '¿Denunciaste ante la Fiscalía?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No todavía' } ], requerido: true, ancho: 'media' },
       { id: 'noticiaCriminal', tipo: 'texto', etiqueta: 'Número de noticia criminal (si denunciaste)', ancho: 'media' },
-      { id: 'solicitudUNP', tipo: 'radio', etiqueta: '¿Pediste protección a la UNP o a la Policía?', opciones: [ { v: 'si', t: 'Sí, y no han respondido o negaron las medidas' }, { v: 'no', t: 'No todavía' } ], valorInicial: 'si', ancho: 'media' },
+      { id: 'solicitudUNP', tipo: 'radio', etiqueta: '¿Pediste protección a la UNP o a la Policía?', opciones: [ { v: 'si', t: 'Sí, y no han respondido o negaron las medidas' }, { v: 'no', t: 'No todavía' } ], requerido: true, ancho: 'media' },
       { id: 'fechaSolicitud', tipo: 'fecha', etiqueta: 'Fecha de la solicitud de protección', ancho: 'media' },
       { id: 'situacionActual', tipo: 'textarea', etiqueta: 'Situación actual (¿tuviste que desplazarte? ¿hay familia en riesgo?)', requerido: true, filas: 2 }
     ],
@@ -363,7 +363,7 @@ AJ.casos = AJ.casos || [];
       { v: 'fiscalia', t: 'Que ordene a la Fiscalía impulsar la investigación', legal: 'ORDENAR a la Fiscalía General de la Nación impulsar la investigación por las amenazas e informar su estado a la parte accionante.' },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: 'ADVERTIR a las entidades accionadas que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.' }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} y a la Policía Nacional implementar de inmediato medidas de protección de emergencia, pues: ${R.oracion(d.medidaTexto || 'la amenaza es inminente y la espera del fallo puede costar la vida de la parte accionante')}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} y a la Policía Nacional implementar de inmediato medidas de protección de emergencia, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || 'la amenaza es inminente y puede costar la vida de la parte accionante')}`,
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'denuncia', t: 'Copia de la denuncia ante la Fiscalía' }, { v: 'amenazas', t: 'Pantallazos, panfletos, audios o cartas de amenaza' }, { v: 'solicitud', t: 'Solicitud de protección a la UNP o la Policía y respuesta' }, { v: 'perfil', t: 'Prueba de tu labor (certificado de la organización, credencial de periodista)' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'Dirige la tutela contra la UNP y la Policía Nacional (Ministerio de Defensa). Pide medida provisional. La Defensoría del Pueblo puede acompañarte.', siNoResponden: 'Incidente de desacato.' }
   },
@@ -414,7 +414,7 @@ AJ.casos = AJ.casos || [];
       { v: 'migracion', t: 'Que ordene a Migración Colombia resolver el trámite de regularización', legal: 'ORDENAR a Migración Colombia resolver de fondo, en un término no superior a quince (15) días, el trámite de regularización pendiente de la parte accionante.' },
       { v: 'desacato', inicial: true, t: 'Que advierta sobre el desacato', legal: 'ADVERTIR a las entidades accionadas que el incumplimiento del fallo dará lugar al incidente de desacato del artículo 52 del Decreto 2591 de 1991.' }
     ],
-    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} prestar de inmediato la atención requerida, pues: ${R.oracion(d.medidaTexto || d.detalle)}`,
+    medida: d => `Solicito como MEDIDA PROVISIONAL (artículo 7 del Decreto 2591 de 1991) que se ordene a ${R.entidad(d)} prestar de inmediato la atención requerida, pues la espera del fallo puede causar un daño irreversible: ${R.oracion(d.medidaTexto || d.detalle)}`,
     anexos: [ { v: 'documento', t: 'Copia del documento que tengas (pasaporte, cédula venezolana, PPT)' }, { v: 'medicos', t: 'Historia clínica, orden médica o negativa escrita' }, { v: 'sisben', t: 'Sisbén o constancia del trámite' }, { v: 'registros', t: 'Documentos de los niños' } ],
     guia: { plazo: { dias: 10, tipo: 'calendario' }, nota: 'No necesitas documento colombiano para presentar una tutela: basta el pasaporte, la cédula de tu país o cualquier identificación.', siNoResponden: 'Incidente de desacato.' }
   },

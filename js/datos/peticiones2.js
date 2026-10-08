@@ -104,9 +104,9 @@ AJ.casos = AJ.casos || [];
     peticiones: [
       { v: 'resolver', inicial: true, t: 'Que resuelvan de fondo mi solicitud mediante resolución', legal: d => `Resolver de fondo, mediante acto administrativo motivado, ${R.opcionTexto(cd('pet_pension', 'tramite'), d.tramite)}, dentro de los términos legales, y notificármelo en la dirección y correo indicados.` },
       { v: 'estado', inicial: true, t: 'Que me informen el estado del trámite y qué documentos faltan', legal: 'Informar el estado actual del trámite, los documentos que eventualmente falten y la fecha en que se expedirá la decisión.' },
-      { v: 'historia', t: 'Que corrijan mi historia laboral e incluyan las semanas que faltan', legal: 'Corregir la historia laboral incluyendo los períodos cotizados que no aparecen, adelantar las acciones de cobro contra los empleadores en mora y expedir la historia laboral actualizada.' },
-      { v: 'nomina', t: 'Que me incluyan en nómina y paguen el retroactivo', legal: 'Incluir al pensionado en la nómina de la entidad y pagar las mesadas causadas desde la fecha de reconocimiento (retroactivo), con los intereses moratorios del artículo 141 de la Ley 100 de 1993.' },
-      { v: 'certificado', t: 'Que expidan el certificado o la historia laboral', legal: 'Expedir el certificado de semanas cotizadas y la historia laboral detallada, dentro de los diez (10) días hábiles siguientes.' },
+      { v: 'historia', inicial: d => d.tramite === 'historia', t: 'Que corrijan mi historia laboral e incluyan las semanas que faltan', legal: 'Corregir la historia laboral incluyendo los períodos cotizados que no aparecen, adelantar las acciones de cobro contra los empleadores en mora y expedir la historia laboral actualizada.' },
+      { v: 'nomina', inicial: d => d.tramite === 'nomina', t: 'Que me incluyan en nómina y paguen el retroactivo', legal: 'Incluir al pensionado en la nómina de la entidad y pagar las mesadas causadas desde la fecha de reconocimiento (retroactivo), con los intereses moratorios del artículo 141 de la Ley 100 de 1993.' },
+      { v: 'certificado', inicial: d => d.tramite === 'certificado', t: 'Que expidan el certificado o la historia laboral', legal: 'Expedir el certificado de semanas cotizadas y la historia laboral detallada, dentro de los diez (10) días hábiles siguientes.' },
       { v: 'copias', t: 'Que me entreguen copia del expediente', legal: 'Expedir copia íntegra del expediente administrativo de la solicitud pensional.' }
     ],
     anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'historia', t: 'Historia laboral descargada' }, { v: 'radicado', t: 'Copia de la solicitud radicada y la resolución (si existe)' }, { v: 'certificados', t: 'Certificaciones laborales de los períodos faltantes' }, { v: 'defuncion', t: 'Registro civil de defunción y de matrimonio o prueba de convivencia (sobrevivientes)' }, { v: 'calificacion', t: 'Dictamen de pérdida de capacidad laboral (invalidez)' } ],
@@ -213,8 +213,8 @@ AJ.casos = AJ.casos || [];
     peticiones: [
       { v: 'revisar', inicial: true, t: 'Que revisen la factura y la corrijan según el consumo real', legal: 'Revisar la facturación reclamada, investigar la desviación significativa conforme al artículo 149 de la Ley 142 de 1994 y reliquidarla con base en el consumo real o el promedio histórico del inmueble.' },
       { v: 'no_cortar', inicial: true, t: 'Que no suspendan el servicio mientras resuelven el reclamo', legal: 'Abstenerse de suspender el servicio o de iniciar cobros por las sumas reclamadas mientras se resuelve esta petición y los recursos, conforme al artículo 155 de la Ley 142 de 1994, aceptando el pago de los valores no reclamados.' },
-      { v: 'reconectar', t: 'Que reconecten el servicio de inmediato', legal: 'Restablecer el servicio de manera inmediata, en un término no superior a veinticuatro (24) horas, dado que se eliminó la causa de la suspensión o esta fue ilegal.' },
-      { v: 'medidor', t: 'Que revisen o cambien el medidor con mi presencia', legal: 'Practicar una revisión técnica del medidor y de las instalaciones, en fecha y hora que se me informen previamente para estar presente, y entregar copia del acta.' },
+      { v: 'reconectar', inicial: d => ['corte', 'reconexion'].includes(d.problema), t: 'Que reconecten el servicio de inmediato', legal: 'Restablecer el servicio de manera inmediata, en un término no superior a veinticuatro (24) horas, dado que se eliminó la causa de la suspensión o esta fue ilegal.' },
+      { v: 'medidor', inicial: d => d.problema === 'medidor', t: 'Que revisen o cambien el medidor con mi presencia', legal: 'Practicar una revisión técnica del medidor y de las instalaciones, en fecha y hora que se me informen previamente para estar presente, y entregar copia del acta.' },
       { v: 'copias', t: 'Que me entreguen el historial de consumos y las lecturas', legal: 'Entregar el historial de consumos y facturación de los últimos veinticuatro (24) meses, las lecturas del medidor y los soportes de la facturación reclamada.' },
       { v: 'devolver', t: 'Que me devuelvan o abonen lo cobrado de más', legal: 'Devolver o abonar en las siguientes facturas las sumas cobradas en exceso, debidamente indexadas.' }
     ],
@@ -277,7 +277,7 @@ AJ.casos = AJ.casos || [];
     id: 'pet_colegio', tipo: 'peticion', categoria: 'educacion',
     titulo: 'Petición a un colegio, universidad o secretaría de educación (cupo, certificados, notas, matrícula)',
     resumen: 'Pedir un cupo escolar, la entrega de certificados retenidos, revisión de calificaciones, matrícula, traslado o respeto del debido proceso en sanciones.',
-    palabras: ['colegio', 'escuela', 'universidad', 'cupo', 'matrícula', 'certificado', 'notas', 'calificaciones', 'boletín', 'diploma', 'secretaría de educación', 'traslado', 'expulsión', 'sanción', 'pensión', 'bullying', 'acoso escolar', 'SENA', 'ICETEX'],
+    palabras: ['colegio', 'escuela', 'universidad', 'cupo', 'matrícula', 'certificado', 'notas', 'calificaciones', 'boletín', 'diploma', 'secretaría de educación', 'traslado', 'expulsión', 'sanción', 'pensión del colegio', 'bullying', 'acoso escolar', 'SENA', 'ICETEX'],
     destinatario: { categoria: 'educacion', ejemploNombre: 'Ej.: Institución Educativa San Juan Bosco', cargo: 'Rector(a) / Secretaría de Educación Municipal' },
     campos: [
       { id: 'estudiante', tipo: 'texto', etiqueta: 'Nombre del estudiante y grado o programa', ejemplo: 'Ej.: Samuel Ríos, grado 7° / Ana Pérez, 5° semestre de Enfermería', requerido: true, ancho: 'completa' },

@@ -38,7 +38,7 @@ AJ.casos = AJ.casos || [];
     asunto: d => `Queja contra servidor público – ${d.funcionario || 'funcionario'}`,
     hechos: d => {
       const h = [];
-      h.push(`${R.capital(R.elDia(d.fechaHechos))}, en ${d.lugar || 'las instalaciones de la entidad'}, ${d.funcionario || 'el servidor público descrito'} incurrió en ${R.lista((d.conducta || []).map(v => R.opcionTexto(cd('pet_queja_funcionario', 'conducta'), v)))}.`);
+      h.push(`${R.capital(R.elDia(d.fechaHechos))}, en ${d.lugar || 'las instalaciones de la entidad'}, el servidor público que se identifica como "${d.funcionario || 'funcionario descrito en el relato'}" incurrió en ${R.lista((d.conducta || []).map(v => R.opcionTexto(cd('pet_queja_funcionario', 'conducta'), v)))}.`);
       if (d.testigos) h.push(`Presenciaron los hechos: ${d.testigos}.`);
       h.push('La conducta descrita desconoce los principios de la función administrativa, los derechos de las personas ante las autoridades (artículo 5 de la Ley 1437 de 2011: recibir trato respetuoso y considerado, obtener información y orientación, y ser atendidas con prioridad en caso de condición de vulnerabilidad) y puede constituir falta disciplinaria.');
       return h;
@@ -91,8 +91,8 @@ AJ.casos = AJ.casos || [];
     normas: ['cp13', 'cp23', 'l1448', 't025', 'l1755_14', 'l1755_20'],
     peticiones: [
       { v: 'resolver', inicial: true, t: 'Que resuelvan de fondo mi solicitud', legal: d => `Resolver de fondo ${R.opcionTexto(cd('pet_victimas', 'tramite'), d.tramite)}, mediante acto administrativo motivado, dentro de los términos legales, y notificármelo.` },
-      { v: 'ayuda', t: 'Que entreguen la ayuda humanitaria de inmediato', legal: 'Realizar la medición de carencias y entregar de inmediato la atención humanitaria que corresponda a la situación del hogar, informando fecha y lugar de cobro.' },
-      { v: 'turno', t: 'Que me informen el turno y la fecha estimada de la indemnización', legal: 'Informar el estado del trámite de indemnización administrativa, el método de priorización aplicado, el turno asignado y la fecha estimada de pago.' },
+      { v: 'ayuda', inicial: d => d.tramite === 'ayuda', t: 'Que entreguen la ayuda humanitaria de inmediato', legal: 'Realizar la medición de carencias y entregar de inmediato la atención humanitaria que corresponda a la situación del hogar, informando fecha y lugar de cobro.' },
+      { v: 'turno', inicial: d => d.tramite === 'indemnizacion', t: 'Que me informen el turno y la fecha estimada de la indemnización', legal: 'Informar el estado del trámite de indemnización administrativa, el método de priorización aplicado, el turno asignado y la fecha estimada de pago.' },
       { v: 'copia', t: 'Que me entreguen copia de mi expediente y de la resolución', legal: 'Expedir copia del expediente, de la resolución de inclusión o no inclusión y de las constancias de notificación.' },
       { v: 'enlace', t: 'Que me remitan a los programas de salud, educación y vivienda', legal: 'Orientar y remitir al hogar a las entidades competentes para el acceso a salud, educación, vivienda y generación de ingresos, en el marco del Plan de Atención, Asistencia y Reparación Integral.' }
     ],
@@ -279,6 +279,60 @@ AJ.casos = AJ.casos || [];
     ],
     anexos: [ { v: 'contrato', t: 'Copia del contrato de arrendamiento' }, { v: 'pagos', t: 'Recibos de pago del arriendo y depósito' }, { v: 'fotos', t: 'Fotos de los daños o de los servicios cortados' }, { v: 'chats', t: 'Mensajes o correos cruzados' } ],
     guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Como es un particular, el plazo de 15 días aplica si hay subordinación o indefensión (lo habitual en arriendo). Este escrito sirve como requerimiento previo y prueba.', siNoResponden: 'Conciliación en una Casa de Justicia o centro de conciliación (gratis en consultorios jurídicos); querella ante la Inspección de Policía si hay vías de hecho; demanda ante el juez civil. Si cortaron servicios y hay niños o personas enfermas, puede proceder la tutela.' }
+  },
+
+  /* ---------------- PROSPERIDAD SOCIAL: SUBSIDIOS ---------------- */
+  {
+    id: 'pet_prosperidad', tipo: 'peticion', categoria: 'nacional',
+    titulo: 'Petición a Prosperidad Social por un subsidio (Renta Ciudadana, Colombia Mayor, Familias en Acción)',
+    resumen: 'Te sacaron del programa, suspendieron el pago, no te ha llegado el giro o no te han dicho si quedaste inscrito. Pide por escrito que te expliquen y te reintegren.',
+    palabras: ['subsidio', 'Prosperidad Social', 'DPS', 'Renta Ciudadana', 'Colombia Mayor', 'Familias en Acción', 'Jóvenes en Acción', 'giro', 'me quitaron el subsidio', 'suspendieron', 'programa', 'enlace'],
+    destinatario: { categoria: 'nacional', nombre: 'Prosperidad Social (Departamento Administrativo para la Prosperidad Social)', cargo: 'Dirección de Transferencias Monetarias / Oficina de atención al ciudadano' },
+    campos: [
+      { id: 'programa', tipo: 'select', etiqueta: '¿De qué programa se trata?', requerido: true, opciones: [
+        { v: 'renta', t: 'Renta Ciudadana (antes Ingreso Solidario / Familias en Acción)', legal: 'el programa Renta Ciudadana' },
+        { v: 'mayor', t: 'Colombia Mayor (subsidio para personas mayores)', legal: 'el programa Colombia Mayor' },
+        { v: 'jovenes', t: 'Jóvenes en Acción', legal: 'el programa Jóvenes en Acción' },
+        { v: 'iva', t: 'Devolución del IVA', legal: 'el programa de Devolución del IVA' },
+        { v: 'otro', t: 'Otro subsidio o programa social', legal: 'el programa social que se describe en los hechos' }
+      ], ancho: 'completa' },
+      { id: 'problema', tipo: 'select', etiqueta: '¿Qué pasó?', requerido: true, opciones: [
+        { v: 'retiro', t: 'Me sacaron o suspendieron del programa sin explicación', legal: 'el retiro o la suspensión del hogar del programa sin notificación ni explicación' },
+        { v: 'giro', t: 'No me ha llegado el giro o pago', legal: 'la falta de pago de los giros causados' },
+        { v: 'inscripcion', t: 'Me inscribí y no me dicen si quedé', legal: 'la ausencia de respuesta sobre la inscripción o focalización del hogar' },
+        { v: 'datos', t: 'Mis datos están mal (documento, hijos, municipio, banco)', legal: 'la corrección de los datos del hogar en el sistema del programa' },
+        { v: 'cobro', t: 'Me cobran o me piden devolver dinero', legal: 'el cobro o la solicitud de devolución de dineros del programa' }
+      ], ancho: 'completa' },
+      { id: 'fechaUltimoPago', tipo: 'fecha', etiqueta: 'Fecha del último pago recibido (si aplica)', ancho: 'media' },
+      { id: 'valorGiro', tipo: 'texto', etiqueta: 'Valor del giro o subsidio', ejemplo: 'Ej.: 80.000 cada dos meses', ancho: 'media' },
+      { id: 'hogar', tipo: 'texto', etiqueta: 'Personas del hogar (número, edades, condiciones)', ejemplo: 'Ej.: 4 personas: yo (34), mi madre (72) y dos niños de 5 y 9 años', ancho: 'completa' },
+      { id: 'situacion', tipo: 'textarea', etiqueta: '¿Cómo afecta a tu hogar quedarse sin el subsidio?', requerido: true, filas: 2 },
+      ...C.previo({ etiqueta: '¿Ya reclamaste a Prosperidad Social o al enlace municipal?' }),
+      C.relato({ requerido: false, etiqueta: '¿Algo más que debamos contar? (opcional)' })
+    ],
+    asunto: d => `Derecho de petición – ${R.capital(R.opcionTexto(cd('pet_prosperidad', 'problema'), d.problema))} – ${R.opcionTexto(cd('pet_prosperidad', 'programa'), d.programa)}`,
+    hechos: d => {
+      const a = R.actor(d);
+      const h = [];
+      h.push(`${a.Nom} ${d.problema === 'inscripcion' ? 'se inscribió en' : 'es beneficiari' + a.o + ' de'} ${R.opcionTexto(cd('pet_prosperidad', 'programa'), d.programa)}${d.valorGiro ? `, con un subsidio de ${d.valorGiro}` : ''}${d.fechaUltimoPago ? `, cuyo último pago recibió el ${R.fechaLarga(d.fechaUltimoPago)}` : ''}.`);
+      if (d.hogar) h.push(`Su hogar está conformado por ${d.hogar}.`);
+      h.push(`Se presenta la siguiente situación: ${R.opcionTexto(cd('pet_prosperidad', 'problema'), d.problema)}.`);
+      h.push(`El subsidio es esencial para la subsistencia del hogar: ${R.oracion(d.situacion)}`);
+      h.push(...R.hechosPrevio(d, 'la solución de esta situación'));
+      return h;
+    },
+    normas: ['cp13', 'cp23', 'cp29', 'l1755_14', 'l1755_20', 'l1437_66', 'l1437_74'],
+    fundamentos: d => ['La Ley 2294 de 2023 (Plan Nacional de Desarrollo) y los manuales operativos de los programas de transferencias monetarias de Prosperidad Social establecen que las novedades, suspensiones y retiros de hogares deben estar motivados, comunicarse al beneficiario y admitir reclamación. Conforme a la jurisprudencia constitucional (entre otras, sentencias T-025 de 2004 y T-149 de 2019), los subsidios dirigidos a población vulnerable son parte de la garantía del mínimo vital y no pueden retirarse sin un procedimiento que respete el debido proceso.'],
+    peticiones: [
+      { v: 'explicar', inicial: true, t: 'Que me expliquen por escrito la razón del retiro, la suspensión o el no pago', legal: 'Informar por escrito, de manera clara y completa, la razón exacta del retiro, la suspensión o la falta de pago, la fecha y el acto en que se decidió, y la fuente de la información utilizada (cruce de bases de datos, Sisbén, etc.).' },
+      { v: 'reintegrar', inicial: d => ['retiro', 'cobro'].includes(d.problema), t: 'Que me reintegren al programa y paguen lo que dejaron de girar', legal: 'Revocar la suspensión o el retiro, reintegrar al hogar al programa y pagar los giros dejados de cancelar desde la fecha de la suspensión.' },
+      { v: 'pagar', inicial: d => d.problema === 'giro', t: 'Que paguen el giro pendiente y me digan dónde y cuándo cobrar', legal: 'Realizar el pago de los giros causados y pendientes, informando el medio, la fecha y el lugar de cobro.' },
+      { v: 'estado', inicial: d => d.problema === 'inscripcion', t: 'Que me digan si quedé inscrito y, si no, por qué', legal: 'Informar el estado de la inscripción o focalización del hogar, los criterios aplicados y, en caso de no selección, las razones y la forma de reclamar.' },
+      { v: 'corregir', inicial: d => d.problema === 'datos', t: 'Que corrijan mis datos', legal: 'Corregir los datos del hogar en el sistema del programa conforme a los documentos anexos.' },
+      { v: 'recursos', inicial: true, t: 'Si la decisión fue mediante resolución, que me la entreguen y me informen los recursos', legal: 'Entregar copia del acto administrativo que adoptó la decisión, con su constancia de notificación, e indicar los recursos que proceden y su término, o, de no existir acto notificado, tener esta petición como reclamación oportuna.' }
+    ],
+    anexos: [ { v: 'cedula', t: 'Copia de la cédula' }, { v: 'sisben', t: 'Consulta del Sisbén' }, { v: 'pagos', t: 'Comprobantes de giros anteriores' }, { v: 'registros', t: 'Registros civiles de los niños o cédula del adulto mayor' }, { v: 'mensajes', t: 'Mensajes o pantallazos de la app o del enlace municipal' } ],
+    guia: { plazo: { dias: 15, tipo: 'habiles' }, nota: 'Puedes radicarla en www.prosperidadsocial.gov.co (PQRS), en el enlace municipal del programa (alcaldía) o en la Personería. Si te sacaron mediante resolución y te la notificaron hace menos de 10 días hábiles, usa además el "Recurso contra una decisión".', siNoResponden: 'Sin respuesta en 15 días hábiles: tutela por derecho de petición. Si el retiro fue sin notificación ni oportunidad de defensa y afecta tu sustento: "Tutela por violación del debido proceso".' }
   },
 
   /* ---------------- PETICIÓN GENERAL ---------------- */

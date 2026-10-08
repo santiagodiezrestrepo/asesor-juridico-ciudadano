@@ -13,7 +13,7 @@ AJ.entidades = {
       descripcion: 'Secretarías (Planeación, Gobierno, Salud, Educación, Hacienda, Tránsito), Sisbén, Inspección de Policía, Comisaría de Familia, Personería, Catastro, empresas municipales.' },
     { id: 'departamento', nombre: 'Gobernación o entidad del departamento', icono: 'edificio', orden: 'departamental', naturaleza: 'publica', juez: 'municipal',
       descripcion: 'Secretarías departamentales de Salud, Educación, Hacienda, Tránsito departamental, hospitales departamentales.' },
-    { id: 'nacional', nombre: 'Entidad nacional', icono: 'bandera', orden: 'nacional', naturaleza: 'publica', juez: 'circuito',
+    { id: 'nacional', nombre: 'Entidad del Gobierno nacional (Colpensiones, ICBF, Migración, DIAN, ministerios…)', icono: 'bandera', orden: 'nacional', naturaleza: 'publica', juez: 'circuito',
       descripcion: 'Colpensiones, UGPP, ICBF, Migración Colombia, Unidad para las Víctimas, Registraduría, DIAN, Policía, Fiscalía, ministerios, SENA, ICETEX, Prosperidad Social, UNP, superintendencias.' },
     { id: 'eps', nombre: 'EPS, IPS, clínica u hospital', icono: 'salud', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
       descripcion: 'Entidades promotoras de salud (régimen contributivo o subsidiado), clínicas, hospitales, ARL y regímenes especiales (Magisterio, Policía, Ejército).' },
@@ -23,13 +23,13 @@ AJ.entidades = {
       descripcion: 'Empresas, empleadores de servicio doméstico, contratantes por prestación de servicios, cooperativas.' },
     { id: 'spd', nombre: 'Empresa de servicios públicos', icono: 'servicios', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
       descripcion: 'Acueducto, energía, gas, aseo, internet, telefonía y televisión.' },
-    { id: 'financiera', nombre: 'Banco, financiera o central de riesgo', icono: 'banco', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
+    { id: 'financiera', nombre: 'Banco, cooperativa o central de riesgo (Datacrédito, TransUnion)', icono: 'banco', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
       descripcion: 'Bancos, cooperativas financieras, empresas de cobranza, Datacrédito (Experian), TransUnion (antes CIFIN), Procrédito.' },
     { id: 'educacion', nombre: 'Colegio, universidad o instituto', icono: 'educacion', orden: 'particular', naturaleza: 'mixta', juez: 'municipal',
       descripcion: 'Colegios públicos y privados, universidades, SENA, ICETEX, secretarías de educación.' },
     { id: 'judicial', nombre: 'Juzgado, Fiscalía o autoridad judicial', icono: 'balanza', orden: 'nacional', naturaleza: 'publica', juez: 'tribunal',
       descripcion: 'Juzgados, tribunales, Fiscalía General, Procuraduría, Contraloría.' },
-    { id: 'particular', nombre: 'Persona natural o comercio', icono: 'persona', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
+    { id: 'particular', nombre: 'Una persona, un almacén o un negocio (arrendador, vecino, tienda, vendedor)', icono: 'persona', orden: 'particular', naturaleza: 'privada', juez: 'municipal',
       descripcion: 'Arrendadores, vecinos, almacenes, prestadores de servicios, aseguradoras.' }
   ],
 
@@ -135,8 +135,21 @@ AJ.entidades = {
   },
 
   categoriaDeNombre(nombre) {
-    const n = (nombre || '').toLowerCase();
-    const e = this.lista.find(x => x.nombre.toLowerCase() === n);
-    return e ? e.cat : null;
+    const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    const n = norm(nombre);
+    if (n.length < 3) return null;
+    const exacta = this.lista.find(x => norm(x.nombre) === n);
+    if (exacta) return exacta.cat;
+    const parcial = this.lista.find(x => { const xn = norm(x.nombre); return xn.includes(n) || (n.length >= 4 && n.includes(xn.split(' (')[0])); });
+    if (parcial) return parcial.cat;
+    if (/alcald|municip|secretar[ií]a de|inspecci[oó]n|comisar[ií]a|personer[ií]a|sisb[eé]n/.test(n)) return 'municipio';
+    if (/gobernaci/.test(n)) return 'departamento';
+    if (/\beps\b|ips\b|cl[ií]nica|hospital|\barl\b/.test(n)) return 'eps';
+    if (/juzgado|tribunal|fiscal[ií]a|procuradur/.test(n)) return 'judicial';
+    if (/colegio|escuela|instituci[oó]n educativa|universidad|sena\b|icetex/.test(n)) return 'educacion';
+    if (/banco|cooperativa|financ|datacr[eé]dito|transunion|cifin|nequi|daviplata/.test(n)) return 'financiera';
+    if (/acueducto|energ|electri|gas\b|aseo|telecom|internet/.test(n)) return 'spd';
+    if (/ministerio|superintendencia|unidad|registradur|dian\b|polic[ií]a|migraci[oó]n|icbf|colpensiones|ugpp/.test(n)) return 'nacional';
+    return null;
   }
 };

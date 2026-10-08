@@ -79,9 +79,10 @@ window.AJ = window.AJ || {};
 
   /* Contracciones y concordancias finales: "de el señor" → "del señor" */
   function pulir(t) {
+    // Solo contrae cuando "de"/"a" y "el" son palabras sueltas (\b no reconoce vocales con tilde)
     return String(t == null ? '' : t)
-      .replace(/\bde el\(la\)/g, 'del(la)').replace(/\ba el\(la\)/g, 'al(la)')
-      .replace(/\bde el\b/g, 'del').replace(/\ba el\b/g, 'al')
+      .replace(/(^|[\s(])de el\(la\)(?=[\s,.;:)])/g, '$1del(la)').replace(/(^|[\s(])a el\(la\)(?=[\s,.;:)])/g, '$1al(la)')
+      .replace(/(^|[\s(])de el(?=[\s,.;:)])/g, '$1del').replace(/(^|[\s(])a el(?=[\s,.;:)])/g, '$1al')
       .replace(/\s+([,.;:])/g, '$1').replace(/\.\./g, '.');
   }
 
@@ -217,7 +218,7 @@ window.AJ = window.AJ || {};
             const items = marcadas(caso.peticiones, d.peticiones, d, 'legal');
             if (d.peticionOtra) items.push(...R.relatoAHechos(d.peticionOtra));
             titulo(sec === 'pretensiones' ? 'PRETENSIONES' : 'PETICIÓN');
-            b.push({ k: 'p', t: sec === 'pretensiones' ? 'Con fundamento en lo expuesto, solicito respetuosamente al despacho:' : `Con fundamento en lo anterior, solicito respetuosamente a ${R.entidad(d)}:` });
+            b.push({ k: 'p', t: sec === 'pretensiones' && caso.tipo !== 'recurso' ? 'Con fundamento en lo expuesto, solicito respetuosamente al despacho:' : `Con fundamento en lo anterior, solicito respetuosamente a ${R.entidad(d)}:` });
             b.push({ k: 'ol', items: items.length ? items : ['[Indica lo que solicitas]'] });
             break;
           }
@@ -230,7 +231,7 @@ window.AJ = window.AJ || {};
           }
           case 'anexos':
           case 'pruebas': {
-            const items = marcadas(caso.anexos, d.anexos, d, 't');
+            const items = marcadas(caso.anexos, d.anexos, d, 't').filter(x => !(R.esAnonimo(d) && /c[ée]dula/i.test(x)));
             if (d.anexosOtros) items.push(...R.relatoAHechos(d.anexosOtros));
             titulo(sec === 'pruebas' ? 'PRUEBAS Y ANEXOS' : 'ANEXOS');
             if (sec === 'pruebas') b.push({ k: 'p', t: 'Solicito tener como pruebas los siguientes documentos, que se anexan, y los demás que el despacho considere pertinentes decretar de oficio:' });

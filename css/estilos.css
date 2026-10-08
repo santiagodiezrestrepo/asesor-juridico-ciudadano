@@ -163,15 +163,21 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .bloque { border: 1px solid var(--borde); background: var(--superficie); border-radius: var(--radio); padding: 18px 20px 8px; margin: 0; min-width: 0; }
 .bloque legend { font-family: var(--f-display); font-weight: 700; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; padding: 0 6px; }
 .bloque legend .num { width: 30px; height: 30px; border-radius: 50%; background: var(--acento); color: var(--acento-texto); display: grid; place-items: center; font-size: .95rem; }
-.bloque-ayuda { color: var(--fg-suave); font-size: .92rem; margin: 4px 0 14px; }
+.bloque-ayuda { color: var(--fg-suave); font-size: .94rem; margin: 4px 0 14px; }
 .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
 .campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; margin-bottom: 8px; }
 .campo.completa { grid-column: 1 / -1; }
 @media (max-width: 640px) { .campos { grid-template-columns: 1fr; } .campo.media { grid-column: auto; } }
 .etiqueta { font-weight: 650; font-size: .98rem; }
 .req { color: var(--peligro); margin-left: 3px; }
-.ayuda { font-size: .86rem; color: var(--fg-suave); margin: 0; }
-.error { font-size: .86rem; color: var(--peligro); margin: 0; font-weight: 600; }
+.ayuda { font-size: .94rem; color: var(--fg-suave); margin: 0; }
+.error { font-size: .94rem; color: var(--peligro); margin: 0; font-weight: 600; }
+.leyenda-req { font-size: .94rem; color: var(--fg-suave); margin: 0; }
+.acciones-ayuda { font-size: .94rem; color: var(--fg-suave); margin: 0; flex: 1 1 260px; }
+.simple { display: flex; gap: 12px; align-items: flex-start; background: var(--acento-suave); border-radius: var(--radio); padding: 14px 16px; margin: 10px 0 14px; max-width: 80ch; }
+.simple .ico { color: var(--acento-fuerte); width: 28px; height: 28px; flex: none; margin-top: 2px; }
+.simple p { margin: 0; font-size: 1.05rem; }
+.doc-pie-ayuda { margin-top: 10px; max-width: 80ch; }
 .campo input[type="text"], .campo input[type="search"], .campo input[type="date"], .campo select, .campo textarea, .calculadora input, .calculadora select, .guia-lateral input[type="date"] {
   width: 100%; padding: 10px 12px; border: 1px solid var(--borde); border-radius: 8px; background: var(--superficie); color: var(--fg); min-width: 0;
 }
@@ -186,9 +192,9 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .campo.info { flex-direction: row; gap: 10px; background: var(--dorado-suave); border-left: 4px solid var(--dorado); border-radius: 8px; padding: 12px; grid-column: 1 / -1; }
 .campo.info p { margin: 0; font-size: .92rem; }
 .campo.info .ico { color: var(--dorado); flex: none; margin-top: 2px; }
-.acciones-form { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 6px 0 20px; }
+.acciones-form { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 12px 16px; margin: 0 -4px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); box-shadow: var(--sombra); }
 .recordar { border: 0; padding: 0; background: transparent; }
-.recordar span { font-size: .92rem; color: var(--fg-suave); }
+.recordar span { font-size: .94rem; color: var(--fg-suave); }
 
 /* ---------- Vista previa y hoja ---------- */
 .previa { position: sticky; top: 76px; display: none; max-height: calc(100vh - 92px); overflow: auto; border-radius: var(--radio); }

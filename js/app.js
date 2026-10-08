@@ -77,15 +77,21 @@ window.AJ = window.AJ || {};
 
   /* ---------- Búsqueda de casos ---------- */
   function buscarCasos(q, tipo, categoria) {
-    const terminos = normalizar(q).split(/\s+/).filter(t => t.length > 2);
+    const VACIAS = new Set(['que', 'con', 'para', 'por', 'una', 'uno', 'los', 'las', 'del', 'mis', 'sus', 'tengo', 'quiero', 'necesito', 'como', 'hacer', 'poner', 'puedo', 'ayuda', 'ayudar', 'porque', 'pero', 'desde', 'hace', 'esta', 'este', 'esto']);
+    const terminos = normalizar(q).split(/[^a-z0-9ñ]+/).filter(t => t.length > 2 && !VACIAS.has(t));
     return AJ.casos.map(c => {
       if (tipo && c.tipo !== tipo) return null;
       if (categoria && c.categoria !== categoria) return null;
       let puntos = 0;
       if (terminos.length) {
-        const texto = normalizar([c.titulo, c.resumen, (c.palabras || []).join(' '), AJ.tipos[c.tipo].nombre, AJ.entidades.categoria(c.categoria).nombre].join(' '));
+        const sinonimos = (AJ.sinonimos && AJ.sinonimos[c.id]) || [];
+        const texto = normalizar([c.titulo, c.resumen, (c.palabras || []).join(' '), sinonimos.join(' '), AJ.tipos[c.tipo].nombre, AJ.entidades.categoria(c.categoria).nombre].join(' '));
         const tit = normalizar(c.titulo);
-        terminos.forEach(t => { if (tit.includes(t)) puntos += 3; else if (texto.includes(t)) puntos += 1; });
+        terminos.forEach(t => {
+          if (tit.includes(t)) puntos += 3;
+          else if (texto.includes(t)) puntos += 2;
+          else if (t.length >= 6 && texto.includes(t.slice(0, 4))) puntos += 1; // "reportaron" encuentra "reportado", "cortaron" encuentra "corte"
+        });
         if (!puntos) return null;
       }
       return { c, puntos };
@@ -129,7 +135,7 @@ window.AJ = window.AJ || {};
   function plazoCorto(c) {
     const p = c.guia.plazo;
     if (p.meses) return `${p.meses} meses`;
-    if (c.tipo === 'tutela') return 'Fallo en 10 días';
+    if (c.tipo === 'tutela') return 'El juez decide en 10 días';
     return `${p.dias} días ${p.tipo === 'habiles' ? 'hábiles' : ''}`.trim();
   }
 
@@ -174,7 +180,7 @@ window.AJ = window.AJ || {};
           <li><strong>Escoge tu caso.</strong> Busca por problema, por tipo de documento o por entidad.</li>
           <li><strong>Responde en tus palabras.</strong> Quién eres (o anónimo), a quién le escribes y qué pasó. Sin términos legales.</li>
           <li><strong>Revisa el documento.</strong> La plataforma redacta hechos, fundamentos de derecho con las normas y sentencias, y peticiones.</li>
-          <li><strong>Imprime o envía.</strong> Descárgalo en Word, guárdalo en PDF o cópialo. La guía te dice dónde radicarlo y cuándo vence el plazo.</li>
+          <li><strong>Imprime y entrégalo.</strong> Descárgalo en Word, guárdalo en PDF o cópialo. La guía te dice dónde entregarlo (a eso se le dice "radicar") y hasta qué día tienen para responderte.</li>
         </ol>
       </section>
 
@@ -227,41 +233,51 @@ window.AJ = window.AJ || {};
   }
 
   /* ---------- Formulario ---------- */
+  // Casos en los que tiene sentido presentar sin nombre (interés general, quejas y denuncias)
+  const ANONIMO_OK = new Set(['pet_municipio_servicios', 'pet_info_publica', 'pet_queja_funcionario', 'pet_municipio_policia', 'pet_general']);
+  // Campos cuyo cambio redefine las peticiones marcadas por defecto
+  const CAMPOS_DECIDEN = new Set(['tramite', 'problema', 'tipoServicio', 'servicio', 'quien', 'motivo', 'queQuiere']);
+
+  function peticionesAuto(caso, d) {
+    return (caso.peticiones || []).filter(o => o.fijo || (typeof o.inicial === 'function' ? !!o.inicial(d || {}) : !!o.inicial)).map(o => o.v);
+  }
+
   function camposDelCaso(caso) {
     const tipo = AJ.tipos[caso.tipo];
+    const permiteAnonimo = tipo.permiteAnonimo && ANONIMO_OK.has(caso.id);
+    const soloPropio = caso.tipo === 'familia';
     const secciones = [
-      { id: 'quien', titulo: '¿Quién presenta el documento?', ayuda: tipo.permiteAnonimo ? 'Puedes hacerlo a tu nombre, en nombre de otra persona o de forma anónima.' : 'La tutela debe identificar a la persona afectada; puedes presentarla en nombre de un familiar que no pueda hacerlo.', campos: AJ.campos.solicitante({ permiteAnonimo: tipo.permiteAnonimo }) },
-      { id: 'destino', titulo: ['tutela'].includes(caso.tipo) ? '¿Contra quién va la tutela?' : ['desacato', 'impugnacion'].includes(caso.tipo) ? '¿Contra qué entidad fue la tutela?' : '¿A quién va dirigido?', ayuda: 'Escribe el nombre como aparece en sus documentos o su página web. Empieza a escribir y te sugerimos entidades conocidas.', campos: AJ.campos.destinatario(caso.destinatario || {}) },
+      { id: 'quien', titulo: '¿Quién presenta el documento?', ayuda: soloPropio ? 'Este trámite lo presenta directamente la persona afectada (la madre, el padre o la víctima). Si alguien te ayuda a escribir, igual pon tus datos: tú firmas.' : permiteAnonimo ? 'A tu nombre, por otra persona que no pueda hacerlo por sí misma, o sin dar tu nombre (anónimo).' : 'A tu nombre, o por otra persona que no pueda hacerlo por sí misma.', campos: AJ.campos.solicitante({ permiteAnonimo, soloPropio }) },
+      { id: 'destino', titulo: ['tutela'].includes(caso.tipo) ? '¿A qué entidad o empresa le pones la tutela?' : ['desacato', 'impugnacion'].includes(caso.tipo) ? '¿Contra qué entidad fue la tutela?' : '¿A quién va dirigido?', ayuda: 'Escribe el nombre como aparece en sus documentos o su página web. Empieza a escribir y te sugerimos entidades conocidas.', campos: AJ.campos.destinatario(caso.destinatario || {}) },
       { id: 'situacion', titulo: 'Tu situación', ayuda: 'Responde con tus palabras. Lo que escribas se convertirá en hechos numerados dentro del documento.', campos: caso.campos }
     ];
     if (caso.tipo === 'tutela') {
-      const der = { id: 'derechos', tipo: 'checks', etiqueta: 'Derechos que te están vulnerando (ya marcamos los habituales para este caso)', opciones: caso.derechos || [] };
+      const der = { id: 'derechos', tipo: 'checks', etiqueta: 'Derechos que te están afectando (ya marcamos los normales para este caso)', opciones: caso.derechos || [] };
       const extra = [];
       if ((caso.derechos || []).length) extra.push(der);
       extra.push(...AJ.campos.tutelaExtra());
-      secciones.push({ id: 'tutela', titulo: 'Derechos, urgencia y juramento', ayuda: 'El juez necesita saber qué derechos proteger y si debe actuar antes del fallo.', campos: extra });
+      secciones.push({ id: 'tutela', titulo: 'Derechos, urgencia y una declaración', ayuda: 'Aquí dices qué derechos te están afectando y si el juez debe ordenar algo de inmediato. La "declaración bajo juramento" solo es afirmar por escrito que no has puesto otra tutela igual; no tienes que ir a jurar a ninguna parte.', campos: extra });
     }
-    secciones.push({ id: 'pide', titulo: caso.tipo === 'tutela' ? '¿Qué quieres que ordene el juez?' : '¿Qué pides?', ayuda: 'Marca las peticiones que apliquen. Las que están bloqueadas son necesarias para este tipo de documento.', campos: [
+    secciones.push({ id: 'pide', titulo: caso.tipo === 'tutela' ? '¿Qué quieres que ordene el juez?' : '¿Qué pides?', ayuda: 'Ya marcamos lo que corresponde a lo que elegiste arriba. Revisa la lista: puedes quitar o agregar. Las que están bloqueadas son necesarias para este tipo de documento.', campos: [
       { id: 'peticiones', tipo: 'checks', etiqueta: 'Peticiones', opciones: caso.peticiones || [] },
       { id: 'peticionOtra', tipo: 'textarea', etiqueta: '¿Algo más que quieras pedir? (opcional, una petición por línea)', filas: 2 }
     ] });
-    secciones.push({ id: 'anexos', titulo: 'Pruebas y documentos que vas a anexar', ayuda: 'Marca lo que tengas. No necesitas tenerlo todo: anexa lo que puedas y explica lo demás en el relato.', campos: [
+    secciones.push({ id: 'anexos', titulo: 'Papeles que vas a entregar junto con el documento (anexos)', ayuda: 'Marca lo que tengas. No necesitas tenerlo todo: entrega lo que puedas y explica lo demás en el relato.', campos: [
       { id: 'anexos', tipo: 'checks', etiqueta: 'Anexos', opciones: caso.anexos || [] },
       { id: 'anexosOtros', tipo: 'textarea', etiqueta: 'Otros documentos (opcional, uno por línea)', filas: 2 }
     ] });
     return secciones;
   }
 
-  function valorInicialCampo(c) {
-    if (c.tipo === 'checks') return (c.opciones || []).filter(o => o.inicial || o.fijo).map(o => o.v);
+  function valorInicialCampo(c, datos) {
+    if (c.tipo === 'checks') return (c.opciones || []).filter(o => o.fijo || (typeof o.inicial === 'function' ? !!o.inicial(datos || {}) : !!o.inicial)).map(o => o.v);
     if (c.valorInicial !== undefined) return c.valorInicial;
-    if (c.tipo === 'radio' && c.opciones && c.opciones.length) return c.opciones[0].v;
-    return '';
+    return ''; // las preguntas de opción única sin valor inicial obligan a elegir
   }
 
   function inicializarDatos(caso, previos) {
     const datos = {};
-    camposDelCaso(caso).forEach(s => s.campos.forEach(c => { if (c.tipo !== 'info') datos[c.id] = valorInicialCampo(c); }));
+    camposDelCaso(caso).forEach(s => s.campos.forEach(c => { if (c.tipo !== 'info') datos[c.id] = valorInicialCampo(c, datos); }));
     if (caso.destinatario) {
       if (caso.destinatario.nombre) datos.entidadNombre = caso.destinatario.nombre;
       if (caso.destinatario.cargo) datos.entidadCargo = caso.destinatario.cargo;
@@ -270,6 +286,7 @@ window.AJ = window.AJ || {};
     const mios = almacen.leer('aj_misdatos', null);
     if (mios && !previos) ['nombre', 'genero', 'tipoDoc', 'numDoc', 'expedidaEn', 'ciudad', 'direccion', 'telefono', 'correo'].forEach(k => { if (mios[k]) datos[k] = mios[k]; });
     if (previos) Object.assign(datos, previos);
+    if (!previos || !previos.peticiones) datos.peticiones = peticionesAuto(caso, datos);
     return datos;
   }
 
@@ -314,13 +331,15 @@ window.AJ = window.AJ || {};
       </section>
       <div class="layout-form">
         <form id="formulario" class="formulario" novalidate>
+          <p class="leyenda-req">Las preguntas con <span class="req">*</span> son obligatorias. Las demás, solo si sabes la respuesta. Al final presiona <strong>"Crear mi documento"</strong>.</p>
           ${secciones.map((s, i) => `<fieldset class="bloque" id="sec-${s.id}"><legend><span class="num">${i + 1}</span>${esc(s.titulo)}</legend><p class="bloque-ayuda">${esc(s.ayuda)}</p><div class="campos">${s.campos.map(c => renderCampo(c, estado.datos)).join('')}</div></fieldset>`).join('')}
+          <label class="opcion recordar"><input type="checkbox" id="recordar" ${almacen.leer('aj_misdatos', null) ? 'checked' : ''}><span>Recordar mis datos en este computador para la próxima vez (no lo marques si el computador es de una biblioteca, un colegio o un café internet)</span></label>
           <div class="acciones-form">
-            <label class="opcion recordar"><input type="checkbox" id="recordar" ${almacen.leer('aj_misdatos', null) ? 'checked' : ''}><span>Recordar mis datos personales en este dispositivo</span></label>
-            <button type="submit" class="btn btn-primario btn-grande">${icono('documento')} Generar documento</button>
+            <p class="acciones-ayuda">Cuando termines de responder, presiona este botón. Si falta algo obligatorio, te lo mostramos en rojo.</p>
+            <button type="submit" class="btn btn-primario btn-grande">${icono('documento')} Crear mi documento</button>
           </div>
         </form>
-        <aside class="previa" id="previa"><div class="previa-cab"><strong>Vista previa</strong><span>Se actualiza mientras escribes</span></div><div class="hoja" id="hoja-previa"></div></aside>
+        <aside class="previa" id="previa"><div class="previa-cab"><strong>Borrador</strong><span>Así va quedando. Para terminar, presiona "Crear mi documento" al final del formulario.</span></div><div class="hoja" id="hoja-previa"></div></aside>
       </div>`;
 
     const form = $('#formulario');
@@ -337,6 +356,10 @@ window.AJ = window.AJ || {};
       else if (c.tipo === 'radio') { if (t.checked) estado.datos[t.name] = t.value; }
       else estado.datos[t.name] = t.value;
       if (t.name === 'entidadNombre') { const cat = AJ.entidades.categoriaDeNombre(t.value); if (cat) { estado.datos.categoria = cat; const sel = $('#f-categoria', form); if (sel) sel.value = cat; } }
+      if (CAMPOS_DECIDEN.has(t.name)) {
+        estado.datos.peticiones = peticionesAuto(caso, estado.datos);
+        $$('input[name="peticiones"]', form).forEach(i => { i.checked = estado.datos.peticiones.includes(i.value); });
+      }
       const wrap = t.closest('.campo'); if (wrap) { wrap.classList.remove('invalido'); const err = $('.error', wrap); if (err) err.hidden = true; }
       actualizarVisibilidad(); previa();
     }
@@ -378,45 +401,62 @@ window.AJ = window.AJ || {};
     if (!estado.caso || !estado.generado) { ir('catalogo'); return; }
     const caso = estado.caso, tipo = AJ.tipos[caso.tipo], d = estado.datos;
     const cat = AJ.entidades.categoria(d.categoria);
+    const hoy = R.hoy();
     const advertencias = [];
     if (d.modo === 'anonimo') advertencias.push('Presentaste el documento de forma anónima: la entidad puede pedir identificación para resolver asuntos personales. Para quejas de interés general el anonimato es válido si aportas pruebas.');
     if (caso.tipo === 'tutela' && d.otraTutela === 'si') advertencias.push('Indicaste que ya presentaste otra tutela por los mismos hechos. Si ganaste y no cumplen, usa el incidente de desacato; si la perdiste, solo puedes volver a presentarla con hechos nuevos.');
-    if (caso.tipo === 'tutela' && d.yaPedi === 'no' && ['tut_peticion'].includes(caso.id)) advertencias.push('Para esta tutela es indispensable anexar la prueba de que radicaste el derecho de petición.');
+    if (caso.id === 'tut_peticion') {
+      if (d.medio === 'sin_prueba') advertencias.push('No tienes prueba de que entregaste la petición (sello, radicado o correo). Sin esa prueba el juez casi siempre niega la tutela: vuelve a presentar la petición pidiendo sello, o envíala por correo, y espera el plazo.');
+      const op = (AJ.camposDe('tut_peticion', 'tipoPeticion').opciones.find(o => o.v === d.tipoPeticion) || { dias: 15 });
+      const f = AJ.festivos.parseISO(d.fechaPeticion);
+      if (f) { const venc = AJ.festivos.sumarDiasHabiles(f, op.dias); if (venc >= hoy) advertencias.push(`Todavía no se vence el plazo de la entidad: tienen hasta el ${R.fechaLarga(venc)} para responder. Si presentas la tutela antes, el juez la negará. Guarda este borrador en "Mis documentos" y preséntala a partir del día siguiente a esa fecha.`); }
+    }
+    if (caso.id === 'impugnacion' && d.fechaNotif) { const f = AJ.festivos.parseISO(d.fechaNotif); if (f && AJ.festivos.diasHabilesEntre(f, hoy) > 3) advertencias.push('Ya pasaron más de 3 días hábiles desde que te notificaron el fallo. Es probable que el juez rechace la impugnación por tardía. Acude hoy mismo a la Personería o la Defensoría para que te orienten.'); }
+    if (caso.id === 'rec_reposicion' && d.fechaNotif) { const f = AJ.festivos.parseISO(d.fechaNotif); if (f && AJ.festivos.diasHabilesEntre(f, hoy) > 10) advertencias.push('Ya pasaron más de 10 días hábiles desde la notificación: la entidad puede rechazar el recurso por extemporáneo. Si nunca te notificaron en debida forma, dilo expresamente en el recurso (el plazo solo corre desde la notificación correcta).'); }
+    if (caso.id === 'rec_spd' && d.fechaNotif) { const f = AJ.festivos.parseISO(d.fechaNotif); if (f && AJ.festivos.diasHabilesEntre(f, hoy) > 5) advertencias.push('Ya pasaron más de 5 días hábiles desde que conociste la respuesta: la empresa puede rechazar el recurso por tardío. Puedes presentar una nueva reclamación sobre las facturas siguientes.'); }
     if (caso.id === 'tut_habeas_data' && d.reclamo === 'no') advertencias.push('Antes de la tutela por hábeas data debes presentar el reclamo a la entidad y esperar 15 días hábiles.');
+
+    const primera = (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v) && !o.fijo) || (caso.peticiones || []).find(o => (d.peticiones || []).includes(o.v));
+    const simple = `Este documento le pide a <strong>${esc(d.entidadNombre || 'la entidad')}</strong> ${primera ? esc(primera.t.replace(/^Que /, 'que ').replace(/^Mis /, 'lo que escribiste: ')) : 'lo que escribiste en el formulario'}.${caso.guia && caso.guia.plazo ? ` ${caso.tipo === 'tutela' ? 'El juez tiene hasta 10 días para decidir' : `Tienen ${esc(plazoCorto(caso))} para responder`}.` : ''} Tú solo tienes que firmarlo con tu nombre y entregarlo (abajo te decimos dónde).`;
 
     main.innerHTML = `
       <section class="seccion doc-cab">
         <a class="volver" href="#caso/${caso.id}">${icono('volver')} Volver a editar</a>
-        <h1>${esc(tipo.nombre)} lista para ${caso.tipo === 'tutela' ? 'radicar' : 'enviar'}</h1>
-        <p class="resumen">Revisa el texto. Puedes volver a editar, imprimirlo, guardarlo como PDF, descargarlo en Word o copiarlo.</p>
+        <h1>Tu documento está listo</h1>
+        <div class="simple">${icono('check')}<p>${simple}</p></div>
         <div class="acciones">
-          <button class="btn btn-primario" id="b-imprimir">${icono('imprimir')} Imprimir / Guardar PDF</button>
-          <button class="btn" id="b-word">${icono('descargar')} Descargar Word</button>
-          <button class="btn" id="b-txt">${icono('descargar')} Descargar texto</button>
+          <button class="btn btn-primario" id="b-imprimir">${icono('imprimir')} Guardar PDF / Imprimir</button>
+          <button class="btn" id="b-compartir" hidden>${icono('flecha')} Compartir</button>
+          <button class="btn" id="b-word">${icono('descargar')} Descargar en Word</button>
           <button class="btn" id="b-copiar">${icono('copiar')} Copiar texto</button>
-          <button class="btn" id="b-guardar">${icono('guardar')} ${estado.idGuardado ? 'Actualizar en mis documentos' : 'Guardar en mis documentos'}</button>
+          <button class="btn" id="b-guardar">${icono('guardar')} ${estado.idGuardado ? 'Actualizar aquí (solo en este navegador)' : 'Guardar aquí (solo en este navegador)'}</button>
+          <button class="btn btn-mini" id="b-txt">${icono('descargar')} Texto simple (.txt)</button>
         </div>
+        <p class="ayuda">En el celular: al presionar "Guardar PDF / Imprimir", en la ventana que se abre elige "Guardar como PDF". Luego puedes enviarlo por WhatsApp o correo.</p>
         ${advertencias.map(a => `<div class="nota alerta">${icono('alerta')}<p>${esc(a)}</p></div>`).join('')}
       </section>
       <div class="layout-doc">
-        <div class="hoja hoja-final" id="hoja">${estado.generado.html}</div>
+        <div>
+          <div class="hoja hoja-final" id="hoja">${estado.generado.html}</div>
+          <p class="ayuda doc-pie-ayuda">${esJudicialCaso(caso) ? '"E. S. D." significa "En su despacho" (fórmula de cortesía al juez). "(REPARTO)" significa que el sistema escoge el juzgado. ' : ''}"${d.genero === 'm' ? 'El suscrito' : d.genero === 'f' ? 'La suscrita' : 'El(la) suscrito(a)'}" es la persona que firma. Las normas citadas son las que obligan a la entidad; no tienes que entenderlas todas.</p>
+        </div>
         <aside class="guia-lateral">
           <h2>${icono('estrella')} ¿Qué sigue?</h2>
           <div class="guia-bloque">
             <h3>1. Firma y prepara</h3>
             <ul>
-              <li>Imprime o guarda el PDF y <strong>firma</strong> donde está la línea (si lo envías por correo, basta con escribir tu nombre; la Ley 2213 de 2022 no exige firma manuscrita en trámites judiciales).</li>
-              <li>Anexa copia de tu cédula y los documentos marcados.</li>
+              <li>Imprime o guarda el PDF y <strong>firma</strong> donde está la línea. Si lo envías por correo o por internet, basta con tu nombre escrito: la Ley 2213 de 2022 no exige firma a mano en trámites judiciales.</li>
+              <li>Junta la copia de tu cédula y los papeles que marcaste.</li>
               <li>Guarda una copia completa para ti.</li>
             </ul>
           </div>
           <div class="guia-bloque">
-            <h3>2. Dónde presentarlo</h3>
+            <h3>2. Dónde entregarlo (a eso se le dice "radicar")</h3>
             ${dondeRadicar(caso, d, cat)}
           </div>
           <div class="guia-bloque">
-            <h3>3. Plazo para que respondan</h3>
-            <label class="etiqueta" for="fecha-radicacion">Fecha en que lo radicas</label>
+            <h3>3. Hasta cuándo tienen para responder</h3>
+            <label class="etiqueta" for="fecha-radicacion">Fecha en que lo entregas (radicas)</label>
             <input type="date" id="fecha-radicacion" value="${hoyISO()}">
             <div id="plazo-resultado" class="plazo"></div>
           </div>
@@ -440,6 +480,16 @@ window.AJ = window.AJ || {};
     $('#fecha-radicacion').addEventListener('change', pintarPlazo); pintarPlazo();
 
     $('#b-imprimir').addEventListener('click', () => window.print());
+    if (navigator.share) {
+      const bc = $('#b-compartir'); bc.hidden = false;
+      bc.addEventListener('click', async () => {
+        try {
+          const archivo = new File(['﻿' + estado.generado.texto], nombreArchivo('txt'), { type: 'text/plain' });
+          if (navigator.canShare && navigator.canShare({ files: [archivo] })) await navigator.share({ title: tipo.titulo, files: [archivo] });
+          else await navigator.share({ title: tipo.titulo, text: estado.generado.texto });
+        } catch (e) { if (e && e.name !== 'AbortError') aviso('No se pudo compartir. Usa "Copiar texto" y pégalo en un mensaje.', 'error'); }
+      });
+    }
     $('#b-word').addEventListener('click', () => descargar(nombreArchivo('doc'), '﻿' + AJ.motor.aWord(estado.generado.html, tipo.titulo), 'application/msword'));
     $('#b-txt').addEventListener('click', () => descargar(nombreArchivo('txt'), '﻿' + estado.generado.texto, 'text/plain;charset=utf-8'));
     $('#b-copiar').addEventListener('click', async () => {
@@ -456,19 +506,26 @@ window.AJ = window.AJ || {};
     });
   }
 
+  function esJudicialCaso(caso) { return ['tutela', 'desacato', 'impugnacion'].includes(caso.tipo); }
+
   function dondeRadicar(caso, d, cat) {
     const E = esc(d.entidadNombre || 'la entidad');
-    if (caso.tipo === 'tutela') return `<ul>
-      <li><strong>Por internet:</strong> <a href="https://procesojudicial.ramajudicial.gov.co/TutelaEnLinea" target="_blank" rel="noopener">Tutela en Línea</a> (Rama Judicial), gratis y las 24 horas. Sube el PDF firmado y los anexos.</li>
-      <li><strong>Presencial:</strong> Oficina Judicial de Reparto de ${esc(d.entidadCiudad || d.ciudad || 'tu ciudad')} (en el palacio de justicia). Lleva original y una copia.</li>
-      <li>Según las reglas de reparto, por ser ${esc(cat.nombre.toLowerCase())}, le corresponde a un <strong>${esc(R.juezTutela(d).replace(' (REPARTO)', '').toLowerCase())}</strong>; el sistema la asigna automáticamente y ningún juez puede rechazarla por reparto.</li>
+    const ciudad = esc(d.ciudad || d.entidadCiudad || 'tu municipio');
+    if (caso.tipo === 'tutela') {
+      const juez = AJ.entidades.categoria(d.categoria).juez;
+      const quien = juez === 'circuito' ? 'un juez del circuito' : juez === 'tribunal' ? 'un magistrado del tribunal' : 'un juez municipal';
+      return `<ul>
+      <li><strong>Por internet:</strong> <a href="https://procesojudicial.ramajudicial.gov.co/TutelaEnLinea" target="_blank" rel="noopener">Tutela en Línea</a> (Rama Judicial), gratis, las 24 horas, también desde el celular. Guarda este documento como PDF y súbelo con las fotos de la cédula y de los papeles. No necesitas firma a mano: basta con tu nombre escrito (Ley 2213 de 2022). Te llegará un correo con el juzgado asignado: revisa también la carpeta de spam.</li>
+      <li><strong>En persona:</strong> Oficina Judicial de Reparto de ${ciudad} (en el palacio de justicia o en el juzgado del pueblo). La tutela se presenta donde vives tú, aunque la entidad quede en otra ciudad. Lleva el original y una copia.</li>
+      <li>Como la tutela es contra ${esc(cat.nombre.split(' (')[0].toLowerCase().replace(/^eps,/, 'una EPS,').replace(/^una persona/, 'una persona'))}, la decide <strong>${quien} de ${ciudad}</strong>. El sistema escoge cuál; ningún juzgado puede negarse a recibirla.</li>
       <li>Si necesitas ayuda, la <strong>Personería</strong> de tu municipio la presenta contigo, gratis.</li></ul>`;
-    if (caso.tipo === 'desacato' || caso.tipo === 'impugnacion') return `<ul><li>Ante el <strong>mismo juzgado</strong> que falló la tutela: ${esc(d.juzgado || '')}. Envíalo al correo institucional del despacho (búscalo en www.ramajudicial.gov.co) citando el radicado, o radícalo en la secretaría del juzgado.</li>${caso.tipo === 'impugnacion' ? '<li>Recuerda: solo tienes <strong>3 días hábiles</strong> desde la notificación.</li>' : ''}</ul>`;
+    }
+    if (caso.tipo === 'desacato' || caso.tipo === 'impugnacion') return `<ul><li>Ante el <strong>mismo juzgado</strong> que falló la tutela: ${esc(d.juzgado || '')}. Envíalo al correo institucional del despacho (búscalo en www.ramajudicial.gov.co) citando el radicado, o entrégalo en la secretaría del juzgado.</li>${caso.tipo === 'impugnacion' ? '<li>Recuerda: solo tienes <strong>3 días hábiles</strong> desde que te notificaron.</li>' : ''}</ul>`;
     if (caso.tipo === 'familia') return `<ul><li>En la <strong>Comisaría de Familia</strong> de tu municipio o localidad (también en Casas de Justicia) o en el Centro Zonal del ICBF. Atienden sin cita en la mayoría de casos.</li><li>Si hay peligro inmediato: Policía 123, Línea 155 (mujeres), Línea 141 (niños).</li></ul>`;
     return `<ul>
-      <li><strong>Ventanilla de radicación</strong> de ${E}: lleva dos copias y pide sello de recibido con fecha en la tuya.</li>
-      <li><strong>Correo electrónico</strong> de PQRS o de notificaciones de la entidad (en su página web, sección "Atención al ciudadano"). Guarda el correo enviado como prueba.</li>
-      <li><strong>Página web</strong>: muchas entidades tienen formulario de PQRS; guarda el número de radicado.</li>
+      <li><strong>En la ventanilla</strong> de ${E}: lleva dos copias y pide que le pongan sello con la fecha a la tuya. Ese sello es tu prueba de que lo entregaste.</li>
+      <li><strong>Por correo electrónico</strong> al correo de PQRS o de notificaciones de la entidad (está en su página web, sección "Atención al ciudadano"). Guarda el correo enviado como prueba.</li>
+      <li><strong>Por la página web</strong>: muchas entidades tienen formulario de PQRS; anota el número de radicado que te dan.</li>
       ${cat.naturaleza !== 'publica' ? '<li>Las empresas privadas también están obligadas a responder (artículos 32 y 33 de la Ley 1755 de 2015).</li>' : ''}</ul>`;
   }
 
@@ -484,14 +541,21 @@ window.AJ = window.AJ || {};
     const lista = almacen.leer('aj_documentos', []);
     main.innerHTML = `
       <section class="seccion">
-        <div class="seccion-cab"><h1>Mis documentos</h1><p>Se guardan únicamente en este navegador. Nadie más puede verlos. Si borras el historial del navegador, se pierden: exporta una copia.</p></div>
+        <div class="seccion-cab"><h1>Mis documentos</h1><p>Se guardan solo en este navegador, no en internet. Ojo: cualquier persona que use este mismo computador podría abrirlos. Si estás en un computador público (biblioteca, colegio, café internet), imprime o descarga tu documento y luego bórralo de aquí. Si borras el historial del navegador también se pierden: exporta una copia.</p></div>
         <div class="acciones">
           <button class="btn" id="b-exportar" ${lista.length ? '' : 'disabled'}>${icono('descargar')} Exportar copia de seguridad</button>
           <label class="btn">${icono('carpeta')} Importar copia <input type="file" id="i-importar" accept="application/json" hidden></label>
+          <button class="btn peligro" id="b-borrar-todo">Borrar todos mis datos de este computador</button>
         </div>
         ${lista.length ? `<div class="lista-docs">${lista.map(x => { const c = AJ.casos.find(k => k.id === x.casoId); return `<div class="doc-item" data-id="${x.id}"><div><strong>${esc(x.titulo)}</strong><span>${esc(c ? c.titulo : x.casoId)} · ${esc(R.fechaLarga(new Date(x.fecha)))}</span></div><div class="doc-botones"><button class="btn btn-mini" data-accion="abrir">${icono('editar')} Abrir</button><button class="btn btn-mini" data-accion="duplicar">${icono('copiar')} Duplicar</button><button class="btn btn-mini peligro" data-accion="eliminar">Eliminar</button></div></div>`; }).join('')}</div>` : `<p class="sin-resultados">Aún no has guardado documentos. Cuando generes uno, usa el botón "Guardar en mis documentos".</p>`}
       </section>`;
     $('#b-exportar').addEventListener('click', () => descargar(`asesor-juridico-documentos-${hoyISO()}.json`, JSON.stringify(lista, null, 2), 'application/json'));
+    $('#b-borrar-todo').addEventListener('click', e => {
+      const b = e.currentTarget;
+      if (!b.dataset.confirmar) { b.dataset.confirmar = '1'; b.textContent = '¿Seguro? Se borran documentos y datos guardados. Clic de nuevo'; return; }
+      try { localStorage.removeItem('aj_documentos'); localStorage.removeItem('aj_misdatos'); } catch (x) {}
+      aviso('Datos borrados de este computador.', 'ok'); render();
+    });
     $('#i-importar').addEventListener('change', e => {
       const f = e.target.files[0]; if (!f) return;
       const r = new FileReader();
@@ -524,7 +588,14 @@ window.AJ = window.AJ || {};
       { q: 'Un almacén no me responde por la garantía de un producto', id: 'queja_consumidor', t: 'Reclamación directa al vendedor' },
       { q: 'Sufro violencia en mi familia', id: 'fam_proteccion', t: 'Medida de protección' },
       { q: 'El padre o madre de mis hijos no da para su sostenimiento', id: 'fam_alimentos', t: 'Conciliación de cuota alimentaria' },
-      { q: 'Tengo un problema del barrio con la alcaldía (vías, basuras, ruido)', id: 'pet_municipio_servicios', t: 'Petición a la alcaldía o querella policiva' }
+      { q: 'Tengo un problema del barrio con la alcaldía (vías, basuras, ruido)', id: 'pet_municipio_servicios', t: 'Petición a la alcaldía o querella policiva' },
+      { q: 'Me quitaron el subsidio (Renta Ciudadana, Colombia Mayor, Familias en Acción) o no me ha llegado el giro', id: 'pet_prosperidad', t: 'Petición a Prosperidad Social (y recurso si hubo resolución)' },
+      { q: 'Mi hijo no tiene cupo en el colegio o lo expulsaron', id: 'tut_educacion', t: 'Tutela por el derecho a la educación' },
+      { q: 'No me entregan la historia clínica', id: 'pet_eps_historia', t: 'Petición de copia de la historia clínica' },
+      { q: 'Me cortaron el agua o la luz y en la casa hay niños, enfermos o personas mayores', id: 'tut_servicios_publicos', t: 'Tutela por corte de servicios públicos' },
+      { q: 'Migración no me da el PPT, la cita o el documento', id: 'pet_migracion', t: 'Petición a Migración Colombia' },
+      { q: 'Me llaman a cobrar todo el día, a mí o a mi familia', id: 'hd_supresion', t: 'Solicitud para que dejen de usar tus datos' },
+      { q: 'La Unidad de Víctimas no me da la ayuda ni me responde', id: 'pet_victimas', t: 'Petición a la Unidad para las Víctimas' }
     ];
     const glosario = [
       ['Accionante / accionado', 'Quien presenta la tutela / la entidad contra la que se presenta.'],
@@ -546,16 +617,16 @@ window.AJ = window.AJ || {};
     main.innerHTML = `
       <section class="seccion">
         <div class="seccion-cab"><h1>Guía práctica</h1><p>Lo que necesitas saber para usar bien estos documentos.</p></div>
-        <nav class="subnav"><a href="#guia/decidir">¿Qué documento necesito?</a><a href="#guia/pasos">Cómo radicar</a><a href="#guia/plazos">Calculadora de plazos</a><a href="#guia/glosario">Glosario</a><a href="#guia/directorio">Dónde pedir ayuda</a></nav>
+        <nav class="subnav"><a href="#guia/decidir">¿Qué documento necesito?</a><a href="#guia/pasos">Cómo entregarlo (radicar)</a><a href="#guia/plazos">Calculadora de plazos</a><a href="#guia/glosario">Glosario</a><a href="#guia/directorio">Dónde pedir ayuda</a></nav>
       </section>
       <section class="seccion" id="decidir"><h2>¿Qué documento necesito?</h2><p>Busca tu situación:</p>
         <div class="decidir">${decidir.map(x => `<a class="decidir-item" href="#caso/${x.id}"><span>${esc(x.q)}</span><strong>${icono('flecha')} ${esc(x.t)}</strong></a>`).join('')}</div>
         <p class="ayuda">Regla general: primero el <strong>derecho de petición</strong> (deja constancia y obliga a responder); si no responden o si hay urgencia de salud o de vida, la <strong>tutela</strong>; si ganas y no cumplen, el <strong>desacato</strong>.</p>
       </section>
-      <section class="seccion" id="pasos"><h2>Cómo radicar y qué guardar</h2>
+      <section class="seccion" id="pasos"><h2>Cómo entregarlo (radicar) y qué guardar</h2>
         <ol class="pasos">
           <li><strong>Imprime dos copias</strong> (o guarda el PDF). Firma con tu nombre y número de cédula.</li>
-          <li><strong>Radica</strong> en la ventanilla de la entidad y pide que sellen tu copia con fecha y número; o envíalo al correo de PQRS o de notificaciones judiciales (lo encuentras en la página web de la entidad). Guarda el correo enviado.</li>
+          <li><strong>Entrégalo</strong> en la ventanilla de la entidad (eso es "radicar") y pide que le pongan sello con la fecha y un número a tu copia: ese sello es tu prueba. O envíalo al correo de PQRS o de notificaciones de la entidad (lo encuentras en su página web) y guarda el correo enviado.</li>
           <li><strong>Tutelas:</strong> por internet en <a href="https://procesojudicial.ramajudicial.gov.co/TutelaEnLinea" target="_blank" rel="noopener">Tutela en Línea</a> o en la Oficina de Reparto. Te llegará un correo con el juzgado asignado y el radicado; revisa tu correo a diario, incluido el spam.</li>
           <li><strong>Cuenta el plazo</strong> con la calculadora de abajo. Anota la fecha de vencimiento.</li>
           <li><strong>Si no responden</strong>, genera la tutela por derecho de petición anexando tu copia radicada. Si no cumplen un fallo, el incidente de desacato.</li>
@@ -566,9 +637,9 @@ window.AJ = window.AJ || {};
         <div class="calculadora">
           <div class="campo media"><label class="etiqueta" for="c-fecha">Fecha de radicación</label><input type="date" id="c-fecha" value="${hoyISO()}"></div>
           <div class="campo media"><label class="etiqueta" for="c-plazo">Plazo</label><select id="c-plazo">
-            <option value="15h">15 días hábiles (petición general)</option><option value="10h">10 días hábiles (documentos e información)</option><option value="30h">30 días hábiles (consultas)</option>
-            <option value="10h">10 días hábiles (fallo de tutela / recursos CPACA)</option><option value="3h">3 días hábiles (impugnar tutela)</option><option value="5h">5 días hábiles (recurso servicios públicos)</option>
-            <option value="15h">15 días hábiles (reclamo servicios públicos, hábeas data, consumidor)</option><option value="2m">2 meses (pensión de sobrevivientes)</option><option value="4m">4 meses (pensión de vejez o invalidez)</option><option value="60h">60 días hábiles (inclusión en el RUV)</option>
+            <option value="15h-pet">15 días hábiles: derecho de petición normal</option><option value="10h-doc">10 días hábiles: copias o información</option><option value="30h-con">30 días hábiles: consultas</option>
+            <option value="10h-tut">10 días hábiles: el juez decide la tutela</option><option value="3h-imp">3 días hábiles: para impugnar un fallo de tutela</option><option value="10h-rec">10 días hábiles: para presentar recursos contra una resolución</option><option value="5h-spd">5 días hábiles: recurso contra la respuesta de servicios públicos</option>
+            <option value="15h-rec">15 días hábiles: reclamo a servicios públicos, Datacrédito, un banco o un almacén</option><option value="2m-sob">2 meses: pensión de sobrevivientes</option><option value="4m-vej">4 meses: pensión de vejez o invalidez</option><option value="60h-ruv">60 días hábiles: la Unidad de Víctimas decide si te incluye en el registro</option>
           </select></div>
           <div class="campo completa plazo" id="c-resultado"></div>
         </div>
@@ -580,7 +651,7 @@ window.AJ = window.AJ || {};
       </section>
       <section class="seccion nota-legal"><h2>Fuentes</h2><p>Constitución Política de 1991; Ley 1755 de 2015; Decreto 2591 de 1991; Decreto 1069 de 2015 (reparto de tutelas, modificado por el Decreto 333 de 2021); Ley 1751 de 2015; Ley 100 de 1993; Ley 1266 de 2008 y Ley 2157 de 2021; Ley 142 de 1994; Ley 1437 de 2011; Ley 1480 de 2011; Ley 1328 de 2009; Ley 1098 de 2006; Ley 294 de 1996; Ley 1448 de 2011; Ley 1801 de 2016; Código Sustantivo del Trabajo; sentencias de la Corte Constitucional citadas en cada documento. Cifras de tutelas: Consejo Superior de la Judicatura y Defensoría del Pueblo (2023-2025).</p></section>`;
     const calc = () => {
-      const [, n, u] = $('#c-plazo').value.match(/^(\d+)([hm])$/);
+      const [, n, u] = $('#c-plazo').value.match(/^(\d+)([hm])/);
       const desde = AJ.festivos.parseISO($('#c-fecha').value) || R.hoy();
       const vence = u === 'm' ? AJ.festivos.sumarMeses(desde, +n) : AJ.festivos.sumarDiasHabiles(desde, +n);
       $('#c-resultado').innerHTML = `<p>Vence el <strong>${esc(R.fechaLarga(vence))}</strong>. El plazo se cuenta desde el día siguiente a la radicación${u === 'h' ? ', sin sábados, domingos ni festivos' : ''}.</p>`;

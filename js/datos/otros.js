@@ -16,7 +16,7 @@ AJ.casos = AJ.casos || [];
     id: 'desacato', tipo: 'desacato', categoria: 'judicial',
     titulo: 'Incidente de desacato (ganaste la tutela y no cumplen)',
     resumen: 'El juez ordenó algo y la entidad no lo hizo en el plazo. Se presenta ante el mismo juez que falló la tutela; puede imponer arresto hasta de 6 meses y multa hasta de 20 salarios mínimos.',
-    palabras: ['desacato', 'incumplimiento', 'fallo', 'tutela', 'no cumplen', 'sanción', 'arresto', 'multa', 'juez'],
+    palabras: ['desacato', 'incumplimiento', 'fallo', 'tutela', 'no cumplen', 'arresto', 'juez', 'gané la tutela', 'no han cumplido'],
     destinatario: { categoria: 'eps', ejemploNombre: 'Ej.: Nueva EPS (la entidad que no cumple)', cargo: 'Representante legal' },
     campos: [
       { id: 'juzgado', tipo: 'texto', etiqueta: 'Juzgado que falló la tutela', ejemplo: 'Ej.: Juzgado 12 Civil Municipal de Medellín', requerido: true, ancho: 'completa' },
@@ -454,7 +454,7 @@ AJ.casos = AJ.casos || [];
       { id: 'direccionAgresor', tipo: 'texto', etiqueta: 'Dirección donde vive o trabaja el agresor', requerido: true, ancho: 'completa' },
       { id: 'tipoViolencia', tipo: 'checks', etiqueta: '¿Qué tipo de violencia?', requerido: true, opciones: [ { v: 'fisica', t: 'Física (golpes, empujones)', legal: 'violencia física' }, { v: 'psicologica', t: 'Psicológica (insultos, humillaciones, control)', legal: 'violencia psicológica' }, { v: 'amenazas', t: 'Amenazas de muerte o de daño', legal: 'amenazas contra la vida y la integridad' }, { v: 'sexual', t: 'Sexual', legal: 'violencia sexual' }, { v: 'economica', t: 'Económica (no deja trabajar, quita el dinero, no da para los hijos)', legal: 'violencia económica' }, { v: 'ninos', t: 'También contra los niños', legal: 'violencia contra los niños del hogar' } ] },
       { id: 'ultimoHecho', tipo: 'fecha', etiqueta: 'Fecha del último hecho', requerido: true, ancho: 'media' },
-      { id: 'convive', tipo: 'radio', etiqueta: '¿Vive contigo actualmente?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No' } ], valorInicial: 'si', ancho: 'media' },
+      { id: 'convive', tipo: 'radio', etiqueta: '¿Vive contigo actualmente?', opciones: [ { v: 'si', t: 'Sí' }, { v: 'no', t: 'No' } ], requerido: true, ancho: 'media' },
       { id: 'hechos', tipo: 'textarea', etiqueta: 'Describe los hechos (qué pasó, cuándo, dónde, quién vio)', requerido: true, filas: 5 },
       { id: 'medidas', tipo: 'checks', etiqueta: '¿Qué medidas necesitas?', requerido: true, opciones: [
         { v: 'desalojo', t: 'Que el agresor salga de la casa', legal: 'ordenar al agresor el desalojo de la casa de habitación que comparte con la víctima' },
