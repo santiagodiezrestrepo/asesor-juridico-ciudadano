@@ -111,6 +111,7 @@ window.AJ = window.AJ || {};
       case 'documento': vistaDocumento(main); break;
       case 'mis-documentos': vistaMisDocumentos(main); break;
       case 'guia': vistaGuia(main, arg); break;
+      case 'acerca': vistaAcerca(main); break;
       default: vistaInicio(main);
     }
   }
@@ -586,6 +587,49 @@ window.AJ = window.AJ || {};
     };
     $('#c-fecha').addEventListener('change', calc); $('#c-plazo').addEventListener('change', calc); calc();
     if (arg) { const el = document.getElementById(arg); if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 50); }
+  }
+
+  /* ---------- Vista: acerca de ---------- */
+  function vistaAcerca(main) {
+    main.innerHTML = `
+      <section class="seccion acerca">
+        <div class="acerca-cab">
+          <figure class="acerca-logo">
+            <img src="img/logo-suenomotora.png" alt="Logo de La Sueñomotora" onerror="this.closest('.acerca-logo').hidden = true">
+          </figure>
+          <div class="acerca-texto">
+            <p class="eyebrow">Una iniciativa de La Sueñomotora</p>
+            <h1>Acerca de esta plataforma</h1>
+            <p class="acerca-lead">La Sueñomotora es una fundación creada hace catorce años por Santiago Diez Restrepo y Juan Gonzalo Lalinde para llevar libros y computadores a las zonas más apartadas de Colombia: veredas, corregimientos y pueblos con dificultades de comunicación y marcados por el conflicto armado. En ese camino ha entregado más de mil bibliotecas en los lugares más lejanos del país.</p>
+            <p>En cada viaje hemos visto cómo las personas de estas comunidades son atropelladas en sus derechos: por otras personas, por empresas, por grupos armados, por instituciones del Estado y por la propia fuerza pública. Y hemos visto que muchas veces no se defienden porque nadie les ha dicho que pueden hacerlo, ni cómo.</p>
+            <p>Asesor Jurídico Ciudadano nace de esa experiencia. Es una herramienta para que la sociedad civil, desde los niños hasta los mayores, cualquiera que sepa usar un computador y tenga conexión a internet, pueda defender sus derechos y los de su familia, sus conocidos y su comunidad, con documentos claros, bien fundamentados en la ley y listos para presentar.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="seccion">
+        <div class="seccion-cab"><h2>Lo que creemos</h2></div>
+        <div class="grid-principios">
+          <div class="principio">${icono('libro')}<h3>El derecho se aprende usándolo</h3><p>Cada documento explica, en lenguaje común, qué norma protege a la persona, cuánto tiempo tiene la entidad para responder y qué sigue después. Quien presenta uno, aprende a presentar el siguiente y a ayudar a otros.</p></div>
+          <div class="principio">${icono('persona')}<h3>Para cualquier persona</h3><p>Sin registro, sin costo y sin palabras difíciles. Funciona en un computador de biblioteca, en un colegio rural o en el celular, con la misma conexión que se usa para leer el correo.</p></div>
+          <div class="principio">${icono('escudo')}<h3>Tus datos son tuyos</h3><p>Todo se procesa en tu navegador. Nombres, cédulas e historias no se envían a ningún servidor ni los conoce nadie más. Lo que guardes queda solo en tu dispositivo.</p></div>
+          <div class="principio">${icono('balanza')}<h3>Fundamentado en la ley colombiana</h3><p>Constitución, leyes, decretos, resoluciones y sentencias de la Corte Constitucional, citadas en cada documento y revisadas para mantenerlas vigentes.</p></div>
+        </div>
+      </section>
+
+      <section class="seccion">
+        <div class="seccion-cab"><h2>Cómo puedes ayudar</h2></div>
+        <ul class="lista-ayudar">
+          <li><strong>Úsala y compártela.</strong> Enséñale a alguien de tu familia, tu vereda o tu barrio a presentar su primer derecho de petición. Instálala como favorito en los computadores de la biblioteca o la escuela.</li>
+          <li><strong>Cuéntanos qué pasó.</strong> Si una entidad respondió, si un juez concedió la tutela o si algo del documento no sirvió, ese aprendizaje mejora la herramienta para los demás.</li>
+          <li><strong>Mejórala.</strong> El código es abierto: puedes proponer nuevos casos, corregir una norma o traducir las guías en <a href="https://github.com/santiagodiezrestrepo/asesor-juridico-ciudadano" target="_blank" rel="noopener">el repositorio del proyecto</a>.</li>
+        </ul>
+      </section>
+
+      <section class="seccion nota-legal">
+        <h2>Aviso</h2>
+        <p>Esta plataforma orienta y redacta documentos con base en la normativa vigente, pero no sustituye la valoración de un abogado en casos complejos ni constituye representación legal. Para acompañamiento gratuito acude a la Personería de tu municipio, a la Defensoría del Pueblo o a un consultorio jurídico universitario. Consulta la <a href="#guia/directorio">lista de entidades que ayudan sin costo</a>.</p>
+      </section>`;
   }
 
   /* ---------- Arranque ---------- */
