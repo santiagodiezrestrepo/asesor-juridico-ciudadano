@@ -52,6 +52,7 @@
   --hoja-fg: #121212;
   --sombra: 0 1px 2px rgba(14, 58, 98, .06), 0 8px 24px rgba(14, 58, 98, .08);
   --radio: 12px;
+  --mascota-fondo: transparent;
   --f-display: 'Nunito', 'Segoe UI', Arial, sans-serif;
   --f-cuerpo: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
   --f-doc: 'Tinos', 'Times New Roman', Times, serif;
@@ -60,7 +61,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f1a2a; --superficie: #162436; --superficie-2: #1d2f45; --fg: #e8eef5; --fg-suave: #a7b6c8; --borde: #2c3f57;
-    --acento: #2fc4bb; --acento-fuerte: #8fe0da; --acento-suave: #123a3d; --acento-texto: #06211f;
+    --acento: #2fc4bb; --acento-fuerte: #8fe0da; --acento-suave: #123a3d; --acento-texto: #06211f; --mascota-fondo: #e8eef5;
     --dorado: #e3b64f; --dorado-suave: #3a2f10; --peligro: #f28b82; --peligro-suave: #4a1f1b; --ok: #5bd39a;
     --hoja: #f8f8f3; --hoja-fg: #121212; --sombra: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
     color-scheme: dark;
@@ -68,7 +69,7 @@
 }
 :root[data-theme="dark"] {
   --bg: #0f1a2a; --superficie: #162436; --superficie-2: #1d2f45; --fg: #e8eef5; --fg-suave: #a7b6c8; --borde: #2c3f57;
-  --acento: #2fc4bb; --acento-fuerte: #8fe0da; --acento-suave: #123a3d; --acento-texto: #06211f;
+  --acento: #2fc4bb; --acento-fuerte: #8fe0da; --acento-suave: #123a3d; --acento-texto: #06211f; --mascota-fondo: #e8eef5;
   --dorado: #e3b64f; --dorado-suave: #3a2f10; --peligro: #f28b82; --peligro-suave: #4a1f1b; --ok: #5bd39a;
   --hoja: #f8f8f3; --hoja-fg: #121212; --sombra: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
   color-scheme: dark;
@@ -94,7 +95,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .cabecera-in { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .marca { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg); font-family: var(--f-display); font-weight: 750; font-size: 1.15rem; letter-spacing: -.01em; }
 .marca .logo { width: 46px; height: 46px; display: grid; place-items: center; }
-.marca .logo img { width: 46px; height: 46px; }
+.marca .logo img { width: 46px; height: 46px; background: var(--mascota-fondo); border-radius: 50%; }
 .marca .logo .ico { width: 22px; height: 22px; }
 .marca small { display: block; font-family: var(--f-cuerpo); font-weight: 400; font-size: .8rem; color: var(--fg-suave); }
 .nav { display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap; }
@@ -122,7 +123,7 @@ main { max-width: 1180px; margin: 0 auto; padding-block: 8px 48px; padding-inlin
 .hero-confianza { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px 0 0; padding: 0; list-style: none; color: var(--fg-suave); font-size: .98rem; }
 .hero-confianza li::before { content: '\2713  '; color: var(--acento); font-weight: 800; }
 .hero-arte { margin: 0; display: grid; justify-items: center; gap: 6px; }
-.hero-arte img { width: 190px; max-width: 100%; height: auto; }
+.hero-arte img { width: 190px; max-width: 100%; height: auto; background: var(--mascota-fondo); border-radius: 50%; padding: 10px; }
 @media (min-width: 760px) { .hero-arte img { width: 280px; } }
 .hero-arte .mapa { fill: var(--acento-suave); stroke: var(--acento); stroke-width: 2; stroke-linejoin: round; }
 .hero-arte .gente { stroke: var(--acento-fuerte); }
