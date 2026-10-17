@@ -20,7 +20,7 @@ const ctx = { console, Date, Math, String, Number, Array, Object, JSON, RegExp, 
 ctx.window = ctx; ctx.document = { addEventListener() {} };
 vm.createContext(ctx);
 const html0 = fs.readFileSync(path.join(raiz, 'index.html'), 'utf8');
-[...html0.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]).filter(f => f !== 'js/app.js').forEach(f => vm.runInContext(fs.readFileSync(path.join(raiz, f), 'utf8'), ctx, { filename: f }));
+[...html0.matchAll(/<script src="([^"?]+)(?:\?[^"]*)?"><\/script>/g)].map(m => m[1]).filter(f => f !== 'js/app.js').forEach(f => vm.runInContext(fs.readFileSync(path.join(raiz, f), 'utf8'), ctx, { filename: f }));
 const AJ = ctx.AJ;
 const casos = AJ.casos.filter(c => !c.retirado);
 
@@ -59,7 +59,7 @@ const CABECERA = `
   <header class="cabecera">
     <div class="cabecera-in">
       <a class="marca" href="/">
-        <span class="logo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 21h14M3 8l9-2 9 2"/><path d="M3 8l3 7a3 3 0 0 0 6 0L9 8M15 8l3 7a3 3 0 0 0 6 0l-3-7"/></svg></span>
+        <span class="logo"><img src="/img/logo-asesor.svg" alt="" width="46" height="46"></span>
         <span>Asesor Jurídico Ciudadano<small>midefensor.org · Colombia · ${casos.length} plantillas gratis</small></span>
       </a>
       <nav class="nav" aria-label="Principal">
@@ -102,8 +102,10 @@ function pagina({ ruta, titulo, descripcion, cuerpo, jsonld, migas }) {
   <meta property="og:url" content="${url}">
   <meta property="og:image" content="${SITIO}/img/portada.png">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Nunito:wght@700;800;900&family=Tinos:ital,wght@0,400;0,700;1,400&display=swap">
   <link rel="stylesheet" href="/css/estilos.css">
-  <link rel="icon" href="/img/icono-192.png">
+  <link rel="icon" href="/img/favicon.png" type="image/png">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0f7a5a">
   <script type="application/ld+json">${JSON.stringify(ld)}</script>

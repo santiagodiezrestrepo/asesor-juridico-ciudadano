@@ -154,25 +154,16 @@ window.AJ = window.AJ || {};
       <section class="hero">
         <div class="hero-grid">
           <div class="hero-bloque">
-            <p class="eyebrow">Gratis · Sin abogado · Tus datos no salen de tu dispositivo</p>
             <h1>Defiende tus derechos con un documento legal bien hecho</h1>
-            <p class="hero-texto">Escoge tu situación, responde preguntas en lenguaje sencillo y obtén un derecho de petición, una tutela o el documento que necesites, con el lenguaje jurídico y las normas correctas. Listo para imprimir o enviar.</p>
+            <p class="hero-texto">Cuéntanos qué te pasó respondiendo preguntas sencillas. Nosotros redactamos la tutela, el derecho de petición o el documento que necesites, con las normas correctas y listo para imprimir o enviar.</p>
+            <div class="hero-acciones">
+              <a class="btn btn-primario btn-grande" href="#catalogo">Buscar mi caso</a>
+              <a class="btn btn-grande" href="#guia/decidir">No sé qué documento necesito</a>
+            </div>
+            <ul class="hero-confianza"><li>Gratis y sin registro</li><li>Sin abogado</li><li>Tus datos no salen de tu dispositivo</li><li>Funciona sin internet</li></ul>
           </div>
-          <figure class="hero-arte" aria-hidden="false">
-            <svg viewBox="0 0 140 190" role="img" aria-label="Silueta de Colombia con ciudadanos levantando la mano">
-              <path class="mapa" d="M80 2 L75 4 L67 12 L53 15 L46 18 L38 24 L35 33 L26 44 L24 50 L18 43 L13 60 L16 78 L22 96 L2 119 L2 123 L18 134 L28 135 L41 140 L100 185 L106 150 L101 126 L131 119 L122 107 L128 92 L126 70 L106 72 L91 60 L77 62 L72 52 L73 46 L63 38 L66 29 L74 16 L85 9 Z"/>
-              <g class="gente" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <circle class="cabeza" cx="68" cy="68" r="8"/>
-                <path stroke-width="5" d="M68 78v30M68 108l-9 18M68 108l9 18M68 84l-15 11M68 84l17-16"/>
-                <circle class="cabeza" cx="87" cy="66" r="4"/>
-                <circle class="cabeza" cx="44" cy="90" r="6"/>
-                <path stroke-width="4.5" d="M44 97v22M44 119l-6 12M44 119l6 12M44 102l-11-12M44 102l11 6"/>
-                <circle class="cabeza" cx="32" cy="76" r="3.4"/>
-                <circle class="cabeza" cx="94" cy="96" r="6"/>
-                <path stroke-width="4.5" d="M94 103v22M94 125l-6 12M94 125l6 12M94 108l12-12M94 108l-11 7"/>
-                <circle class="cabeza" cx="107" cy="83" r="3.4"/>
-              </g>
-            </svg>
+          <figure class="hero-arte">
+            <img src="img/logo-asesor.svg" alt="Ciudadana con un lápiz y un escudo frente al mapa de Colombia" width="280" height="280">
           </figure>
         </div>
         <form class="buscador" id="buscador-inicio" role="search">

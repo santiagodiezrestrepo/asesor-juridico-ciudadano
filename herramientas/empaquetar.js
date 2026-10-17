@@ -21,13 +21,15 @@ let html = leer('index.html');
 const css = leer('css/estilos.css');
 const logo = 'data:image/webp;base64,' + fs.readFileSync(path.join(raiz, 'img/logo-suenomotora.webp')).toString('base64');
 const RE_LOGO = /img\/logo-suenomotora\.webp(\?v=\d+)?/g;
+const logoSvg = 'data:image/svg+xml;base64,' + fs.readFileSync(path.join(raiz, 'img/logo-asesor.svg')).toString('base64');
+const RE_LOGO2 = /img\/logo-asesor\.svg(\?v=\d+)?/g;
 
 // 1. Scripts en el mismo orden que index.html. El código va en base64 dentro de la página:
 //    así ninguna secuencia del código ("</script", "<!--", "<script") puede confundir al
 //    analizador HTML, y los acentos se conservan (UTF-8).
-const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map(m => m[1]);
+const scripts = [...html.matchAll(/<script src="([^"?]+)(?:\?[^"]*)?"><\/script>/g)].map(m => m[1]);
 let js = scripts.map(s => `/* ===== ${s} ===== */\n${leer(s)}`).join('\n;\n');
-js = js.replace(RE_LOGO, logo);
+js = js.replace(RE_LOGO, logo).replace(RE_LOGO2, logoSvg);
 const jsB64 = Buffer.from(js, 'utf8').toString('base64');
 const cargador = `(function(){var b=atob(document.getElementById('aj-codigo').textContent.replace(/\\s+/g,''));var u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);var s=document.createElement('script');s.textContent=new TextDecoder('utf-8').decode(u);document.head.appendChild(s);})();`;
 
@@ -37,8 +39,9 @@ html = html
   .replace(/\s*<link rel="stylesheet" href="https:\/\/fonts[^>]*>/g, '')
   .replace(/\s*<link rel="manifest"[^>]*>/g, '')
   .replace(/\s*<link rel="apple-touch-icon"[^>]*>/g, '')
-  .replace(/<link rel="stylesheet" href="css\/estilos.css">/, `<style>\n${css}\n</style>`)
+  .replace(/<link rel="stylesheet" href="css\/estilos.css(\?[^"]*)?">/, `<style>\n${css}\n</style>`)
   .replace(RE_LOGO, logo)
+  .replace(RE_LOGO2, logoSvg)
   .replace(/<title>Asesor Jurídico Ciudadano<\/title>/, '<title>Asesor Jurídico Ciudadano (sin internet)</title>')
   .replace(/(\s*<script src="[^"]+"><\/script>)+/, `\n  <script>window.AJ_SIN_INTERNET = true; window.AJ_VERSION = '${new Date().toISOString().slice(0, 10)}';</script>\n  <script type="text/plain" id="aj-codigo">\n${jsB64.replace(/.{120}/g, '$&\n')}\n  </script>\n  <script>${cargador}</script>`);
 
