@@ -5,7 +5,7 @@
    vuelva a haber red).
    Al publicar cambios, sube el número de VERSION.
    ============================================================ */
-const VERSION = 'aj-2026-10-17-5';
+const VERSION = 'aj-2026-10-17-6';
 const ARCHIVOS = [
   './', './index.html', './manifest.webmanifest', './css/estilos.css',
   './js/festivos.js', './js/datos/normas.js', './js/datos/entidades.js', './js/datos/comunes.js',

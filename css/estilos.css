@@ -346,3 +346,9 @@ details summary { cursor: pointer; font-weight: 600; margin: 10px 0; }
 .pie-marca .logo-mascota { height: 40px; width: auto; }
 .cabecera .nav a.destacado { background: var(--acento); color: #fff; }
 .cabecera .nav a.destacado:hover { background: var(--acento-fuerte); color: #fff; }
+
+/* Cabecera en pantallas pequeñas: marca y botón de tema en la primera fila, menú debajo */
+@media (max-width: 759px) {
+  .cabecera .btn-tema { order: 2; margin-left: auto; }
+  .cabecera .nav { order: 3; flex-basis: 100%; margin-left: 0; }
+}
