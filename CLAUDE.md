@@ -1,7 +1,7 @@
 # Asesor Jurídico Ciudadano
 
 ## Qué es
-Web estática (HTML/CSS/JS puro, PWA con `sw.js`) para que cualquier persona en Colombia genere documentos legales (tutelas, derechos de petición, desacatos, hábeas data, etc.) respondiendo preguntas en lenguaje común. Publicada en GitHub Pages: https://santiagodiezrestrepo.github.io/asesor-juridico-ciudadano/
+Web estática (HTML/CSS/JS puro, PWA con `sw.js`) para que cualquier persona en Colombia genere documentos legales (tutelas, derechos de petición, desacatos, hábeas data, etc.) respondiendo preguntas en lenguaje común. Publicada en GitHub Pages: https://midefensor.org/
 
 ## Cómo se corre
 Abrir `index.html` con doble clic, o:

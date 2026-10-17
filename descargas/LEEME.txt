@@ -6,7 +6,7 @@ Se abre en cualquier navegador (Chrome, Edge, Firefox) y funciona sin conexión 
 Para imprimir o guardar en PDF: dentro de la plataforma, botón "Guardar PDF / Imprimir".
 Los documentos guardados quedan en el navegador de ese computador ("Mis documentos").
 
-Generado el 8/10/2026 a partir de https://santiagodiezrestrepo.github.io/asesor-juridico-ciudadano/
+Generado el 17/10/2026 a partir de https://midefensor.org/
 Para actualizarla, vuelve a descargar el archivo desde esa página (sección "Acerca de" → "Usar sin internet").
 
 Una iniciativa de la Fundación La Sueñomotora. Herramienta gratuita de orientación general: no presta asesoría jurídica.

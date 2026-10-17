@@ -53,7 +53,7 @@ fs.writeFileSync(path.join(salidaDir, 'LEEME.txt'), [
   'Para imprimir o guardar en PDF: dentro de la plataforma, botón "Guardar PDF / Imprimir".',
   'Los documentos guardados quedan en el navegador de ese computador ("Mis documentos").',
   '',
-  `Generado el ${new Date().toLocaleDateString('es-CO')} a partir de https://santiagodiezrestrepo.github.io/asesor-juridico-ciudadano/`,
+  `Generado el ${new Date().toLocaleDateString('es-CO')} a partir de https://midefensor.org/`,
   'Para actualizarla, vuelve a descargar el archivo desde esa página (sección "Acerca de" → "Usar sin internet").',
   '',
   'Una iniciativa de la Fundación La Sueñomotora. Herramienta gratuita de orientación general: no presta asesoría jurídica.'

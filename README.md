@@ -1,6 +1,6 @@
 # Asesor Jurídico Ciudadano
 
-**Úsala en línea:** https://santiagodiezrestrepo.github.io/asesor-juridico-ciudadano/
+**Úsala en línea:** https://midefensor.org/
 
 Plataforma web gratuita para que cualquier persona en Colombia genere, sin abogado, documentos legales bien fundamentados: derechos de petición, acciones de tutela, incidentes de desacato, impugnaciones, recursos, quejas ante superintendencias, reclamos de hábeas data y solicitudes ante comisarías de familia.
 
