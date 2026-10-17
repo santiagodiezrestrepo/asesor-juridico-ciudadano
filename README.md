@@ -40,6 +40,7 @@ y entra a `http://localhost:8791`.
 | `js/datos/mujer.js` | Módulo "Mujeres y madres cabeza de familia": denuncia penal por violencia, tutela por falta de protección, declaración juramentada de madre cabeza de familia, petición de prioridad como madre cabeza de familia, licencia de maternidad, acoso laboral o sexual, salud sexual y reproductiva, custodia y visitas (8 casos; el módulo agrupa además la cuota alimentaria, la medida de protección y la tutela por despido en embarazo) |
 | `js/datos/sinonimos.js` | Palabras y frases cotidianas por caso para el buscador |
 | `sw.js`, `manifest.webmanifest` | Funcionamiento sin conexión e instalación como aplicación (PWA) |
+| `herramientas/generar-paginas.js` | Genera las páginas estáticas para buscadores (`plantillas/`, guías `plantilla-tutela/`, `tutela-eps/`, `ejemplo-derecho-de-peticion/`, `accion-de-tutela/`), `sitemap.xml`, `robots.txt` y `llms.txt`. Correrlo tras cambiar casos |
 | `herramientas/empaquetar.js` | Genera `descargas/asesor-juridico-ciudadano-sin-internet.html`: la plataforma completa en un solo archivo para copiar en computadores sin internet |
 | `docs/ANALISIS.md` | Análisis del problema, cifras, marco jurídico y decisiones de diseño |
 
