@@ -1,0 +1,10 @@
+{
+  // Despliegue en Cloudflare (Workers con archivos estáticos). No hay código de servidor: solo se sirven los archivos del sitio.
+  "name": "asesor-juridico-ciudadano",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./",
+    "not_found_handling": "single-page-application",
+    "html_handling": "auto-trailing-slash"
+  }
+}
